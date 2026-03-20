@@ -48,7 +48,7 @@ export default function MarksEntry() {
       term: filters.term,
       exam_type: filters.exam_type,
     }),
-    enabled: !!user?.email && !!profile,
+    enabled: !!user?.email,
   });
 
   const addMutation = useMutation({
