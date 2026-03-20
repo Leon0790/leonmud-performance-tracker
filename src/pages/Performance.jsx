@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import MarksFilters from '../components/marks/MarksFilters';
 import LearnerGraph from '../components/performance/LearnerGraph';
 import ClassGraph from '../components/performance/ClassGraph';
@@ -20,6 +22,20 @@ export default function Performance() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: teachers = [], isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['teacher-profile'],
+    queryFn: () => base44.entities.Teacher.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const profile = teachers[0] || null;
+
+  useEffect(() => {
+    if (profile?.class_grade) {
+      setFilters((prev) => ({ ...prev, grade: profile.class_grade }));
+    }
+  }, [profile?.class_grade]);
+
   const { data: students = [], isLoading } = useQuery({
     queryKey: ['perf-students', filters, user?.email],
     queryFn: () => base44.entities.Student.filter({
@@ -28,7 +44,7 @@ export default function Performance() {
       term: filters.term,
       exam_type: filters.exam_type,
     }),
-    enabled: !!user?.email,
+    enabled: !!user?.email && !!profile,
   });
 
   return (
