@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserPlus, ClipboardList } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { Link } from 'react-router-dom';
 import MarksFilters from '../components/marks/MarksFilters';
 import MarksTable from '../components/marks/MarksTable';
 import AddStudentDialog from '../components/marks/AddStudentDialog';
