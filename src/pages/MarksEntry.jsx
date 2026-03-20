@@ -85,6 +85,24 @@ export default function MarksEntry() {
     },
   });
 
+  // Block access until profile is set up
+  if (!isLoadingProfile && !profile) {
+    return (
+      <div className="p-6 md:p-8 max-w-2xl mx-auto mt-16 text-center">
+        <div className="bg-primary/10 rounded-2xl p-10 border border-primary/20 shadow-md">
+          <AlertCircle className="w-14 h-14 text-primary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Profile Required</h2>
+          <p className="text-muted-foreground mb-6">
+            Please complete your teacher profile on the Dashboard before entering marks. You need to set your name, grade, and class first.
+          </p>
+          <Link to="/">
+            <Button size="lg">Go to Dashboard →</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -93,7 +111,11 @@ export default function MarksEntry() {
             <ClipboardList className="w-7 h-7 text-primary" />
             Marks Entry
           </h1>
-          <p className="text-muted-foreground mt-1">Enter and manage student marks</p>
+          <p className="text-muted-foreground mt-1">
+            {profile?.full_name && <span className="text-primary font-semibold">{profile.full_name}</span>}
+            {profile?.class_grade && ` · ${profile.class_grade}`}
+            {profile?.class_name && ` ${profile.class_name}`}
+          </p>
         </div>
         <Button onClick={() => setShowAddDialog(true)}>
           <UserPlus className="w-4 h-4 mr-2" />
