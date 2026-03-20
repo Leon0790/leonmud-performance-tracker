@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, ClipboardList } from 'lucide-react';
+import { UserPlus, ClipboardList, AlertCircle } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { Link } from 'react-router-dom';
 import MarksFilters from '../components/marks/MarksFilters';
 import MarksTable from '../components/marks/MarksTable';
 import AddStudentDialog from '../components/marks/AddStudentDialog';
@@ -24,6 +25,21 @@ export default function MarksEntry() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: teachers = [], isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['teacher-profile'],
+    queryFn: () => base44.entities.Teacher.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const profile = teachers[0] || null;
+
+  // Pre-fill grade from teacher profile once loaded
+  useEffect(() => {
+    if (profile?.class_grade) {
+      setFilters((prev) => ({ ...prev, grade: profile.class_grade }));
+    }
+  }, [profile?.class_grade]);
+
   const { data: students = [], isLoading } = useQuery({
     queryKey: ['students', filters, user?.email],
     queryFn: () => base44.entities.Student.filter({
@@ -32,7 +48,7 @@ export default function MarksEntry() {
       term: filters.term,
       exam_type: filters.exam_type,
     }),
-    enabled: !!user?.email,
+    enabled: !!user?.email && !!profile,
   });
 
   const addMutation = useMutation({
