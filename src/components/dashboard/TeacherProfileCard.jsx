@@ -16,7 +16,7 @@ export default function TeacherProfileCard({ profile, onSave, isSaving }) {
   });
 
   // Sync form when profile loads from server
-  React.useEffect(() => {
+  useEffect(() => {
     if (profile) {
       setForm({
         full_name: profile.full_name || '',
