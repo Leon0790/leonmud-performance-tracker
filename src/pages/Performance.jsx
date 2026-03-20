@@ -47,6 +47,21 @@ export default function Performance() {
     enabled: !!user?.email && !!profile,
   });
 
+  if (!isLoadingProfile && !profile) {
+    return (
+      <div className="p-6 md:p-8 max-w-2xl mx-auto mt-16 text-center">
+        <div className="bg-primary/10 rounded-2xl p-10 border border-primary/20 shadow-md">
+          <AlertCircle className="w-14 h-14 text-primary mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-2">Profile Required</h2>
+          <p className="text-muted-foreground mb-6">
+            Please complete your teacher profile on the Dashboard before viewing performance analysis.
+          </p>
+          <Link to="/"><Button size="lg">Go to Dashboard →</Button></Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       <div>
