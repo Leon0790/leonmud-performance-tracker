@@ -43,6 +43,9 @@ export default function PaymentGate({ user, children }) {
     );
   }
 
+  // Not yet loaded, let App handle auth state
+  if (!user) return children;
+
   // Admin bypass - admins don't need to pay
   if (user?.role === 'admin') return children;
 
