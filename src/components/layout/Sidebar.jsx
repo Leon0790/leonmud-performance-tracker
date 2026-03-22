@@ -22,6 +22,13 @@ const adminNavItems = [
 export default function Sidebar() {
   const location = useLocation();
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
+
   const handleLogout = () => {
     base44.auth.logout('/');
   };
