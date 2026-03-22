@@ -37,15 +37,19 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <Routes>
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/marks" element={<MarksEntry />} />
-        <Route path="/performance" element={<Performance />} />
-      </Route>
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <PaymentGate user={authUser}>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/marks" element={<MarksEntry />} />
+          <Route path="/performance" element={<Performance />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/admin/payments" element={<AdminPayments />} />
+        </Route>
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </PaymentGate>
   );
 };
 
