@@ -1,12 +1,22 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
-const navItems = [
+const teacherNavItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks Entry', path: '/marks', icon: Users },
   { label: 'Performance', path: '/performance', icon: BarChart3 },
+  { label: 'Reports', path: '/reports', icon: FileText },
+];
+
+const adminNavItems = [
+  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { label: 'Marks Entry', path: '/marks', icon: Users },
+  { label: 'Performance', path: '/performance', icon: BarChart3 },
+  { label: 'Reports', path: '/reports', icon: FileText },
+  { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 
 export default function Sidebar() {
