@@ -9,6 +9,9 @@ import AppLayout from './components/layout/AppLayout';
 import Dashboard from './pages/Dashboard';
 import MarksEntry from './pages/MarksEntry';
 import Performance from './pages/Performance';
+import Reports from './pages/Reports';
+import AdminPayments from './pages/AdminPayments';
+import PaymentGate from './pages/PaymentGate';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
