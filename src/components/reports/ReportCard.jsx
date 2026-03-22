@@ -149,7 +149,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-bold text-base">{student.name}</p>
-          <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '—'} · Rank: <span className="font-semibold text-primary">{rank}/{totalStudents}</span> · Total: <span className="font-semibold">{total}</span> · Avg: <span className="font-semibold">{avg}</span></p>
+          <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '\u2014'} &middot; Rank: <span className="font-semibold text-primary">{rank}/{totalStudents}</span> &middot; Total: <span className="font-semibold">{total}</span> &middot; Avg: <span className="font-semibold">{avg}</span></p>
         </div>
         <Button size="sm" onClick={handlePrint} className="shrink-0">
           <Printer className="w-4 h-4 mr-1" /> Print
