@@ -58,6 +58,18 @@ export default function Reports() {
 
   const update = (key, val) => setFilters(f => ({ ...f, [key]: val }));
 
+  const handlePrintAll = () => {
+    if (!rankedStudents.length) return;
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+    const allHTML = rankedStudents.map(s =>
+      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '')
+    ).join('');
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`);
+    win.document.close();
+    setTimeout(() => { win.print(); }, 400);
+  };
+
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center gap-3">
