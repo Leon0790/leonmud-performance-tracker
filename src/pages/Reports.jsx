@@ -129,11 +129,15 @@ export default function Reports() {
       </Card>
 
       {/* Mark List Print Button */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-lg font-semibold">
           {students.length} student{students.length !== 1 ? 's' : ''} · {filters.grade}
         </h2>
-        <MarkList
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrintAll} disabled={!rankedStudents.length}>
+            <Printer className="w-4 h-4 mr-1" /> Print All Reports
+          </Button>
+          <MarkList
           students={rankedStudents}
           grade={filters.grade}
           term={filters.term}
