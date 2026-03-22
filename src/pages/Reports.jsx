@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Calendar } from 'lucide-react';
-import ReportCard from '../components/reports/ReportCard';
+import ReportCard, { buildReportCardHTML, REPORT_CARD_STYLES } from '../components/reports/ReportCard';
 import MarkList from '../components/reports/MarkList';
+import { Button } from '@/components/ui/button';
+import { Printer } from 'lucide-react';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
