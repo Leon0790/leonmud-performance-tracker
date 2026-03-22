@@ -172,8 +172,8 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
               return (
                 <tr key={s.key} className="border-b border-border/50">
                   <td className="px-2 py-1">{s.label}</td>
-                  <td className="px-2 py-1 text-center font-bold" style={{ color: bandColor(band) }}>{band || '—'}</td>
-                  <td className="px-2 py-1 text-center">{mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
+                  <td className="px-2 py-1 text-center font-bold" style={{ color: bandColor(band) }}>{band || '\u2014'}</td>
+                  <td className="px-2 py-1 text-center">{mark !== null && mark !== undefined && mark !== '' ? mark : '\u2014'}</td>
                 </tr>
               );
             })}
