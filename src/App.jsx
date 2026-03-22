@@ -14,7 +14,7 @@ import AdminPayments from './pages/AdminPayments';
 import PaymentGate from './pages/PaymentGate';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user: authUser } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
