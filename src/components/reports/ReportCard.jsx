@@ -179,7 +179,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             })}
             <tr className="bg-primary/10 font-bold">
               <td className="px-2 py-1">Total</td>
-              <td className="px-2 py-1 text-center">—</td>
+              <td className="px-2 py-1 text-center">{'\u2014'}</td>
               <td className="px-2 py-1 text-center">{total}</td>
             </tr>
           </tbody>
