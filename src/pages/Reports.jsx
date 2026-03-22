@@ -146,6 +146,7 @@ export default function Reports() {
           openingDate={openingDate}
           closingDate={closingDate}
         />
+        </div>
       </div>
 
       {/* Report Cards */}
