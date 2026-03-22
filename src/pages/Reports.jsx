@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Calendar } from 'lucide-react';
+import { FileText, Calendar, Printer, Download, Upload, X } from 'lucide-react';
 import ReportCard, { buildReportCardHTML, REPORT_CARD_STYLES } from '../components/reports/ReportCard';
 import MarkList from '../components/reports/MarkList';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { downloadAllReportsPDF } from '@/utils/generateReportPDF';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
@@ -28,6 +28,9 @@ export default function Reports() {
   const [filters, setFilters] = useState({ grade: 'Grade 7', term: 'Term 1', exam_type: 'Mid Term' });
   const [openingDate, setOpeningDate] = useState('');
   const [closingDate, setClosingDate] = useState('');
+  const [schoolLogoDataUrl, setSchoolLogoDataUrl] = useState(null);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const logoInputRef = useRef(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -58,9 +61,18 @@ export default function Reports() {
 
   const update = (key, val) => setFilters(f => ({ ...f, [key]: val }));
 
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setSchoolLogoDataUrl(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
   const handlePrintAll = () => {
     if (!rankedStudents.length) return;
-    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
     const allHTML = rankedStudents.map(s =>
       buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '')
     ).join('');
@@ -68,6 +80,15 @@ export default function Reports() {
     win.document.write(`<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`);
     win.document.close();
     setTimeout(() => { win.print(); }, 400);
+  };
+
+  const handleDownloadAllPDF = async () => {
+    if (!rankedStudents.length) return;
+    setIsDownloadingAll(true);
+    setTimeout(() => {
+      downloadAllReportsPDF(rankedStudents, profile, fmtDate(openingDate), fmtDate(closingDate), schoolLogoDataUrl);
+      setIsDownloadingAll(false);
+    }, 50);
   };
 
   return (
@@ -80,7 +101,7 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters + Logo */}
       <Card className="border-border/50 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Select Class & Exam</CardTitle>
@@ -109,6 +130,7 @@ export default function Reports() {
               </Select>
             </div>
           </div>
+
           <div className="flex flex-wrap gap-4 items-end pt-2 border-t border-border/50">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-muted-foreground" />
@@ -124,28 +146,51 @@ export default function Reports() {
                 <Input type="date" className="mt-1 h-8 text-sm" value={closingDate} onChange={e => setClosingDate(e.target.value)} />
               </div>
             </div>
+
+            {/* School Logo Upload */}
+            <div>
+              <Label className="text-xs text-muted-foreground">School Logo</Label>
+              <div className="flex items-center gap-2 mt-1">
+                {schoolLogoDataUrl ? (
+                  <div className="flex items-center gap-2">
+                    <img src={schoolLogoDataUrl} alt="School Logo" className="h-8 w-8 object-contain border border-border rounded" />
+                    <button onClick={() => setSchoolLogoDataUrl(null)} className="text-muted-foreground hover:text-destructive">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
+                    <Upload className="w-3.5 h-3.5 mr-1" /> Upload Logo
+                  </Button>
+                )}
+                <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Mark List Print Button */}
+      {/* Action Buttons */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-lg font-semibold">
-          {students.length} student{students.length !== 1 ? 's' : ''} · {filters.grade}
+          {students.length} student{students.length !== 1 ? 's' : ''} &middot; {filters.grade}
         </h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button variant="outline" size="sm" onClick={handlePrintAll} disabled={!rankedStudents.length}>
-            <Printer className="w-4 h-4 mr-1" /> Print All Reports
+            <Printer className="w-4 h-4 mr-1" /> Print All
+          </Button>
+          <Button size="sm" onClick={handleDownloadAllPDF} disabled={!rankedStudents.length || isDownloadingAll}>
+            <Download className="w-4 h-4 mr-1" /> {isDownloadingAll ? 'Generating...' : 'Download All PDF'}
           </Button>
           <MarkList
-          students={rankedStudents}
-          grade={filters.grade}
-          term={filters.term}
-          examType={filters.exam_type}
-          profile={profile}
-          openingDate={openingDate}
-          closingDate={closingDate}
-        />
+            students={rankedStudents}
+            grade={filters.grade}
+            term={filters.term}
+            examType={filters.exam_type}
+            profile={profile}
+            openingDate={openingDate}
+            closingDate={closingDate}
+          />
         </div>
       </div>
 
@@ -169,8 +214,9 @@ export default function Reports() {
               rank={student.rank}
               totalStudents={rankedStudents.length}
               profile={profile}
-              openingDate={openingDate ? new Date(openingDate).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
-              closingDate={closingDate ? new Date(closingDate).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
+              openingDate={fmtDate(openingDate)}
+              closingDate={fmtDate(closingDate)}
+              schoolLogoDataUrl={schoolLogoDataUrl}
             />
           ))}
         </div>
