@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Printer } from 'lucide-react';
+import { Printer, Download } from 'lucide-react';
+import { downloadSingleReportPDF } from '@/utils/generateReportPDF';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
