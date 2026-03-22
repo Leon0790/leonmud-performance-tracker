@@ -37,7 +37,7 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <PaymentGate user={authUser}>
+    <PaymentGate user={user}>
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Dashboard />} />
