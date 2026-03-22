@@ -129,7 +129,7 @@ export const REPORT_CARD_STYLES = `
   .footer { text-align: center; font-size: 10px; color: #888; margin-top: 14px; }
 `;
 
-export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate }) {
+export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl }) {
   const [comment, setComment] = useState('');
   const [headteacherName, setHeadteacherName] = useState('');
   const [classTeacherName, setClassTeacherName] = useState(profile?.full_name || '');
