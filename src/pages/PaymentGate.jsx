@@ -9,6 +9,7 @@ import { GraduationCap, Phone, CheckCircle, Clock, XCircle } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast';
 
 export default function PaymentGate({ user, children }) {
+  if (!user) return children; // Not yet loaded, let App handle auth state
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [mpesaCode, setMpesaCode] = useState('');
