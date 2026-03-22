@@ -152,9 +152,14 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <p className="font-bold text-base">{student.name}</p>
           <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '\u2014'} &middot; Rank: <span className="font-semibold text-primary">{rank}/{totalStudents}</span> &middot; Total: <span className="font-semibold">{total}</span> &middot; Avg: <span className="font-semibold">{avg}</span></p>
         </div>
-        <Button size="sm" onClick={handlePrint} className="shrink-0">
-          <Printer className="w-4 h-4 mr-1" /> Print
-        </Button>
+        <div className="flex gap-2 shrink-0">
+          <Button size="sm" variant="outline" onClick={handlePrint}>
+            <Printer className="w-4 h-4 mr-1" /> Print
+          </Button>
+          <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl)}>
+            <Download className="w-4 h-4 mr-1" /> PDF
+          </Button>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
