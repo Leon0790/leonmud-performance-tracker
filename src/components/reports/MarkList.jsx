@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
+import { getBand } from '@/utils/bands';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
