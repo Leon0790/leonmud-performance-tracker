@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// bands imported below with BANDS constant
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { getBand, bandTailwindColor, ALL_BANDS } from '@/utils/bands';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Maths' },
@@ -28,8 +28,6 @@ const SUBJECTS = [
   { key: 'religious_studies', label: 'Religious' },
   { key: 'creative_art', label: 'Art' },
 ];
-
-import { getBand, bandTailwindColor, ALL_BANDS } from '@/utils/bands';
 
 const BANDS = ALL_BANDS;
 
