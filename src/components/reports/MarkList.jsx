@@ -45,10 +45,10 @@ export default function MarkList({ students, grade, term, examType, profile, ope
           tr:nth-child(even) td { background: #f0f4ff; }
           .total-col { background: #dbeafe; font-weight: bold; }
           .rank-col { background: #fef9c3; font-weight: bold; }
-          .band-EE { color: #16a34a; font-weight: bold; }
-          .band-ME { color: #2563eb; font-weight: bold; }
-          .band-AE { color: #d97706; font-weight: bold; }
-          .band-BE { color: #dc2626; font-weight: bold; }
+          .band-EE1, .band-EE2 { color: #16a34a; font-weight: bold; }
+          .band-ME1, .band-ME2 { color: #2563eb; font-weight: bold; }
+          .band-AE1, .band-AE2 { color: #d97706; font-weight: bold; }
+          .band-BE1, .band-BE2 { color: #dc2626; font-weight: bold; }
           .footer { margin-top: 20px; display: flex; justify-content: space-between; font-size: 11px; }
           .sig-line { border-top: 1px solid #000; margin-top: 25px; padding-top: 3px; text-align: center; width: 180px; }
           @media print { body { padding: 0; } }
