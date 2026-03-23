@@ -130,6 +130,7 @@ export default function PaymentGate({ user, children }) {
                 setMpesaCode={setMpesaCode}
                 onSubmit={() => submitMutation.mutate()}
                 isSubmitting={submitMutation.isPending}
+                codeError={codeError}
               />
             </CardContent>
           </Card>
