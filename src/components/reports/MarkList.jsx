@@ -15,14 +15,6 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-function getBand(score) {
-  if (score === null || score === undefined || score === '') return '';
-  const n = Number(score);
-  if (n >= 75) return 'EE';
-  if (n >= 50) return 'ME';
-  if (n >= 25) return 'AE';
-  return 'BE';
-}
 
 function getTotal(student) {
   return SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
