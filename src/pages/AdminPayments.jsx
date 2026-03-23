@@ -69,7 +69,10 @@ export default function AdminPayments() {
                   <p className="text-xs text-muted-foreground">
                     Submitted: {p.created_date ? format(new Date(p.created_date), 'dd MMM yyyy, HH:mm') : '—'}
                   </p>
-                  <div>{statusBadge(p.status)}</div>
+                  <div className="flex items-center gap-2">
+                    {statusBadge(p.status)}
+                    {p.approved_by === 'system' && <span className="text-xs text-muted-foreground">(auto-verified)</span>}
+                  </div>
                 </div>
                 {p.status === 'pending' && (
                   <div className="flex gap-2">
