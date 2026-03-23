@@ -163,6 +163,16 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                   const band = editedBands[student.id]?.[key] || '';
                   return (
                     <React.Fragment key={key}>
+                      <TableCell className="p-1">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={editedMarks[student.id]?.[key] ?? ''}
+                          onChange={(e) => handleMarkChange(student.id, key, e.target.value)}
+                          className="w-14 h-7 text-center text-xs mx-auto"
+                        />
+                      </TableCell>
                       <TableCell className="p-1 text-center">
                         <Select
                           value={band}
@@ -178,16 +188,6 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                             ))}
                           </SelectContent>
                         </Select>
-                      </TableCell>
-                      <TableCell className="p-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editedMarks[student.id]?.[key] ?? ''}
-                          onChange={(e) => handleMarkChange(student.id, key, e.target.value)}
-                          className="w-14 h-7 text-center text-xs mx-auto"
-                        />
                       </TableCell>
                     </React.Fragment>
                   );
