@@ -169,7 +169,7 @@ export default function PaymentGate({ user, children }) {
   );
 }
 
-function PaymentForm({ mpesaCode, setMpesaCode, onSubmit, isSubmitting }) {
+function PaymentForm({ mpesaCode, setMpesaCode, onSubmit, isSubmitting, codeError }) {
   return (
     <div className="space-y-3">
       <div>
@@ -178,15 +178,17 @@ function PaymentForm({ mpesaCode, setMpesaCode, onSubmit, isSubmitting }) {
           placeholder="e.g. QGH3X7ABCD"
           value={mpesaCode}
           onChange={(e) => setMpesaCode(e.target.value.toUpperCase())}
-          className="font-mono tracking-wider mt-1"
+          className={`font-mono tracking-wider mt-1 ${codeError ? 'border-destructive' : ''}`}
+          maxLength={10}
         />
+        {codeError && <p className="text-xs text-destructive mt-1">{codeError}</p>}
       </div>
       <Button
         onClick={onSubmit}
         disabled={!mpesaCode.trim() || isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? 'Submitting...' : 'Submit Payment Code'}
+        {isSubmitting ? 'Verifying...' : 'Submit Payment Code'}
       </Button>
     </div>
   );
