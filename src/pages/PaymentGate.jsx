@@ -85,9 +85,9 @@ export default function PaymentGate({ user, children }) {
             </CardHeader>
             <CardContent className="text-center space-y-3">
               <p className="text-muted-foreground">
-                Your M-Pesa code <span className="font-bold text-foreground">{payment.mpesa_code}</span> has been submitted and is awaiting admin approval.
+                Your M-Pesa code <span className="font-mono font-bold text-foreground">{payment.mpesa_code}</span> could not be automatically verified and is under review.
               </p>
-              <p className="text-sm text-muted-foreground">Please contact the administrator if approval is delayed.</p>
+              <p className="text-sm text-muted-foreground">Please ensure the code is correct or contact the administrator.</p>
               <div className="bg-muted rounded-lg p-3 text-sm">
                 <p className="font-medium">Admin Contact</p>
                 <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
