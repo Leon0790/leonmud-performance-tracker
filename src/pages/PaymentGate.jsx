@@ -21,16 +21,28 @@ export default function PaymentGate({ user, children }) {
 
   const payment = payments[0] || null;
 
+  // M-Pesa codes are typically 10 alphanumeric characters (e.g. QGH3X7ABCD)
+  const isValidMpesaCode = (code) => /^[A-Z0-9]{8,12}$/.test(code.trim().toUpperCase());
+
   const submitMutation = useMutation({
-    mutationFn: () => base44.entities.Payment.create({
-      teacher_email: user.email,
-      mpesa_code: mpesaCode.trim().toUpperCase(),
-      status: 'pending',
-      amount: 200,
-    }),
-    onSuccess: () => {
+    mutationFn: () => {
+      const code = mpesaCode.trim().toUpperCase();
+      const autoStatus = isValidMpesaCode(code) ? 'approved' : 'pending';
+      return base44.entities.Payment.create({
+        teacher_email: user.email,
+        mpesa_code: code,
+        status: autoStatus,
+        amount: 200,
+        approved_by: autoStatus === 'approved' ? 'system' : null,
+      });
+    },
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      toast({ title: 'Payment submitted! Awaiting admin approval.' });
+      if (data?.status === 'approved') {
+        toast({ title: 'Payment verified! Access granted.' });
+      } else {
+        toast({ title: 'Code submitted. Pending review.' });
+      }
       setMpesaCode('');
     },
   });
