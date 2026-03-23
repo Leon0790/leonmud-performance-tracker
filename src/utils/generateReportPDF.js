@@ -124,8 +124,8 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.setFont('times', 'bold');
   doc.text('#', colX[0] + 2, y + 4);
   doc.text('Learning Area', colX[1] + 2, y + 4);
-  doc.text('Band', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
-  doc.text('Marks (/100)', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
+  doc.text('Marks (/100)', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
+  doc.text('Band', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
 
   y += rowH;
   doc.setFont('times', 'normal');
