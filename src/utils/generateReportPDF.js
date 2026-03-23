@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { getBand, bandRGB } from '@/utils/bands';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
