@@ -13,22 +13,6 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-function getBand(score) {
-  if (score === null || score === undefined || score === '') return '';
-  const n = Number(score);
-  if (n >= 75) return 'EE';
-  if (n >= 50) return 'ME';
-  if (n >= 25) return 'AE';
-  return 'BE';
-}
-
-function bandRGB(band) {
-  if (band === 'EE') return [22, 163, 74];
-  if (band === 'ME') return [37, 99, 235];
-  if (band === 'AE') return [217, 119, 6];
-  if (band === 'BE') return [220, 38, 38];
-  return [0, 0, 0];
-}
 
 const PRIMARY = [30, 58, 95];
 const WHITE = [255, 255, 255];
