@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// bands imported below with BANDS constant
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
