@@ -28,22 +28,14 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Art' },
 ];
 
-const BANDS = ['EE', 'ME', 'AE', 'BE'];
+import { getBand, bandTailwindColor, ALL_BANDS } from '@/utils/bands';
 
-const BAND_COLORS = {
-  EE: 'text-green-700 bg-green-50',
-  ME: 'text-blue-700 bg-blue-50',
-  AE: 'text-amber-700 bg-amber-50',
-  BE: 'text-red-700 bg-red-50',
-};
+const BANDS = ALL_BANDS;
+
+const BAND_COLORS = Object.fromEntries(ALL_BANDS.map(b => [b, bandTailwindColor(b)]));
 
 function autoBand(score) {
-  if (score === '' || score === null || score === undefined) return '';
-  const n = Number(score);
-  if (n >= 75) return 'EE';
-  if (n >= 50) return 'ME';
-  if (n >= 25) return 'AE';
-  return 'BE';
+  return getBand(score);
 }
 
 export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving }) {
