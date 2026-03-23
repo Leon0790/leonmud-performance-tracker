@@ -157,7 +157,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <Button size="sm" variant="outline" onClick={handlePrint}>
             <Printer className="w-4 h-4 mr-1" /> Print
           </Button>
-          <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl)}>
+          <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment)}>
             <Download className="w-4 h-4 mr-1" /> PDF
           </Button>
         </div>
