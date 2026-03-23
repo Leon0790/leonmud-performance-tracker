@@ -135,8 +135,8 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
             <TableHead className="sticky left-12 bg-primary/5" />
             {SUBJECTS.map(({ key }) => (
               <React.Fragment key={key}>
-                <TableHead className="text-center text-xs text-muted-foreground font-medium py-1">Band</TableHead>
                 <TableHead className="text-center text-xs text-muted-foreground font-medium py-1">Marks</TableHead>
+                <TableHead className="text-center text-xs text-muted-foreground font-medium py-1">Band</TableHead>
               </React.Fragment>
             ))}
             <TableHead />
