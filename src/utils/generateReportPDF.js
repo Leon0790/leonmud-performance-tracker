@@ -145,15 +145,17 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     doc.text(String(i + 1), colX[0] + 2, y + 4);
     doc.text(s.label, colX[1] + 2, y + 4);
 
+    doc.setFont('times', 'normal');
+    doc.text(mark !== null && mark !== undefined && mark !== '' ? String(mark) : '—', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
+
     if (band) {
       doc.setTextColor(...bandRGB(band));
       doc.setFont('times', 'bold');
     }
-    doc.text(band || '—', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
+    doc.text(band || '—', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
 
     doc.setTextColor(0, 0, 0);
     doc.setFont('times', 'normal');
-    doc.text(mark !== null && mark !== undefined && mark !== '' ? String(mark) : '—', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
 
     y += rowH;
   });
