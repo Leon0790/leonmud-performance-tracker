@@ -74,7 +74,7 @@ export default function Reports() {
   const handlePrintAll = () => {
     if (!rankedStudents.length) return;
     const allHTML = rankedStudents.map(s =>
-      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '')
+      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl)
     ).join('');
     const win = window.open('', '_blank');
     win.document.write(`<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`);
