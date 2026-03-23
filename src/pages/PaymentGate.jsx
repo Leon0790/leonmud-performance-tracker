@@ -19,30 +19,49 @@ export default function PaymentGate({ user, children }) {
     enabled: !!user?.email,
   });
 
+  // Load ALL payments to check for duplicate/already-used codes
+  const { data: allPayments = [] } = useQuery({
+    queryKey: ['all-payments-check'],
+    queryFn: () => base44.entities.Payment.list(),
+    enabled: !!user?.email,
+  });
+
   const payment = payments[0] || null;
 
-  // M-Pesa codes are typically 10 alphanumeric characters (e.g. QGH3X7ABCD)
-  const isValidMpesaCode = (code) => /^[A-Z0-9]{8,12}$/.test(code.trim().toUpperCase());
+  // Real M-Pesa codes: start with a letter, followed by 9 alphanumeric chars (total 10)
+  const isValidMpesaFormat = (code) => /^[A-Z][A-Z0-9]{9}$/.test(code);
+
+  const [codeError, setCodeError] = useState('');
 
   const submitMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const code = mpesaCode.trim().toUpperCase();
-      const autoStatus = isValidMpesaCode(code) ? 'approved' : 'pending';
+      setCodeError('');
+
+      // Validate format
+      if (!isValidMpesaFormat(code)) {
+        setCodeError('Invalid M-Pesa code format. It must be exactly 10 characters (e.g. QGH3X7ABCD).');
+        throw new Error('invalid_format');
+      }
+
+      // Check code has not been used before by anyone
+      const alreadyUsed = allPayments.some(p => p.mpesa_code === code);
+      if (alreadyUsed) {
+        setCodeError('This M-Pesa code has already been used. Please use a new transaction code.');
+        throw new Error('duplicate_code');
+      }
+
       return base44.entities.Payment.create({
         teacher_email: user.email,
         mpesa_code: code,
-        status: autoStatus,
+        status: 'approved',
         amount: 200,
-        approved_by: autoStatus === 'approved' ? 'system' : null,
+        approved_by: 'system',
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      if (data?.status === 'approved') {
-        toast({ title: 'Payment verified! Access granted.' });
-      } else {
-        toast({ title: 'Code submitted. Pending review.' });
-      }
+      toast({ title: 'Payment verified! Access granted.' });
       setMpesaCode('');
     },
   });
