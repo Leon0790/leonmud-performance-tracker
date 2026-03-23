@@ -131,6 +131,7 @@ export const REPORT_CARD_STYLES = `
 
 export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl }) {
   const [comment, setComment] = useState('');
+  const [headteacherComment, setHeadteacherComment] = useState('');
   const [headteacherName, setHeadteacherName] = useState('');
   const [classTeacherName, setClassTeacherName] = useState(profile?.full_name || '');
 
