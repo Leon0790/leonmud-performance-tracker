@@ -99,11 +99,14 @@ export const REPORT_CARD_STYLES = `
   .page:last-child { page-break-after: auto; }
   .card { width: 100%; max-width: 680px; border: 2px solid #1e3a5f; padding: 20px; }
   .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; }
+  .school-logo { display: block; margin: 0 auto 8px; height: 70px; width: auto; object-fit: contain; }
+  .logo-placeholder { height: 0; }
   .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
   .sub-header { font-size: 12px; color: #444; margin-top: 2px; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 10px; font-size: 13px; }
-  .info-item { display: flex; gap: 6px; }
-  .info-label { font-weight: bold; white-space: nowrap; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; margin-bottom: 10px; font-size: 13px; }
+  .info-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
+  .info-label { font-weight: bold; white-space: nowrap; min-width: 110px; }
+  .info-value { flex: 1; }
   .rank-badge { background: #1e3a5f; color: #fff; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
   .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 6px 0; margin-bottom: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
@@ -117,9 +120,12 @@ export const REPORT_CARD_STYLES = `
   .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
   .comments-section { font-size: 13px; margin-bottom: 10px; }
   .comment-box { border: 1px solid #999; min-height: 45px; padding: 6px 8px; margin-top: 4px; font-size: 13px; }
-  .sig-row { display: flex; justify-content: space-between; margin-top: 28px; font-size: 12px; }
-  .sig-block { text-align: center; width: 45%; }
+  .sig-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; font-size: 12px; }
+  .sig-block { text-align: center; width: 30%; }
+  .sig-space { height: 30px; }
   .sig-line { border-top: 1px solid #000; padding-top: 4px; }
+  .stamp-block { width: 34%; }
+  .stamp-area { border: 2px dashed #999; height: 70px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; }
   .footer { text-align: center; font-size: 10px; color: #888; margin-top: 14px; }
 `;
 
