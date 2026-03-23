@@ -55,7 +55,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
         </div>
         <table>
           <thead>
-            <tr><th>#</th><th>Learning Area</th><th>Band</th><th>Marks (/100)</th></tr>
+            <tr><th>#</th><th>Learning Area</th><th>Marks (/100)</th><th>Band</th></tr>
           </thead>
           <tbody>
             ${rows}
