@@ -16,22 +16,7 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-function getBand(score) {
-  if (score === null || score === undefined || score === '') return '';
-  const n = Number(score);
-  if (n >= 75) return 'EE';
-  if (n >= 50) return 'ME';
-  if (n >= 25) return 'AE';
-  return 'BE';
-}
-
-function bandColor(band) {
-  if (band === 'EE') return '#16a34a';
-  if (band === 'ME') return '#2563eb';
-  if (band === 'AE') return '#d97706';
-  if (band === 'BE') return '#dc2626';
-  return '#000';
-}
+import { getBand, bandColor } from '@/utils/bands';
 
 export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName) {
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
