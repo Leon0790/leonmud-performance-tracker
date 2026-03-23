@@ -36,18 +36,19 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
     <div class="page">
       <div class="card">
         <div class="header">
+          ${schoolLogoDataUrl ? `<img src="${schoolLogoDataUrl}" class="school-logo" alt="School Logo" />` : '<div class="logo-placeholder"></div>'}
           <div class="school-name">CBC PERFORMANCE REPORT CARD</div>
           <div class="sub-header">Competency Based Curriculum (CBC) · Year ${new Date().getFullYear()}</div>
         </div>
         <div class="info-grid">
-          <div class="info-item"><span class="info-label">Student Name:</span> <span>${student.name}</span></div>
-          <div class="info-item"><span class="info-label">Adm No:</span> <span>${student.admission_number || '—'}</span></div>
-          <div class="info-item"><span class="info-label">Grade:</span> <span>${student.grade}</span></div>
-          <div class="info-item"><span class="info-label">Class:</span> <span>${student.class_name || profile?.class_name || '—'}</span></div>
-          <div class="info-item"><span class="info-label">Term:</span> <span>${student.term}</span></div>
-          <div class="info-item"><span class="info-label">Exam:</span> <span>${student.exam_type}</span></div>
-          <div class="info-item"><span class="info-label">Rank:</span> <span class="rank-badge">${rank} / ${totalStudents}</span></div>
-          <div class="info-item"><span class="info-label">Average:</span> <span>${avg}</span></div>
+          <div class="info-row"><span class="info-label">Student Name:</span><span class="info-value">${student.name}</span></div>
+          <div class="info-row"><span class="info-label">Adm No:</span><span class="info-value">${student.admission_number || '—'}</span></div>
+          <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${student.grade}</span></div>
+          <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
+          <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
+          <div class="info-row"><span class="info-label">Exam:</span><span class="info-value">${student.exam_type}</span></div>
+          <div class="info-row"><span class="info-label">Rank:</span><span class="info-value"><span class="rank-badge">${rank} / ${totalStudents}</span></span></div>
+          <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
         <div class="dates-row">
           <span><strong>Opening Date:</strong> ${openingDate || '___________________________'}</span>
@@ -59,19 +60,28 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
           </thead>
           <tbody>
             ${rows}
-            <tr class="total-row"><td colspan="2">TOTAL</td><td>—</td><td>${total}</td></tr>
-            <tr class="total-row"><td colspan="2">AVERAGE</td><td>—</td><td>${avg}</td></tr>
+            <tr class="total-row"><td colspan="2">TOTAL</td><td>${total}</td><td>—</td></tr>
+            <tr class="total-row"><td colspan="2">AVERAGE</td><td>${avg}</td><td>—</td></tr>
           </tbody>
         </table>
         <div class="comments-section">
           <strong>Class Teacher's Comments:</strong>
           <div class="comment-box">${comment || ''}</div>
         </div>
+        <div class="comments-section">
+          <strong>Head Teacher's Comments:</strong>
+          <div class="comment-box">${headteacherComment || ''}</div>
+        </div>
         <div class="sig-row">
           <div class="sig-block">
+            <div class="sig-space"></div>
             <div class="sig-line">Class Teacher: ${classTeacherName || '_______________________'}</div>
           </div>
+          <div class="sig-block stamp-block">
+            <div class="stamp-area">SCHOOL STAMP</div>
+          </div>
           <div class="sig-block">
+            <div class="sig-space"></div>
             <div class="sig-line">Head Teacher: ${headteacherName || '_______________________'}</div>
           </div>
         </div>
