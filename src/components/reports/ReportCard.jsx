@@ -27,8 +27,8 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
     return `<tr>
       <td>${i + 1}</td>
       <td>${s.label}</td>
-      <td class="band-${(band || '').toLowerCase()}">${band || '—'}</td>
       <td>${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
+      <td class="band-${(band || '').toLowerCase()}">${band || '—'}</td>
     </tr>`;
   }).join('');
 
