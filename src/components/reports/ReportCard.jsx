@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Printer, Download } from 'lucide-react';
 import { downloadSingleReportPDF } from '@/utils/generateReportPDF';
+import { getBand, bandColor } from '@/utils/bands';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -15,8 +16,6 @@ const SUBJECTS = [
   { key: 'religious_studies', label: 'Religious Studies' },
   { key: 'creative_art', label: 'Creative Art' },
 ];
-
-import { getBand, bandColor } from '@/utils/bands';
 
 export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName) {
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
