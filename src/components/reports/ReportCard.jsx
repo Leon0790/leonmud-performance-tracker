@@ -101,10 +101,10 @@ export const REPORT_CARD_STYLES = `
   td { padding: 5px 10px; border-bottom: 1px solid #e0e0e0; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
-  .band-ee { color: #16a34a; font-weight: bold; }
-  .band-me { color: #2563eb; font-weight: bold; }
-  .band-ae { color: #d97706; font-weight: bold; }
-  .band-be { color: #dc2626; font-weight: bold; }
+  .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
+  .band-me1, .band-me2 { color: #2563eb; font-weight: bold; }
+  .band-ae1, .band-ae2 { color: #d97706; font-weight: bold; }
+  .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
   .comments-section { font-size: 13px; margin-bottom: 10px; }
   .comment-box { border: 1px solid #999; min-height: 45px; padding: 6px 8px; margin-top: 4px; font-size: 13px; }
   .sig-row { display: flex; justify-content: space-between; margin-top: 28px; font-size: 12px; }
