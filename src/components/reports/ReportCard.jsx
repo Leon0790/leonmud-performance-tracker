@@ -199,9 +199,19 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <textarea
             className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
             rows={2}
-            placeholder="Enter comments for this student..."
+            placeholder="Enter class teacher comments..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments</label>
+          <textarea
+            className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+            rows={2}
+            placeholder="Enter head teacher comments..."
+            value={headteacherComment}
+            onChange={(e) => setHeadteacherComment(e.target.value)}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
