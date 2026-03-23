@@ -140,7 +140,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
 
   const handlePrint = () => {
     const win = window.open('', '_blank');
-    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName);
+    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl);
     win.document.write(`<!DOCTYPE html><html><head><title>Report Card - ${student.name}</title><style>${REPORT_CARD_STYLES}</style></head><body>${html}</body></html>`);
     win.document.close();
     setTimeout(() => { win.print(); }, 400);
