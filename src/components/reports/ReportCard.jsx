@@ -151,8 +151,8 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <thead>
             <tr className="bg-primary text-primary-foreground">
               <th className="px-2 py-1.5 text-left">Learning Area</th>
-              <th className="px-2 py-1.5">Band</th>
               <th className="px-2 py-1.5">Marks</th>
+              <th className="px-2 py-1.5">Band</th>
             </tr>
           </thead>
           <tbody>
