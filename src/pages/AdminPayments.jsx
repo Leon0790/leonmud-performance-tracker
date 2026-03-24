@@ -74,24 +74,28 @@ export default function AdminPayments() {
                     {p.approved_by === 'system' && <span className="text-xs text-muted-foreground">(auto-verified)</span>}
                   </div>
                 </div>
-                {p.status === 'pending' && (
-                  <div className="flex gap-2">
+                <div className="flex gap-2">
+                  {p.status !== 'approved' && (
                     <Button
                       size="sm"
                       className="bg-green-600 hover:bg-green-700 text-white"
                       onClick={() => updateMutation.mutate({ id: p.id, status: 'approved' })}
+                      disabled={updateMutation.isPending}
                     >
                       <CheckCircle className="w-4 h-4 mr-1" /> Approve
                     </Button>
+                  )}
+                  {p.status !== 'rejected' && (
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => updateMutation.mutate({ id: p.id, status: 'rejected' })}
+                      disabled={updateMutation.isPending}
                     >
                       <XCircle className="w-4 h-4 mr-1" /> Reject
                     </Button>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
