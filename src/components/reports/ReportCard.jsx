@@ -40,14 +40,13 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
           <div class="school-name">CBC PERFORMANCE REPORT CARD</div>
           <div class="sub-header">Competency Based Curriculum (CBC) · Year ${new Date().getFullYear()}</div>
         </div>
+        <div class="info-name-row"><span class="info-label">Student Name:</span><span class="info-value">${student.name}</span></div>
         <div class="info-grid">
-          <div class="info-row"><span class="info-label">Student Name:</span><span class="info-value">${student.name}</span></div>
           <div class="info-row"><span class="info-label">Adm No:</span><span class="info-value">${student.admission_number || '—'}</span></div>
           <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${student.grade}</span></div>
           <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
           <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
           <div class="info-row"><span class="info-label">Exam:</span><span class="info-value">${student.exam_type}</span></div>
-          <div class="info-row"><span class="info-label">Rank:</span><span class="info-value"><span class="rank-badge">${rank} / ${totalStudents}</span></span></div>
           <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
         <div class="dates-row">
@@ -98,16 +97,16 @@ export const REPORT_CARD_STYLES = `
   .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 0; }
   .page:last-child { page-break-after: auto; }
   .card { width: 100%; max-width: 680px; border: 2px solid #1e3a5f; padding: 20px; }
-  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; }
-  .school-logo { display: block; margin: 0 auto 8px; height: 70px; width: auto; object-fit: contain; }
+  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
+  .school-logo { display: block; height: 70px; width: auto; object-fit: contain; margin-bottom: 8px; }
   .logo-placeholder { height: 0; }
   .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
   .sub-header { font-size: 12px; color: #444; margin-top: 2px; }
+  .info-name-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 4px; margin-bottom: 6px; font-size: 13px; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; margin-bottom: 10px; font-size: 13px; }
   .info-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
   .info-label { font-weight: bold; white-space: nowrap; min-width: 110px; }
-  .info-value { flex: 1; }
-  .rank-badge { background: #1e3a5f; color: #fff; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; }
+  .info-value { flex: 1; word-break: break-word; }
   .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 6px 0; margin-bottom: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
   th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: left; }
