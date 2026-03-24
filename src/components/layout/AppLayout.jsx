@@ -18,7 +18,7 @@ export default function AppLayout() {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
           <div className="relative w-64 h-full">
-            <Sidebar />
+            <Sidebar onNavigate={() => setMobileOpen(false)} />
           </div>
         </div>
       )}

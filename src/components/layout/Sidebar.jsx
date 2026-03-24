@@ -19,7 +19,7 @@ const adminNavItems = [
   { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }) {
   const location = useLocation();
 
   const { data: user } = useQuery({
@@ -54,6 +54,7 @@ export default function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => onNavigate?.()}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-lg'
