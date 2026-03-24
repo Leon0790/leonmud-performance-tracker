@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, Save } from 'lucide-react';
+import { Trash2, Save, SaveAll } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -107,6 +107,10 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
     });
   };
 
+  const handleSaveAll = () => {
+    dirtyStudents.forEach((studentId) => handleSave(studentId));
+  };
+
   if (students.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground">
@@ -116,6 +120,14 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
   }
 
   return (
+    <div className="space-y-3">
+    {dirtyStudents.size > 0 && (
+      <div className="flex justify-end">
+        <Button onClick={handleSaveAll} disabled={isSaving} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+          <SaveAll className="w-4 h-4" /> Save All Changes ({dirtyStudents.size} unsaved)
+        </Button>
+      </div>
+    )}
     <div className="overflow-x-auto rounded-lg border border-border">
       <Table>
         <TableHeader>
@@ -228,6 +240,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
           })}
         </TableBody>
       </Table>
+    </div>
     </div>
   );
 }
