@@ -12,6 +12,10 @@ import Performance from './pages/Performance';
 import Reports from './pages/Reports';
 import AdminPayments from './pages/AdminPayments';
 import PaymentGate from './pages/PaymentGate';
+import StudentsList from './pages/students/List';
+import RegisterStudent from './pages/students/Register';
+import StudentProfile from './pages/students/Profile';
+import ImportStudents from './pages/students/Import';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
@@ -46,6 +50,10 @@ const AuthenticatedApp = () => {
           <Route path="/performance" element={<Performance />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/admin/payments" element={<AdminPayments />} />
+          <Route path="/students/list" element={<StudentsList />} />
+          <Route path="/students/register" element={<RegisterStudent />} />
+          <Route path="/students/:id" element={<StudentProfile />} />
+          <Route path="/students/import" element={<ImportStudents />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
