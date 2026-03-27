@@ -102,13 +102,13 @@ export const REPORT_CARD_STYLES = `
   .logo-placeholder { height: 0; }
   .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
   .sub-header { font-size: 12px; color: #444; margin-top: 2px; }
-  .info-name-row { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px dotted #ccc; padding-bottom: 4px; margin-bottom: 6px; font-size: 13px; }
-  .name-label { font-weight: bold; white-space: nowrap; flex-shrink: 0; }
-  .name-value { flex: 1; word-break: break-word; overflow-wrap: anywhere; }
+  .info-name-row { display: flex; align-items: center; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 4px; margin-bottom: 6px; font-size: 13px; }
+  .name-label { font-weight: bold; white-space: nowrap; width: 110px; flex-shrink: 0; }
+  .name-value { flex: 1; min-width: 0; word-break: break-word; overflow-wrap: anywhere; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; margin-bottom: 10px; font-size: 13px; }
   .info-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
-  .info-label { font-weight: bold; white-space: nowrap; min-width: 110px; }
-  .info-value { flex: 1; word-break: break-word; }
+  .info-label { font-weight: bold; white-space: nowrap; width: 80px; flex-shrink: 0; }
+  .info-value { flex: 1; min-width: 0; word-break: break-word; overflow-wrap: anywhere; }
   .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 6px 0; margin-bottom: 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
   th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: left; }
