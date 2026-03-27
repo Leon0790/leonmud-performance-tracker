@@ -97,12 +97,14 @@ export const REPORT_CARD_STYLES = `
   .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 0; }
   .page:last-child { page-break-after: auto; }
   .card { width: 100%; max-width: 680px; border: 2px solid #1e3a5f; padding: 20px; }
-  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; }
-  .school-logo { display: block; height: 70px; width: auto; object-fit: contain; margin-bottom: 8px; }
+  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .school-logo { display: block; height: 80px; width: 80px; object-fit: contain; border-radius: 50%; margin: 0 auto 10px auto; }
   .logo-placeholder { height: 0; }
   .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
   .sub-header { font-size: 12px; color: #444; margin-top: 2px; }
-  .info-name-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 4px; margin-bottom: 6px; font-size: 13px; }
+  .info-name-row { display: flex; align-items: baseline; gap: 8px; border-bottom: 1px dotted #ccc; padding-bottom: 4px; margin-bottom: 6px; font-size: 13px; }
+  .info-name-row .info-label { font-weight: bold; white-space: nowrap; min-width: 110px; flex-shrink: 0; }
+  .info-name-row .info-value { flex: 1; word-break: break-word; overflow-wrap: anywhere; }
   .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; margin-bottom: 10px; font-size: 13px; }
   .info-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
   .info-label { font-weight: bold; white-space: nowrap; min-width: 110px; }

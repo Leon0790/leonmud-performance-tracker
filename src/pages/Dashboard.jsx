@@ -5,6 +5,7 @@ import WelcomeAnimation from '../components/dashboard/WelcomeAnimation';
 import TeacherProfileCard from '../components/dashboard/TeacherProfileCard';
 import StatsOverview from '../components/dashboard/StatsOverview';
 import { useToast } from '@/components/ui/use-toast';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 
 const SUBJECTS = [
   'mathematics', 'english', 'kiswahili', 'integrated_science',
@@ -15,6 +16,10 @@ const SUBJECTS = [
 export default function Dashboard() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const { containerRef, isRefreshing } = usePullToRefresh(async () => {
+    await queryClient.invalidateQueries();
+  });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -56,7 +61,12 @@ export default function Dashboard() {
     : 0;
 
   return (
-    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div ref={containerRef} className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+      {isRefreshing && (
+        <div className="flex justify-center pt-2 pb-0">
+          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      )}
       <WelcomeAnimation teacherName={profile?.full_name || user?.full_name} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export default function StudentsList() {
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('All Grades');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -36,6 +38,10 @@ export default function StudentsList() {
     enabled: !!user?.email,
   });
 
+  const { containerRef, isRefreshing } = usePullToRefresh(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['student-register'] });
+  });
+
   const filtered = students.filter(s => {
     const fullName = `${s.first_name} ${s.last_name}`.toLowerCase();
     const matchSearch = !search || fullName.includes(search.toLowerCase()) || (s.admission_number || '').toLowerCase().includes(search.toLowerCase());
@@ -45,7 +51,12 @@ export default function StudentsList() {
   });
 
   return (
-    <div className="p-6 md:p-8 space-y-6 max-w-6xl mx-auto">
+    <div ref={containerRef} className="p-6 md:p-8 space-y-6 max-w-6xl mx-auto">
+      {isRefreshing && (
+        <div className="flex justify-center pb-0">
+          <div className="w-5 h-5 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Users className="w-7 h-7 text-indigo-500" />

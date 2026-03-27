@@ -1,0 +1,38 @@
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, ClipboardList, BookUser, FileText } from 'lucide-react';
+
+const TABS = [
+  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { label: 'Marks', path: '/marks', icon: ClipboardList },
+  { label: 'Students', path: '/students/list', icon: BookUser },
+  { label: 'Reports', path: '/reports', icon: FileText },
+];
+
+export default function BottomTabBar() {
+  const location = useLocation();
+
+  return (
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar border-t border-sidebar-border flex items-stretch"
+         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      {TABS.map((tab) => {
+        const isActive = location.pathname === tab.path ||
+          (tab.path !== '/' && location.pathname.startsWith(tab.path));
+        return (
+          <Link
+            key={tab.path}
+            to={tab.path}
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-medium transition-colors select-none ${
+              isActive
+                ? 'text-sidebar-primary'
+                : 'text-sidebar-foreground/50 hover:text-sidebar-foreground/80'
+            }`}
+          >
+            <tab.icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
+            {tab.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}

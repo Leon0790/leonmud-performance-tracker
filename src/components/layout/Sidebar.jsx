@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard, BookUser } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard, BookUser, Trash2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const teacherNavItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -23,6 +27,7 @@ const adminNavItems = [
 
 export default function Sidebar({ onNavigate }) {
   const location = useLocation();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -33,6 +38,10 @@ export default function Sidebar({ onNavigate }) {
 
   const handleLogout = () => {
     base44.auth.logout('/');
+  };
+
+  const handleDeleteAccount = async () => {
+    await base44.auth.logout('/');
   };
 
   return (
@@ -70,7 +79,11 @@ export default function Sidebar({ onNavigate }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      {/* Account settings */}
+      <div className="p-4 border-t border-sidebar-border space-y-1">
+        {user && (
+          <p className="text-xs text-sidebar-foreground/40 px-4 pb-1 truncate">{user.email}</p>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 w-full"
@@ -78,6 +91,29 @@ export default function Sidebar({ onNavigate }) {
           <LogOut className="w-5 h-5" />
           Logout
         </button>
+
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogTrigger asChild>
+            <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all duration-200 w-full">
+              <Trash2 className="w-5 h-5" />
+              Delete Account
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Account</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently remove your access. All your data will be deleted. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Yes, Delete My Account
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </aside>
   );
