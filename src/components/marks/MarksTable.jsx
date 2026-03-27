@@ -2,114 +2,148 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Save, SaveAll } from 'lucide-react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { getBand, bandTailwindColor, ALL_BANDS } from '@/utils/bands';
+import { getBand, bandTailwindColor } from '@/utils/bands';
 
-const SUBJECTS = [
-  { key: 'mathematics', label: 'Maths' },
-  { key: 'english', label: 'English' },
-  { key: 'kiswahili', label: 'Kisw.' },
-  { key: 'integrated_science', label: 'Int.Sci' },
-  { key: 'agriculture', label: 'Agri.' },
-  { key: 'social_studies', label: 'S.Studies' },
-  { key: 'pretechnical_studies', label: 'Pre-Tech' },
-  { key: 'religious_studies', label: 'Religious' },
-  { key: 'creative_art', label: 'Art' },
+// Subjects with simple single-mark entry (no papers)
+const SIMPLE_SUBJECTS = [
+  { key: 'mathematics', label: 'Maths', max: 100 },
+  { key: 'agriculture', label: 'Agri.', max: 100 },
+  { key: 'social_studies', label: 'S.Studies', max: 100 },
+  { key: 'pretechnical_studies', label: 'Pre-Tech', max: 100 },
+  { key: 'religious_studies', label: 'Religious', max: 100 },
+  { key: 'creative_art', label: 'Art', max: 100 },
 ];
 
-const BANDS = ALL_BANDS;
+// Subjects with paper breakdown
+const PAPER_SUBJECTS = [
+  {
+    key: 'kiswahili',
+    label: 'Kiswahili',
+    papers: [
+      { pkey: 'kiswahili_p1', label: 'P1', max: 50 },
+      { pkey: 'kiswahili_p2', label: 'P2', max: 50 },
+    ],
+  },
+  {
+    key: 'english',
+    label: 'English',
+    papers: [
+      { pkey: 'english_p1', label: 'P1', max: 50 },
+      { pkey: 'english_p2', label: 'P2', max: 50 },
+    ],
+  },
+  {
+    key: 'integrated_science',
+    label: 'Int. Science',
+    papers: [
+      { pkey: 'integrated_science_p1', label: 'P1', max: 70 },
+      { pkey: 'integrated_science_p2', label: 'P2', max: 30 },
+    ],
+  },
+];
 
-const BAND_COLORS = Object.fromEntries(ALL_BANDS.map(b => [b, bandTailwindColor(b)]));
+function calcPaperTotal(marks, subject) {
+  return subject.papers.reduce((sum, p) => sum + (parseInt(marks[p.pkey]) || 0), 0);
+}
 
-function autoBand(score) {
-  return getBand(score);
+function calcOverallTotal(marks) {
+  const paperTotal = PAPER_SUBJECTS.reduce((sum, s) => sum + calcPaperTotal(marks, s), 0);
+  const simpleTotal = SIMPLE_SUBJECTS.reduce((sum, s) => sum + (parseInt(marks[s.key]) || 0), 0);
+  return paperTotal + simpleTotal;
+}
+
+function BandBadge({ score }) {
+  const band = getBand(score);
+  if (!band) return <span className="text-muted-foreground text-xs">—</span>;
+  const cls = bandTailwindColor(band);
+  return (
+    <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-bold ${cls}`}>
+      {band}
+    </span>
+  );
+}
+
+function PaperInput({ value, max, onChange }) {
+  const num = value === '' ? '' : parseInt(value) || 0;
+  const isLow = num !== '' && num < 40 && num > 0;
+  const isOver = num !== '' && num > max;
+  return (
+    <Input
+      type="number"
+      min="0"
+      max={max}
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+      className={`w-12 h-7 text-center text-xs mx-auto ${isLow ? 'border-red-400 bg-red-50 text-red-700' : ''} ${isOver ? 'border-orange-400 bg-orange-50' : ''}`}
+    />
+  );
 }
 
 export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving }) {
-  const [editedMarks, setEditedMarks] = useState({});
-  const [editedBands, setEditedBands] = useState({});
+  const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
 
   useEffect(() => {
-    const marks = {};
-    const bands = {};
+    const init = {};
     students.forEach((s) => {
-      marks[s.id] = {};
-      bands[s.id] = {};
-      SUBJECTS.forEach(({ key }) => {
-        marks[s.id][key] = s[key] ?? '';
-        // Use saved band or auto-calculate
-        bands[s.id][key] = s[`${key}_band`] || autoBand(s[key]);
+      init[s.id] = {};
+      // Paper subjects — load paper fields + total
+      PAPER_SUBJECTS.forEach(({ key, papers }) => {
+        papers.forEach(({ pkey }) => { init[s.id][pkey] = s[pkey] ?? ''; });
+        init[s.id][key] = s[key] ?? '';
       });
+      // Simple subjects
+      SIMPLE_SUBJECTS.forEach(({ key }) => { init[s.id][key] = s[key] ?? ''; });
     });
-    setEditedMarks(marks);
-    setEditedBands(bands);
+    setMarks(init);
     setDirtyStudents(new Set());
   }, [students]);
 
-  const handleMarkChange = (studentId, subject, value) => {
-    const num = value === '' ? '' : Math.min(100, Math.max(0, parseInt(value) || 0));
-    setEditedMarks((prev) => ({
-      ...prev,
-      [studentId]: { ...prev[studentId], [subject]: num },
-    }));
-    // Auto-update band unless manually overridden
-    setEditedBands((prev) => ({
-      ...prev,
-      [studentId]: { ...prev[studentId], [subject]: autoBand(num) },
-    }));
+  const setMark = (studentId, field, rawValue, max) => {
+    const clamped = rawValue === '' ? '' : Math.min(max, Math.max(0, parseInt(rawValue) || 0));
+    setMarks((prev) => {
+      const updated = { ...prev[studentId], [field]: clamped };
+      // Recalc paper totals when a paper field changes
+      PAPER_SUBJECTS.forEach((s) => {
+        if (s.papers.some((p) => p.pkey === field)) {
+          updated[s.key] = s.papers.reduce((sum, p) => sum + (parseInt(p.pkey === field ? clamped : updated[p.pkey]) || 0), 0);
+        }
+      });
+      return { ...prev, [studentId]: updated };
+    });
     setDirtyStudents((prev) => new Set([...prev, studentId]));
   };
-
-  const handleBandChange = (studentId, subject, band) => {
-    setEditedBands((prev) => ({
-      ...prev,
-      [studentId]: { ...prev[studentId], [subject]: band },
-    }));
-    setDirtyStudents((prev) => new Set([...prev, studentId]));
-  };
-
-  const getTotal = (studentId) => {
-    const marks = editedMarks[studentId] || {};
-    return SUBJECTS.reduce((sum, { key }) => sum + (parseInt(marks[key]) || 0), 0);
-  };
-
-  const rankedStudents = [...students]
-    .map((s) => ({ ...s, _total: getTotal(s.id) }))
-    .sort((a, b) => b._total - a._total)
-    .map((s, i) => ({ ...s, rank: i + 1 }));
 
   const handleSave = (studentId) => {
-    const marks = editedMarks[studentId] || {};
-    const bands = editedBands[studentId] || {};
+    const m = marks[studentId] || {};
     const data = {};
-    SUBJECTS.forEach(({ key }) => {
-      data[key] = marks[key] === '' ? null : parseInt(marks[key]) || 0;
-      data[`${key}_band`] = bands[key] || '';
+    PAPER_SUBJECTS.forEach(({ key, papers }) => {
+      papers.forEach(({ pkey }) => { data[pkey] = m[pkey] === '' ? null : parseInt(m[pkey]) || 0; });
+      data[key] = m[key] === '' ? null : parseInt(m[key]) || 0;
+      data[`${key}_band`] = getBand(data[key]);
     });
+    SIMPLE_SUBJECTS.forEach(({ key }) => {
+      data[key] = m[key] === '' ? null : parseInt(m[key]) || 0;
+      data[`${key}_band`] = getBand(data[key]);
+    });
+    const overall = calcOverallTotal(m);
+    data.overall_band = getBand(overall / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
     onUpdateMarks(studentId, data);
-    setDirtyStudents((prev) => {
-      const next = new Set(prev);
-      next.delete(studentId);
-      return next;
-    });
+    setDirtyStudents((prev) => { const n = new Set(prev); n.delete(studentId); return n; });
   };
 
-  const handleSaveAll = () => {
-    dirtyStudents.forEach((studentId) => handleSave(studentId));
-  };
+  const handleSaveAll = () => dirtyStudents.forEach((id) => handleSave(id));
+
+  const rankedStudents = [...students]
+    .map((s) => ({ ...s, _total: calcOverallTotal(marks[s.id] || {}) }))
+    .sort((a, b) => b._total - a._total)
+    .map((s, i) => ({ ...s, rank: i + 1 }));
 
   if (students.length === 0) {
     return (
@@ -121,126 +155,172 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
 
   return (
     <div className="space-y-3">
-    {dirtyStudents.size > 0 && (
-      <div className="flex justify-end">
-        <Button onClick={handleSaveAll} disabled={isSaving} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-          <SaveAll className="w-4 h-4" /> Save All Changes ({dirtyStudents.size} unsaved)
-        </Button>
-      </div>
-    )}
-    <div className="overflow-x-auto rounded-lg border border-border">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-primary/10">
-            <TableHead className="font-bold text-foreground w-12 sticky left-0 bg-primary/10">Rank</TableHead>
-            <TableHead className="font-bold text-foreground min-w-[140px] sticky left-12 bg-primary/10">Name</TableHead>
-            {SUBJECTS.map(({ key, label }) => (
-              <TableHead key={key} className="font-bold text-foreground text-center min-w-[130px]" colSpan={2}>
-                {label}
-              </TableHead>
-            ))}
-            <TableHead className="font-bold text-foreground text-center">Total</TableHead>
-            <TableHead className="font-bold text-foreground text-center w-20">Actions</TableHead>
-          </TableRow>
-          <TableRow className="bg-primary/5">
-            <TableHead className="sticky left-0 bg-primary/5" />
-            <TableHead className="sticky left-12 bg-primary/5" />
-            {SUBJECTS.map(({ key }) => (
-              <React.Fragment key={key}>
-                <TableHead className="text-center text-xs text-muted-foreground font-medium py-1">Marks</TableHead>
-                <TableHead className="text-center text-xs text-muted-foreground font-medium py-1">Band</TableHead>
-              </React.Fragment>
-            ))}
-            <TableHead />
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rankedStudents.map((student) => {
-            const total = getTotal(student.id);
-            return (
-              <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
-                <TableCell className="sticky left-0 bg-background">
-                  <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold ${
-                    student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                    student.rank === 2 ? 'bg-gray-100 text-gray-600' :
-                    student.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                    'bg-muted text-muted-foreground'
-                  }`}>
-                    {student.rank}
-                  </span>
-                </TableCell>
-                <TableCell className="font-medium sticky left-12 bg-background min-w-[140px]">{student.name}</TableCell>
-                {SUBJECTS.map(({ key }) => {
-                  const band = editedBands[student.id]?.[key] || '';
-                  return (
-                    <React.Fragment key={key}>
-                      <TableCell className="p-1">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={editedMarks[student.id]?.[key] ?? ''}
-                          onChange={(e) => handleMarkChange(student.id, key, e.target.value)}
-                          className="w-14 h-7 text-center text-xs mx-auto"
-                        />
-                      </TableCell>
-                      <TableCell className="p-1 text-center">
-                        <Select
-                          value={band}
-                          onValueChange={(v) => handleBandChange(student.id, key, v)}
-                        >
-                          <SelectTrigger className={`w-16 h-7 text-xs px-1 font-bold border-0 ${band ? BAND_COLORS[band] : 'text-muted-foreground'}`}>
-                            <SelectValue placeholder="—" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value=" ">—</SelectItem>
-                            {BANDS.map(b => (
-                              <SelectItem key={b} value={b} className={BAND_COLORS[b]}>{b}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
-                    </React.Fragment>
-                  );
-                })}
-                <TableCell className="text-center font-bold">{total}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1 justify-center">
-                    {dirtyStudents.has(student.id) && (
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleSave(student.id)} disabled={isSaving}>
-                        <Save className="w-3.5 h-3.5 text-primary" />
-                      </Button>
-                    )}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="icon" variant="ghost" className="h-7 w-7">
-                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+      {dirtyStudents.size > 0 && (
+        <div className="flex justify-end">
+          <Button onClick={handleSaveAll} disabled={isSaving} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+            <SaveAll className="w-4 h-4" /> Save All ({dirtyStudents.size} unsaved)
+          </Button>
+        </div>
+      )}
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <Table>
+          <TableHeader>
+            {/* Row 1 — subject group headers */}
+            <TableRow className="bg-primary/10">
+              <TableHead rowSpan={2} className="font-bold text-foreground w-10 sticky left-0 bg-primary/10 align-middle text-center">#</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground min-w-[140px] sticky left-10 bg-primary/10 align-middle">Name</TableHead>
+
+              {/* Paper subjects — grouped header */}
+              {PAPER_SUBJECTS.map((s) => (
+                <TableHead key={s.key} colSpan={4} className="font-bold text-foreground text-center border-l border-border/40 bg-primary/10">
+                  {s.label}
+                </TableHead>
+              ))}
+
+              {/* Simple subjects */}
+              {SIMPLE_SUBJECTS.map((s) => (
+                <TableHead key={s.key} rowSpan={2} className="font-bold text-foreground text-center border-l border-border/40 bg-primary/10 align-middle min-w-[80px]">
+                  {s.label}
+                </TableHead>
+              ))}
+
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center border-l border-primary/30 bg-primary/20 align-middle min-w-[60px]">Total</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[56px]">Band</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle w-16">Actions</TableHead>
+            </TableRow>
+
+            {/* Row 2 — sub-column headers for paper subjects */}
+            <TableRow className="bg-primary/5">
+              {PAPER_SUBJECTS.map((s) => (
+                <React.Fragment key={s.key}>
+                  {s.papers.map((p) => (
+                    <TableHead key={p.pkey} className="text-center text-xs text-muted-foreground font-medium py-1 border-l border-border/20 min-w-[52px]">
+                      {p.label}<span className="text-[10px] text-muted-foreground/60">/{p.max}</span>
+                    </TableHead>
+                  ))}
+                  <TableHead className="text-center text-xs text-blue-700 font-bold py-1 min-w-[52px]">Total</TableHead>
+                  <TableHead className="text-center text-xs text-muted-foreground font-medium py-1 min-w-[46px]">Band</TableHead>
+                </React.Fragment>
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {rankedStudents.map((student) => {
+              const m = marks[student.id] || {};
+              const overallTotal = calcOverallTotal(m);
+              const overallBand = getBand(overallTotal / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
+              const isLowOverall = overallTotal > 0 && overallTotal < (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length) * 40;
+
+              return (
+                <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
+                  {/* Rank */}
+                  <TableCell className="sticky left-0 bg-background text-center">
+                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
+                      student.rank === 2 ? 'bg-gray-100 text-gray-600' :
+                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
+                      'bg-muted text-muted-foreground'
+                    }`}>{student.rank}</span>
+                  </TableCell>
+
+                  {/* Name */}
+                  <TableCell className="font-medium sticky left-10 bg-background min-w-[140px] text-sm">{student.name}</TableCell>
+
+                  {/* Paper subjects */}
+                  {PAPER_SUBJECTS.map((subj) => {
+                    const subjTotal = calcPaperTotal(m, subj);
+                    const subjBand = getBand(subjTotal);
+                    const isLow = subjTotal > 0 && subjTotal < 40;
+                    return (
+                      <React.Fragment key={subj.key}>
+                        {subj.papers.map((p) => (
+                          <TableCell key={p.pkey} className="p-1 border-l border-border/20">
+                            <PaperInput
+                              value={m[p.pkey] ?? ''}
+                              max={p.max}
+                              onChange={(v) => setMark(student.id, p.pkey, v, p.max)}
+                            />
+                          </TableCell>
+                        ))}
+                        {/* Subject total — read-only */}
+                        <TableCell className={`p-1 text-center font-bold text-sm ${isLow ? 'text-red-600' : 'text-blue-700'}`}>
+                          {subjTotal || '—'}
+                        </TableCell>
+                        {/* Subject band */}
+                        <TableCell className="p-1 text-center">
+                          <BandBadge score={subjTotal} />
+                        </TableCell>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {/* Simple subjects */}
+                  {SIMPLE_SUBJECTS.map((s) => (
+                    <TableCell key={s.key} className="p-1 border-l border-border/20">
+                      <PaperInput
+                        value={m[s.key] ?? ''}
+                        max={s.max}
+                        onChange={(v) => setMark(student.id, s.key, v, s.max)}
+                      />
+                    </TableCell>
+                  ))}
+
+                  {/* Overall total */}
+                  <TableCell className={`text-center font-bold border-l border-primary/30 ${isLowOverall ? 'text-red-600' : ''}`}>
+                    {overallTotal || '—'}
+                  </TableCell>
+
+                  {/* Overall band */}
+                  <TableCell className="text-center">
+                    <BandBadge score={overallTotal / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length)} />
+                  </TableCell>
+
+                  {/* Actions */}
+                  <TableCell>
+                    <div className="flex items-center gap-1 justify-center">
+                      {dirtyStudents.has(student.id) && (
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleSave(student.id)} disabled={isSaving}>
+                          <Save className="w-3.5 h-3.5 text-primary" />
                         </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Student</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete {student.name}? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive text-destructive-foreground">
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                      )}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="icon" variant="ghost" className="h-7 w-7">
+                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {student.name}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
+        <span className="font-medium">Bands:</span>
+        <span className="text-green-700 font-bold">EE (80–100)</span>
+        <span className="text-blue-700 font-bold">ME (60–79)</span>
+        <span className="text-amber-700 font-bold">AE (40–59)</span>
+        <span className="text-red-700 font-bold">BE (&lt;40)</span>
+        <span className="ml-2">· Red input = score below 40</span>
+      </div>
     </div>
   );
 }

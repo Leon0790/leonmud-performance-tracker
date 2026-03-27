@@ -1,0 +1,239 @@
+{
+  "name": "Student",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Student full name"
+    },
+    "admission_number": {
+      "type": "string",
+      "description": "Student admission number"
+    },
+    "grade": {
+      "type": "string",
+      "enum": [
+        "Grade 7",
+        "Grade 8",
+        "Grade 9"
+      ],
+      "description": "Student grade"
+    },
+    "class_name": {
+      "type": "string",
+      "description": "Class section"
+    },
+    "term": {
+      "type": "string",
+      "enum": [
+        "Term 1",
+        "Term 2",
+        "Term 3"
+      ],
+      "description": "Academic term"
+    },
+    "exam_type": {
+      "type": "string",
+      "enum": [
+        "Mid Term",
+        "End Term"
+      ],
+      "description": "Type of exam"
+    },
+    "mathematics": {
+      "type": "number"
+    },
+    "mathematics_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "kiswahili_p1": {
+      "type": "number",
+      "description": "Kiswahili Paper 1 (out of 50)"
+    },
+    "kiswahili_p2": {
+      "type": "number",
+      "description": "Kiswahili Paper 2 (out of 50)"
+    },
+    "kiswahili": {
+      "type": "number",
+      "description": "Kiswahili total (auto)"
+    },
+    "kiswahili_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "english_p1": {
+      "type": "number",
+      "description": "English Paper 1 (out of 50)"
+    },
+    "english_p2": {
+      "type": "number",
+      "description": "English Paper 2 (out of 50)"
+    },
+    "english": {
+      "type": "number",
+      "description": "English total (auto)"
+    },
+    "english_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "integrated_science_p1": {
+      "type": "number",
+      "description": "Integrated Science Paper 1 (out of 70)"
+    },
+    "integrated_science_p2": {
+      "type": "number",
+      "description": "Integrated Science Paper 2 (out of 30)"
+    },
+    "integrated_science": {
+      "type": "number",
+      "description": "Integrated Science total (auto)"
+    },
+    "integrated_science_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "agriculture": {
+      "type": "number"
+    },
+    "agriculture_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "social_studies": {
+      "type": "number"
+    },
+    "social_studies_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "pretechnical_studies": {
+      "type": "number"
+    },
+    "pretechnical_studies_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "religious_studies": {
+      "type": "number"
+    },
+    "religious_studies_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "creative_art": {
+      "type": "number"
+    },
+    "creative_art_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "overall_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ],
+      "description": "Overall performance band"
+    },
+    "teacher_email": {
+      "type": "string",
+      "description": "Email of the teacher who manages this student"
+    }
+  },
+  "required": [
+    "name",
+    "grade",
+    "term",
+    "exam_type"
+  ]
+}
