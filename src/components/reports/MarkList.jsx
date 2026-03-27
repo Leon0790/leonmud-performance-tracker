@@ -25,6 +25,8 @@ export default function MarkList({ students, grade, term, examType, profile, ope
     .sort((a, b) => getTotal(b) - getTotal(a))
     .map((s, i) => ({ ...s, rank: i + 1 }));
 
+  const year = new Date().getFullYear();
+
   const handlePrint = () => {
     const win = window.open('', '_blank');
     win.document.write(`
@@ -32,53 +34,50 @@ export default function MarkList({ students, grade, term, examType, profile, ope
       <head>
         <title>Mark List - ${grade}</title>
         <style>
-          body { font-family: 'Times New Roman', serif; margin: 0; padding: 16px; font-size: 11px; color: #000; }
-          .header { text-align: center; margin-bottom: 12px; }
-          .header h1 { font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase; }
-          .header h2 { font-size: 14px; font-weight: normal; margin: 4px 0 0; }
-          .meta { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; }
+          @page { size: A4 landscape; margin: 10mm; }
+          body { font-family: 'Times New Roman', serif; margin: 0; padding: 12px; font-size: 10px; color: #000; }
+          .header { text-align: center; margin-bottom: 10px; }
+          .header h1 { font-size: 17px; font-weight: bold; margin: 0; text-transform: uppercase; }
+          .header h2 { font-size: 13px; font-weight: bold; margin: 4px 0 0; text-transform: uppercase; letter-spacing: 1px; }
+          .header h3 { font-size: 11px; font-weight: normal; margin: 3px 0 0; }
+          .meta { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 11px; }
           table { width: 100%; border-collapse: collapse; }
-          th { background: #1e3a5f; color: #fff; padding: 5px 4px; text-align: center; font-size: 10px; white-space: nowrap; }
+          th { background: #1e3a5f; color: #fff; padding: 5px 3px; text-align: center; font-size: 9px; white-space: nowrap; border: 1px solid #1e3a5f; }
           th.left { text-align: left; }
-          td { padding: 4px; border: 1px solid #ccc; text-align: center; font-size: 10px; }
-          td.left { text-align: left; }
+          td { padding: 3px 4px; border: 1px solid #ccc; text-align: center; font-size: 9px; }
+          td.left { text-align: left; font-size: 10px; }
           tr:nth-child(even) td { background: #f0f4ff; }
-          .total-col { background: #dbeafe; font-weight: bold; }
-          .rank-col { background: #fef9c3; font-weight: bold; }
+          .total-col { background: #dbeafe !important; font-weight: bold; }
+          .rank-col { background: #fef9c3 !important; font-weight: bold; }
           .band-EE1, .band-EE2 { color: #16a34a; font-weight: bold; }
           .band-ME1, .band-ME2 { color: #2563eb; font-weight: bold; }
           .band-AE1, .band-AE2 { color: #d97706; font-weight: bold; }
           .band-BE1, .band-BE2 { color: #dc2626; font-weight: bold; }
-          .footer { margin-top: 20px; display: flex; justify-content: space-between; font-size: 11px; }
-          .sig-line { border-top: 1px solid #000; margin-top: 25px; padding-top: 3px; text-align: center; width: 180px; }
           @media print { body { padding: 0; } }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>CBC Mark List</h1>
-          <h2>${grade} &nbsp;|&nbsp; ${term} &nbsp;|&nbsp; ${examType}</h2>
-          <div style="font-size:12px; margin-top:4px;">Class Teacher: ${profile?.full_name || '—'} &nbsp;|&nbsp; Class: ${profile?.class_name || '—'}</div>
+          <h1>CBC PERFORMANCE MARK LIST</h1>
+          <h2>${grade.toUpperCase()} &nbsp;|&nbsp; ${term.toUpperCase()} &nbsp;|&nbsp; ${examType.toUpperCase()} &nbsp;|&nbsp; YEAR ${year}</h2>
+          <h3>Class Teacher: ${profile?.full_name || '—'} &nbsp;|&nbsp; Class: ${profile?.class_name || '—'} &nbsp;|&nbsp; Total Students: ${ranked.length}</h3>
         </div>
         <div class="meta">
           <span><strong>Opening Date:</strong> ${openingDate || '_______________'}</span>
           <span><strong>Closing Date:</strong> ${closingDate || '_______________'}</span>
-          <span><strong>Total Students:</strong> ${ranked.length}</span>
         </div>
         <table>
           <thead>
             <tr>
-              <th class="left">Rank</th>
-              <th class="left">Name</th>
-              <th>Adm No</th>
-              ${SUBJECTS.map(s => `<th>${s.label.split(' ').map(w => w[0]).join('')}</th>`).join('')}
-              <th>Total</th>
-              <th>Avg</th>
+              <th class="left" rowspan="2" style="min-width:30px">Rank</th>
+              <th class="left" rowspan="2" style="min-width:120px">Student Name</th>
+              <th rowspan="2">Adm No</th>
+              ${SUBJECTS.map(s => `<th colspan="2">${s.label}</th>`).join('')}
+              <th rowspan="2">Total</th>
+              <th rowspan="2">Avg</th>
             </tr>
             <tr>
-              <th colspan="3"></th>
-              ${SUBJECTS.map(s => `<th style="font-size:9px; color:#cfd8e8">${s.label}</th>`).join('')}
-              <th></th><th></th>
+              ${SUBJECTS.map(() => `<th>Mark</th><th>Band</th>`).join('')}
             </tr>
           </thead>
           <tbody>
@@ -92,7 +91,7 @@ export default function MarkList({ students, grade, term, examType, profile, ope
                 ${SUBJECTS.map(sub => {
                   const mark = s[sub.key];
                   const band = s[`${sub.key}_band`] || getBand(mark);
-                  return `<td>${band ? `<span class="band-${band}">${band}</span><br/>` : ''}${mark !== null && mark !== undefined ? mark : '—'}</td>`;
+                  return `<td>${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td><td class="band-${band || ''}">${band || '—'}</td>`;
                 }).join('')}
                 <td class="total-col">${total}</td>
                 <td>${avg}</td>
@@ -100,11 +99,7 @@ export default function MarkList({ students, grade, term, examType, profile, ope
             }).join('')}
           </tbody>
         </table>
-        <div class="footer">
-          <div class="sig-line">Class Teacher Signature</div>
-          <div class="sig-line">Head Teacher Signature</div>
-        </div>
-        <div style="text-align:center; font-size:10px; margin-top:16px; color:#777;">Generated by LeonMud Performance Tracker</div>
+        <div style="text-align:center; font-size:9px; margin-top:14px; color:#777;">Generated by LeonMud Performance Tracker</div>
       </body>
       </html>
     `);
