@@ -190,9 +190,9 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                 </TableHead>
               ))}
 
-              {/* Simple subjects */}
+              {/* Simple subjects — each gets 2 columns: mark + band */}
               {SIMPLE_SUBJECTS.map((s) => (
-                <TableHead key={s.key} rowSpan={2} className="font-bold text-foreground text-center border-l border-border/40 bg-primary/10 align-middle min-w-[80px]">
+                <TableHead key={s.key} colSpan={2} className="font-bold text-foreground text-center border-l border-border/40 bg-primary/10 align-middle">
                   {s.label}
                 </TableHead>
               ))}
@@ -203,7 +203,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle w-16">Actions</TableHead>
             </TableRow>
 
-            {/* Row 2 — sub-column headers for paper subjects */}
+            {/* Row 2 — sub-column headers for paper subjects + simple subjects */}
             <TableRow className="bg-primary/5">
               {PAPER_SUBJECTS.map((s) => (
                 <React.Fragment key={s.key}>
@@ -213,6 +213,14 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                     </TableHead>
                   ))}
                   <TableHead className="text-center text-xs text-blue-700 font-bold py-1 min-w-[52px]">Total</TableHead>
+                  <TableHead className="text-center text-xs text-muted-foreground font-medium py-1 min-w-[46px]">Band</TableHead>
+                </React.Fragment>
+              ))}
+              {SIMPLE_SUBJECTS.map((s) => (
+                <React.Fragment key={s.key}>
+                  <TableHead className="text-center text-xs text-muted-foreground font-medium py-1 border-l border-border/20 min-w-[60px]">
+                    Mark<span className="text-[10px] text-muted-foreground/60">/100</span>
+                  </TableHead>
                   <TableHead className="text-center text-xs text-muted-foreground font-medium py-1 min-w-[46px]">Band</TableHead>
                 </React.Fragment>
               ))}
@@ -270,15 +278,23 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                   })}
 
                   {/* Simple subjects */}
-                  {SIMPLE_SUBJECTS.map((s) => (
-                    <TableCell key={s.key} className="p-1 border-l border-border/20">
-                      <PaperInput
-                        value={m[s.key] ?? ''}
-                        max={s.max}
-                        onChange={(v) => setMark(student.id, s.key, v, s.max)}
-                      />
-                    </TableCell>
-                  ))}
+                  {SIMPLE_SUBJECTS.map((s) => {
+                    const val = parseInt(m[s.key]) || 0;
+                    return (
+                      <React.Fragment key={s.key}>
+                        <TableCell className="p-1 border-l border-border/20">
+                          <PaperInput
+                            value={m[s.key] ?? ''}
+                            max={s.max}
+                            onChange={(v) => setMark(student.id, s.key, v, s.max)}
+                          />
+                        </TableCell>
+                        <TableCell className="p-1 text-center">
+                          {val > 0 ? <BandBadge score={val} /> : <span className="text-muted-foreground text-xs">—</span>}
+                        </TableCell>
+                      </React.Fragment>
+                    );
+                  })}
 
                   {/* Overall total */}
                   <TableCell className={`text-center font-bold border-l border-primary/30 ${isLowOverall ? 'text-red-600' : ''}`}>
@@ -352,9 +368,12 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
 
                   {/* Simple subject averages */}
                   {SIMPLE_SUBJECTS.map((s) => (
-                    <TableCell key={s.key} className="text-center text-xs font-semibold text-muted-foreground border-l border-border/20 p-1">
-                      {colAvg(marks, ids, (m) => m[s.key])}
-                    </TableCell>
+                    <React.Fragment key={s.key}>
+                      <TableCell className="text-center text-xs font-semibold text-muted-foreground border-l border-border/20 p-1">
+                        {colAvg(marks, ids, (m) => m[s.key])}
+                      </TableCell>
+                      <TableCell className="p-1" />
+                    </React.Fragment>
                   ))}
 
                   {/* Overall avg */}
