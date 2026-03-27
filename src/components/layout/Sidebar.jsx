@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard, BookUser, Trash2 } from 'lucide-react';
+import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard, BookUser, Trash2, CalendarCheck } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -14,6 +14,7 @@ const teacherNavItems = [
   { label: 'Performance', path: '/performance', icon: BarChart3 },
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Students', path: '/students/list', icon: BookUser },
+  { label: 'Attendance', path: '/attendance', icon: CalendarCheck },
 ];
 
 const adminNavItems = [
@@ -22,6 +23,7 @@ const adminNavItems = [
   { label: 'Performance', path: '/performance', icon: BarChart3 },
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Students', path: '/students/list', icon: BookUser },
+  { label: 'Attendance', path: '/attendance', icon: CalendarCheck },
   { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import MarksFilters from '../components/marks/MarksFilters';
 import LearnerGraph from '../components/performance/LearnerGraph';
 import ClassGraph from '../components/performance/ClassGraph';
+import TopBottomStudents from '../components/performance/TopBottomStudents';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Performance() {
@@ -86,13 +87,16 @@ export default function Performance() {
           <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <LearnerGraph
-            students={students}
-            selectedStudent={selectedStudent}
-            onSelectStudent={setSelectedStudent}
-          />
-          <ClassGraph students={students} />
+        <div className="space-y-6">
+          <TopBottomStudents students={students} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <LearnerGraph
+              students={students}
+              selectedStudent={selectedStudent}
+              onSelectStudent={setSelectedStudent}
+            />
+            <ClassGraph students={students} />
+          </div>
         </div>
       )}
     </div>

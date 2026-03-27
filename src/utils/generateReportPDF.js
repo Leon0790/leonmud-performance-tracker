@@ -13,14 +13,13 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-
 const PRIMARY = [30, 58, 95];
 const WHITE = [255, 255, 255];
 const LIGHT_BLUE = [221, 232, 255];
 const LIGHT_ROW = [245, 248, 255];
 const BORDER = [180, 195, 215];
 
-function drawSingleReportCard(doc, student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, startY = 0) {
+function drawSingleReportCard(doc, student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, classTeacherDate, headteacherDate, startY = 0) {
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
 
@@ -29,23 +28,19 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   const contentW = pageW - margin * 2;
   let y = startY + margin;
 
-  // Border around the card
+  // Border
   doc.setDrawColor(...PRIMARY);
   doc.setLineWidth(0.8);
-  doc.rect(margin - 2, startY + margin - 2, contentW + 4, 255, 'S');
+  doc.rect(margin - 2, startY + margin - 2, contentW + 4, 275, 'S');
 
-  // Header background
+  // Header
   doc.setFillColor(...PRIMARY);
   doc.rect(margin - 2, y - 2, contentW + 4, 20, 'F');
 
-  // Logo
   if (schoolLogoDataUrl) {
-    try {
-      doc.addImage(schoolLogoDataUrl, margin + 1, y, 14, 14);
-    } catch (e) { /* ignore logo errors */ }
+    try { doc.addImage(schoolLogoDataUrl, margin + 1, y, 14, 14); } catch (e) {}
   }
 
-  // School title
   doc.setTextColor(...WHITE);
   doc.setFontSize(13);
   doc.setFont('times', 'bold');
@@ -68,7 +63,6 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     ['Class:', student.class_name || profile?.class_name || '—'],
     ['Term:', student.term],
     ['Exam:', student.exam_type],
-    ['Rank:', `${rank} / ${totalStudents}`],
     ['Average:', avg],
   ];
 
@@ -78,18 +72,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     doc.setFont('times', 'bold');
     doc.text(label, x, rowY);
     doc.setFont('times', 'normal');
-    if (label === 'Rank:') {
-      // Draw rank badge
-      doc.setFillColor(...PRIMARY);
-      doc.roundedRect(x + 16, rowY - 4, 20, 5, 1, 1, 'F');
-      doc.setTextColor(...WHITE);
-      doc.setFontSize(8);
-      doc.text(value, x + 26, rowY, { align: 'center' });
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(9);
-    } else {
-      doc.text(value, x + 16, rowY);
-    }
+    doc.text(String(value), x + 22, rowY);
   });
 
   y += Math.ceil(infoItems.length / 2) * 6 + 4;
@@ -112,7 +95,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.line(margin, y, margin + contentW, y);
   y += 5;
 
-  // Table header
+  // Table
   const colWidths = [8, contentW - 8 - 20 - 26, 20, 26];
   const colX = [margin, margin + 8, margin + 8 + colWidths[1], margin + 8 + colWidths[1] + 20];
   const rowH = 6;
@@ -144,7 +127,6 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     doc.setFontSize(8);
     doc.text(String(i + 1), colX[0] + 2, y + 4);
     doc.text(s.label, colX[1] + 2, y + 4);
-
     doc.setFont('times', 'normal');
     doc.text(mark !== null && mark !== undefined && mark !== '' ? String(mark) : '—', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
 
@@ -156,13 +138,11 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
     doc.setTextColor(0, 0, 0);
     doc.setFont('times', 'normal');
-
     y += rowH;
   });
 
-  // Total rows
-  const totalRows = [['TOTAL', '—', String(total)], ['AVERAGE', '—', avg]];
-  totalRows.forEach(([label, band, val]) => {
+  // Total/Average rows
+  [['TOTAL', String(total)], ['AVERAGE', avg]].forEach(([label, val]) => {
     doc.setFillColor(...LIGHT_BLUE);
     doc.rect(margin, y, contentW, rowH, 'F');
     doc.setDrawColor(...PRIMARY);
@@ -172,45 +152,79 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     doc.setFont('times', 'bold');
     doc.setFontSize(8);
     doc.text(label, colX[1] + 2, y + 4);
-    doc.text(band, colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
     doc.text(val, colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
     y += rowH;
   });
 
   y += 4;
 
-  // Comments
+  // Class Teacher Comment
   doc.setFont('times', 'bold');
   doc.setFontSize(8);
-  doc.setTextColor(0, 0, 0);
   doc.text("Class Teacher's Comments:", margin, y);
   y += 3;
   doc.setDrawColor(...BORDER);
   doc.setLineWidth(0.3);
-  doc.rect(margin, y, contentW, 14, 'S');
+  doc.rect(margin, y, contentW, 12, 'S');
   if (comment) {
     doc.setFont('times', 'normal');
-    doc.setFontSize(8);
-    doc.text(comment, margin + 2, y + 5, { maxWidth: contentW - 4 });
+    doc.text(comment, margin + 2, y + 4, { maxWidth: contentW - 4 });
   }
-  y += 18;
+  y += 16;
 
-  // Signatures
-  const sigW = contentW * 0.4;
-  const sig1X = margin;
-  const sig2X = margin + contentW - sigW;
-
-  doc.setLineWidth(0.4);
-  doc.setDrawColor(0, 0, 0);
-  doc.line(sig1X, y, sig1X + sigW, y);
-  doc.line(sig2X, y, sig2X + sigW, y);
-  y += 4;
-  doc.setFont('times', 'normal');
+  // Head Teacher Comment
+  doc.setFont('times', 'bold');
   doc.setFontSize(8);
-  doc.text(`Class Teacher: ${classTeacherName || ''}`, sig1X + sigW / 2, y, { align: 'center' });
-  doc.text(`Head Teacher: ${headteacherName || ''}`, sig2X + sigW / 2, y, { align: 'center' });
+  doc.text("Head Teacher's Comments:", margin, y);
+  y += 3;
+  doc.rect(margin, y, contentW, 12, 'S');
+  if (headteacherComment) {
+    doc.setFont('times', 'normal');
+    doc.text(headteacherComment, margin + 2, y + 4, { maxWidth: contentW - 4 });
+  }
+  y += 16;
 
-  y += 8;
+  // Signature section — proper layout
+  doc.setDrawColor(...PRIMARY);
+  doc.setLineWidth(0.4);
+  doc.line(margin, y, margin + contentW, y);
+  y += 5;
+
+  const sigColW = (contentW - 20) / 2;
+  const sig1X = margin;
+  const sig2X = margin + contentW - sigColW;
+
+  const drawSigBlock = (x, nameLabel, nameVal, dateVal) => {
+    doc.setFont('times', 'bold');
+    doc.setFontSize(8);
+    doc.text(`${nameLabel}:`, x, y);
+    doc.setFont('times', 'normal');
+    doc.text(nameVal || '_______________________', x + 25, y);
+
+    doc.setFont('times', 'bold');
+    doc.text('Signature:', x, y + 6);
+    doc.setFont('times', 'normal');
+    doc.text('___________________________', x + 18, y + 6);
+
+    doc.setFont('times', 'bold');
+    doc.text('Date:', x, y + 12);
+    doc.setFont('times', 'normal');
+    doc.text(dateVal || '________________', x + 12, y + 12);
+  };
+
+  drawSigBlock(sig1X, 'Class Teacher', classTeacherName, classTeacherDate);
+  drawSigBlock(sig2X, 'Head Teacher', headteacherName, headteacherDate);
+
+  // Stamp in middle
+  doc.setDrawColor(180, 180, 180);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(margin + contentW / 2 - 12, y - 1, 24, 16, 2, 2, 'S');
+  doc.setFontSize(6);
+  doc.setTextColor(180, 180, 180);
+  doc.text('SCHOOL', margin + contentW / 2, y + 5, { align: 'center' });
+  doc.text('STAMP', margin + contentW / 2, y + 10, { align: 'center' });
+
+  y += 20;
 
   // Footer
   doc.setFontSize(7);
@@ -218,9 +232,9 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.text('This report card is generated by LeonMud Performance Tracker', pageW / 2, y, { align: 'center' });
 }
 
-export function downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl) {
+export function downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, classTeacherDate, headteacherDate) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  drawSingleReportCard(doc, student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, 0);
+  drawSingleReportCard(doc, student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment || '', classTeacherDate || '', headteacherDate || '', 0);
   doc.save(`ReportCard_${student.name.replace(/\s+/g, '_')}.pdf`);
 }
 
@@ -228,7 +242,7 @@ export function downloadAllReportsPDF(students, profile, openingDate, closingDat
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   students.forEach((student, i) => {
     if (i > 0) doc.addPage();
-    drawSingleReportCard(doc, student, student.rank, students.length, profile, openingDate, closingDate, '', profile?.full_name || '', '', schoolLogoDataUrl, 0);
+    drawSingleReportCard(doc, student, student.rank, students.length, profile, openingDate, closingDate, '', profile?.full_name || '', '', schoolLogoDataUrl, '', '', '', 0);
   });
   doc.save(`AllReportCards_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

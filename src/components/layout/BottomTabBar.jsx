@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, BookUser, FileText } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck } from 'lucide-react';
 
 const TABS = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks', path: '/marks', icon: ClipboardList },
+  { label: 'Attend.', path: '/attendance', icon: CalendarCheck },
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
 ];

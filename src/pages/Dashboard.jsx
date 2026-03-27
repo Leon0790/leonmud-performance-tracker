@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WelcomeAnimation from '../components/dashboard/WelcomeAnimation';
 import TeacherProfileCard from '../components/dashboard/TeacherProfileCard';
 import StatsOverview from '../components/dashboard/StatsOverview';
+import QuickStatsCards from '../components/dashboard/QuickStatsCards';
+import SubjectBarChart from '../components/dashboard/SubjectBarChart';
 import { useToast } from '@/components/ui/use-toast';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
 
@@ -12,6 +14,10 @@ const SUBJECTS = [
   'agriculture', 'social_studies', 'pretechnical_studies',
   'religious_studies', 'creative_art'
 ];
+
+function getTotal(student) {
+  return SUBJECTS.reduce((t, sub) => t + (Number(student[sub]) || 0), 0);
+}
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -54,11 +60,12 @@ export default function Dashboard() {
   });
 
   const avgScore = students.length > 0
-    ? students.reduce((sum, s) => {
-        const total = SUBJECTS.reduce((t, sub) => t + (s[sub] || 0), 0);
-        return sum + total / SUBJECTS.length;
-      }, 0) / students.length
+    ? students.reduce((sum, s) => sum + getTotal(s) / SUBJECTS.length, 0) / students.length
     : 0;
+
+  const topStudent = students.length > 0
+    ? [...students].sort((a, b) => getTotal(b) - getTotal(a))[0]
+    : null;
 
   return (
     <div ref={containerRef} className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
@@ -69,6 +76,12 @@ export default function Dashboard() {
       )}
       <WelcomeAnimation teacherName={profile?.full_name || user?.full_name} />
 
+      <QuickStatsCards
+        studentCount={students.length}
+        avgScore={avgScore}
+        topStudentName={topStudent?.name}
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <TeacherProfileCard
@@ -77,8 +90,9 @@ export default function Dashboard() {
             isSaving={saveMutation.isPending}
           />
         </div>
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <StatsOverview studentCount={students.length} avgScore={avgScore} />
+          <SubjectBarChart students={students} />
         </div>
       </div>
     </div>
