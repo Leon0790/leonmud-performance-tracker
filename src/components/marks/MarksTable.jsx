@@ -52,10 +52,23 @@ function calcPaperTotal(marks, subject) {
   return subject.papers.reduce((sum, p) => sum + (parseInt(marks[p.pkey]) || 0), 0);
 }
 
+const NUM_SUBJECTS = PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length;
+
 function calcOverallTotal(marks) {
   const paperTotal = PAPER_SUBJECTS.reduce((sum, s) => sum + calcPaperTotal(marks, s), 0);
   const simpleTotal = SIMPLE_SUBJECTS.reduce((sum, s) => sum + (parseInt(marks[s.key]) || 0), 0);
   return paperTotal + simpleTotal;
+}
+
+function calcMean(marks) {
+  const total = calcOverallTotal(marks);
+  return (total / NUM_SUBJECTS).toFixed(1);
+}
+
+function colAvg(allMarks, studentIds, getter) {
+  const vals = studentIds.map(id => getter(allMarks[id] || {})).filter(v => v !== '' && !isNaN(v) && Number(v) > 0);
+  if (!vals.length) return '—';
+  return (vals.reduce((s, v) => s + Number(v), 0) / vals.length).toFixed(1);
 }
 
 function BandBadge({ score }) {
@@ -80,7 +93,7 @@ function PaperInput({ value, max, onChange }) {
       max={max}
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-12 h-7 text-center text-xs mx-auto ${isLow ? 'border-red-400 bg-red-50 text-red-700' : ''} ${isOver ? 'border-orange-400 bg-orange-50' : ''}`}
+      className={`w-16 h-7 text-center text-xs mx-auto ${isLow ? 'border-red-400 bg-red-50 text-red-700' : ''} ${isOver ? 'border-orange-400 bg-orange-50' : ''}`}
     />
   );
 }
@@ -185,6 +198,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               ))}
 
               <TableHead rowSpan={2} className="font-bold text-foreground text-center border-l border-primary/30 bg-primary/20 align-middle min-w-[60px]">Total</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/20 align-middle min-w-[60px]">Mean</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[56px]">Band</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle w-16">Actions</TableHead>
             </TableRow>
@@ -210,7 +224,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               const m = marks[student.id] || {};
               const overallTotal = calcOverallTotal(m);
               const overallBand = getBand(overallTotal / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
-              const isLowOverall = overallTotal > 0 && overallTotal < (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length) * 40;
+              const isLowOverall = overallTotal > 0 && overallTotal < NUM_SUBJECTS * 40;
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
@@ -271,9 +285,14 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                     {overallTotal || '—'}
                   </TableCell>
 
+                  {/* Mean per learner */}
+                  <TableCell className="text-center font-semibold text-primary text-sm bg-primary/5">
+                    {overallTotal > 0 ? calcMean(m) : '—'}
+                  </TableCell>
+
                   {/* Overall band */}
                   <TableCell className="text-center">
-                    <BandBadge score={overallTotal / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length)} />
+                    <BandBadge score={overallTotal / NUM_SUBJECTS} />
                   </TableCell>
 
                   {/* Actions */}
@@ -308,6 +327,50 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                 </TableRow>
               );
             })}
+            {/* Averages footer row */}
+            {(() => {
+              const ids = rankedStudents.map(s => s.id);
+              return (
+                <TableRow className="bg-primary/10 font-bold border-t-2 border-primary/30">
+                  <TableCell className="sticky left-0 bg-primary/10 text-center text-xs text-muted-foreground">—</TableCell>
+                  <TableCell className="sticky left-10 bg-primary/10 text-xs font-bold text-primary">Class Avg</TableCell>
+
+                  {/* Paper subject averages */}
+                  {PAPER_SUBJECTS.map((subj) => (
+                    <React.Fragment key={subj.key}>
+                      {subj.papers.map((p) => (
+                        <TableCell key={p.pkey} className="text-center text-xs font-semibold text-muted-foreground border-l border-border/20 p-1">
+                          {colAvg(marks, ids, (m) => m[p.pkey])}
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-center text-xs font-bold text-blue-700 p-1">
+                        {colAvg(marks, ids, (m) => calcPaperTotal(m, subj))}
+                      </TableCell>
+                      <TableCell className="p-1" />
+                    </React.Fragment>
+                  ))}
+
+                  {/* Simple subject averages */}
+                  {SIMPLE_SUBJECTS.map((s) => (
+                    <TableCell key={s.key} className="text-center text-xs font-semibold text-muted-foreground border-l border-border/20 p-1">
+                      {colAvg(marks, ids, (m) => m[s.key])}
+                    </TableCell>
+                  ))}
+
+                  {/* Overall avg */}
+                  <TableCell className="text-center text-xs font-bold border-l border-primary/30">
+                    {colAvg(marks, ids, (m) => calcOverallTotal(m))}
+                  </TableCell>
+
+                  {/* Mean avg */}
+                  <TableCell className="text-center text-xs font-bold text-primary bg-primary/5">
+                    {colAvg(marks, ids, (m) => calcOverallTotal(m) > 0 ? parseFloat(calcMean(m)) : '')}
+                  </TableCell>
+
+                  <TableCell /><TableCell />
+                </TableRow>
+              );
+            })()}
           </TableBody>
         </Table>
       </div>
