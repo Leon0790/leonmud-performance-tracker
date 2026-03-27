@@ -1,17 +1,34 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck, CreditCard } from 'lucide-react';
 
-const TABS = [
+const TEACHER_TABS = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks', path: '/marks', icon: ClipboardList },
-  { label: 'Attend.', path: '/attendance', icon: CalendarCheck },
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
+  { label: 'Payment', path: '/my-payment', icon: CreditCard },
+];
+
+const ADMIN_TABS = [
+  { label: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { label: 'Marks', path: '/marks', icon: ClipboardList },
+  { label: 'Students', path: '/students/list', icon: BookUser },
+  { label: 'Reports', path: '/reports', icon: FileText },
+  { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 
 export default function BottomTabBar() {
   const location = useLocation();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const TABS = user?.role === 'admin' ? ADMIN_TABS : TEACHER_TABS;
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar border-t border-sidebar-border flex items-stretch"
