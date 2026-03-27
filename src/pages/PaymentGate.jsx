@@ -54,9 +54,8 @@ export default function PaymentGate({ user, children }) {
       return base44.entities.Payment.create({
         teacher_email: user.email,
         mpesa_code: code,
-        status: 'approved',
+        status: 'pending',
         amount: 200,
-        approved_by: 'system',
       });
     },
     onSuccess: () => {

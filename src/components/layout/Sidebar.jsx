@@ -15,7 +15,6 @@ const teacherNavItems = [
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Attendance', path: '/attendance', icon: CalendarCheck },
-  { label: 'My Payment', path: '/my-payment', icon: CreditCard },
 ];
 
 const adminNavItems = [

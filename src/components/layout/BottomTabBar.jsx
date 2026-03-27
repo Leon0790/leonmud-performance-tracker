@@ -9,7 +9,7 @@ const TEACHER_TABS = [
   { label: 'Marks', path: '/marks', icon: ClipboardList },
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
-  { label: 'Payment', path: '/my-payment', icon: CreditCard },
+  { label: 'Attend.', path: '/attendance', icon: CalendarCheck },
 ];
 
 const ADMIN_TABS = [
