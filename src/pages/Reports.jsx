@@ -30,6 +30,7 @@ export default function Reports() {
   const [closingDate, setClosingDate] = useState('');
   const [schoolLogoDataUrl, setSchoolLogoDataUrl] = useState(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [logoError, setLogoError] = useState('');
   const logoInputRef = useRef(null);
 
   const { data: user } = useQuery({
@@ -66,6 +67,12 @@ export default function Reports() {
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setLogoError('');
+    if (!file.type.startsWith('image/')) {
+      setLogoError('Please upload an image file (PNG, JPG, etc.), not a Word or PDF document.');
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onloadend = () => {
       if (reader.result) setSchoolLogoDataUrl(reader.result);
@@ -173,6 +180,7 @@ export default function Reports() {
                   </Button>
                 )}
                 <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
+                {logoError && <p className="text-xs text-destructive mt-1 max-w-xs">{logoError}</p>}
               </div>
             </div>
           </div>
