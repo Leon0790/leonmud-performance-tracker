@@ -1,0 +1,129 @@
+{
+  "name": "StudentRegister",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "first_name": {
+      "type": "string",
+      "description": "Student first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Student last name"
+    },
+    "admission_number": {
+      "type": "string",
+      "description": "Unique admission number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "Male",
+        "Female",
+        "Other"
+      ]
+    },
+    "grade": {
+      "type": "string",
+      "enum": [
+        "Grade 7",
+        "Grade 8",
+        "Grade 9"
+      ]
+    },
+    "class_name": {
+      "type": "string",
+      "description": "Class section"
+    },
+    "stream": {
+      "type": "string",
+      "description": "Stream e.g. East, West, North"
+    },
+    "parent_name": {
+      "type": "string",
+      "description": "Parent or guardian full name"
+    },
+    "parent_phone": {
+      "type": "string",
+      "description": "Parent or guardian phone number"
+    },
+    "parent_email": {
+      "type": "string",
+      "description": "Parent or guardian email"
+    },
+    "address": {
+      "type": "string",
+      "description": "Home address"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Student profile photo URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Inactive",
+        "Transferred",
+        "Graduated"
+      ],
+      "default": "Active"
+    },
+    "teacher_email": {
+      "type": "string",
+      "description": "Email of the class teacher"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "grade"
+  ]
+}
