@@ -67,7 +67,9 @@ export default function Reports() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setSchoolLogoDataUrl(ev.target.result);
+    reader.onloadend = () => {
+      if (reader.result) setSchoolLogoDataUrl(reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -150,13 +152,19 @@ export default function Reports() {
             {/* School Logo Upload */}
             <div>
               <Label className="text-xs text-muted-foreground">School Logo</Label>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-3 mt-1">
                 {schoolLogoDataUrl ? (
-                  <div className="flex items-center gap-2">
-                    <img src={schoolLogoDataUrl} alt="School Logo" className="h-8 w-8 object-contain border border-border rounded" />
-                    <button onClick={() => setSchoolLogoDataUrl(null)} className="text-muted-foreground hover:text-destructive">
-                      <X className="w-4 h-4" />
-                    </button>
+                  <div className="flex items-center gap-3">
+                    <div className="relative border-2 border-primary/40 rounded-lg p-1 bg-white">
+                      <img src={schoolLogoDataUrl} alt="School Logo" className="h-16 w-16 object-contain" />
+                      <button
+                        onClick={() => { setSchoolLogoDataUrl(null); logoInputRef.current.value = ''; }}
+                        className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-destructive/80"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <div className="text-xs text-green-600 font-medium">✓ Logo loaded</div>
                   </div>
                 ) : (
                   <Button variant="outline" size="sm" onClick={() => logoInputRef.current?.click()}>
