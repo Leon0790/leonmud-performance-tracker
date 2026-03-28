@@ -14,6 +14,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import StudentReportCardButton from '@/components/students/StudentReportCardButton';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -36,6 +37,18 @@ export default function StudentProfile() {
   const [form, setForm] = useState(null);
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: teachers = [] } = useQuery({
+    queryKey: ['teacher-profile'],
+    queryFn: () => base44.entities.Teacher.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+  const profile = teachers[0] || null;
 
   const { data: student, isLoading } = useQuery({
     queryKey: ['student', id],
@@ -121,7 +134,8 @@ export default function StudentProfile() {
             </div>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {!editing && <StudentReportCardButton student={student} profile={profile} />}
           {editing ? (
             <>
               <Button size="sm" variant="outline" onClick={() => { setEditing(false); setForm({ ...student }); setPhotoFile(null); setPhotoPreview(null); }}>
