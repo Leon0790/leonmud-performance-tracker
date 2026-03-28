@@ -78,10 +78,11 @@ export default function Reports() {
     const allHTML = rankedStudents.map(s =>
       buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl, '', '')
     ).join('');
-    const win = window.open('', '_blank');
-    win.document.write(`<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`);
-    win.document.close();
-    setTimeout(() => { win.print(); }, 400);
+    const fullHtml = `<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`;
+    const blob = new Blob([fullHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    win.onload = () => { setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 300); };
   };
 
   const handleDownloadAllPDF = async () => {

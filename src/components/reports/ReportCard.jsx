@@ -188,11 +188,12 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
 
   const handlePrint = () => {
-    const win = window.open('', '_blank');
     const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, fmtDate(classTeacherDate), fmtDate(headteacherDate));
-    win.document.write(`<!DOCTYPE html><html><head><title>Report Card - ${student.name}</title><style>${REPORT_CARD_STYLES}</style></head><body>${html}</body></html>`);
-    win.document.close();
-    setTimeout(() => { win.print(); }, 400);
+    const fullHtml = `<!DOCTYPE html><html><head><title>Report Card - ${student.name}</title><style>${REPORT_CARD_STYLES}</style></head><body>${html}</body></html>`;
+    const blob = new Blob([fullHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    win.onload = () => { setTimeout(() => { win.print(); URL.revokeObjectURL(url); }, 300); };
   };
 
   return (
