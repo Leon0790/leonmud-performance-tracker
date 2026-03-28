@@ -36,24 +36,35 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
   return `
     <div class="page">
       <div class="card">
+        <!-- HEADER: Logo centered above title -->
         <div class="header">
-          ${schoolLogoDataUrl ? `<img src="${schoolLogoDataUrl}" class="school-logo" alt="School Logo" />` : '<div class="logo-placeholder"></div>'}
+          ${schoolLogoDataUrl ? `<img src="${schoolLogoDataUrl}" class="school-logo" alt="School Logo" />` : ''}
           <div class="school-name">CBC PERFORMANCE REPORT CARD</div>
           <div class="sub-header">Competency Based Curriculum (CBC) · Year ${new Date().getFullYear()}</div>
         </div>
-        <div class="student-name-block"><span class="name-label">Student Name:</span><span class="name-value">${student.name}</span></div>
+
+        <!-- STUDENT NAME — prominent full-width row -->
+        <div class="student-name-block">
+          <span class="name-label">STUDENT NAME:</span>
+          <span class="name-value">${student.name}</span>
+        </div>
+
+        <!-- OTHER INFO GRID -->
         <div class="info-grid">
           <div class="info-row"><span class="info-label">Adm No:</span><span class="info-value">${student.admission_number || '—'}</span></div>
           <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${student.grade}</span></div>
           <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
           <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
           <div class="info-row"><span class="info-label">Exam:</span><span class="info-value">${student.exam_type}</span></div>
+          <div class="info-row"><span class="info-label">Rank:</span><span class="info-value">${rank} / ${totalStudents}</span></div>
           <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
+
         <div class="dates-row">
           <span><strong>Opening Date:</strong> ${openingDate || '___________________________'}</span>
           <span><strong>Closing Date:</strong> ${closingDate || '___________________________'}</span>
         </div>
+
         <table>
           <thead>
             <tr><th>#</th><th>Learning Area</th><th>Marks (/100)</th><th>Band</th></tr>
@@ -64,48 +75,36 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
             <tr class="total-row"><td colspan="2">AVERAGE</td><td>${avg}</td><td>—</td></tr>
           </tbody>
         </table>
+
+        <!-- CLASS TEACHER SECTION -->
+        <div class="section-divider">Class Teacher</div>
         <div class="comments-section">
           <strong>Class Teacher's Comments:</strong>
           <div class="comment-box">${comment || ''}</div>
         </div>
+        <div class="sig-row-standalone">
+          <div class="sig-row-line"><span class="sig-field-label">Name:</span><span class="sig-field-value">${classTeacherName || '___________________________________'}</span></div>
+          <div class="sig-row-line"><span class="sig-field-label">Signature:</span><span class="sig-field-value">___________________________________</span></div>
+          <div class="sig-row-line"><span class="sig-field-label">Date:</span><span class="sig-field-value">${classTeacherDate || '___________________________________'}</span></div>
+        </div>
+
+        <!-- HEAD TEACHER SECTION — clearly separated -->
+        <div class="section-divider headteacher">Head Teacher</div>
         <div class="comments-section">
           <strong>Head Teacher's Comments:</strong>
           <div class="comment-box">${headteacherComment || ''}</div>
         </div>
-        <div class="sig-section">
-          <div class="sig-block">
-            <div class="sig-row-line">
-              <span class="sig-field-label">Class Teacher:</span>
-              <span class="sig-field-value">${classTeacherName || '_______________________'}</span>
-            </div>
-            <div class="sig-row-line">
-              <span class="sig-field-label">Signature:</span>
-              <span class="sig-field-value">___________________________</span>
-            </div>
-            <div class="sig-row-line">
-              <span class="sig-field-label">Date:</span>
-              <span class="sig-field-value">${classTeacherDate || '_______________'}</span>
-            </div>
+        <div class="ht-sig-stamp-row">
+          <div class="sig-row-standalone flex-sig">
+            <div class="sig-row-line"><span class="sig-field-label">Name:</span><span class="sig-field-value">${headteacherName || '___________________________________'}</span></div>
+            <div class="sig-row-line"><span class="sig-field-label">Signature:</span><span class="sig-field-value">___________________________________</span></div>
+            <div class="sig-row-line"><span class="sig-field-label">Date:</span><span class="sig-field-value">${headteacherDate || '___________________________________'}</span></div>
           </div>
           <div class="stamp-block-center">
-            <div class="stamp-area">SCHOOL<br/>STAMP</div>
-            <div class="stamp-label">Official Stamp</div>
-          </div>
-          <div class="sig-block">
-            <div class="sig-row-line">
-              <span class="sig-field-label">Head Teacher:</span>
-              <span class="sig-field-value">${headteacherName || '_______________________'}</span>
-            </div>
-            <div class="sig-row-line">
-              <span class="sig-field-label">Signature:</span>
-              <span class="sig-field-value">___________________________</span>
-            </div>
-            <div class="sig-row-line">
-              <span class="sig-field-label">Date:</span>
-              <span class="sig-field-value">${headteacherDate || '_______________'}</span>
-            </div>
+            <div class="stamp-area">OFFICIAL<br/>STAMP</div>
           </div>
         </div>
+
         <div class="footer">This report card is generated by LeonMud Performance Tracker</div>
       </div>
     </div>
@@ -113,25 +112,34 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 }
 
 export const REPORT_CARD_STYLES = `
-  @page { size: A4; margin: 15mm; }
+  @page { size: A4; margin: 12mm; }
   * { box-sizing: border-box; }
   body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; background: #fff; color: #000; }
-  .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 0; }
+  .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
   .page:last-child { page-break-after: auto; }
-  .card { width: 100%; max-width: 680px; border: 2px solid #1e3a5f; padding: 20px; }
-  .header { text-align: center; border-bottom: 2px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
-  .school-logo { display: block; height: 80px; width: 80px; object-fit: contain; border-radius: 50%; margin: 0 auto 10px; align-self: center; }
-  .logo-placeholder { height: 0; }
-  .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
-  .sub-header { font-size: 12px; color: #444; margin-top: 2px; }
-  .student-name-block { display: flex; align-items: baseline; border-bottom: 2px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 8px; font-size: 15px; }
-  .name-label { font-weight: bold; white-space: nowrap; width: 120px; flex-shrink: 0; }
-  .name-value { flex: 1; font-size: 16px; font-weight: bold; color: #1e3a5f; letter-spacing: 0.5px; word-break: break-word; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 20px; margin-bottom: 10px; font-size: 13px; }
-  .info-row { display: flex; gap: 0; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
+  .card { width: 100%; max-width: 700px; border: 2px solid #1e3a5f; padding: 18px 22px; }
+
+  /* ── HEADER ── */
+  .header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; }
+  .school-logo { display: block; height: 90px; width: 90px; object-fit: contain; margin: 0 auto 8px; }
+  .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: #1e3a5f; }
+  .sub-header { font-size: 11px; color: #555; margin-top: 3px; }
+
+  /* ── STUDENT NAME — big & bold ── */
+  .student-name-block { background: #1e3a5f; color: #fff; padding: 8px 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+  .name-label { font-size: 11px; font-weight: bold; white-space: nowrap; letter-spacing: 1px; opacity: 0.85; }
+  .name-value { font-size: 18px; font-weight: bold; letter-spacing: 0.5px; flex: 1; }
+
+  /* ── INFO GRID ── */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 10px; font-size: 13px; }
+  .info-row { display: flex; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
   .info-label { font-weight: bold; white-space: nowrap; width: 80px; flex-shrink: 0; }
-  .info-value { flex: 1; min-width: 0; word-break: break-word; overflow-wrap: anywhere; }
-  .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 6px 0; margin-bottom: 10px; }
+  .info-value { flex: 1; }
+
+  /* ── DATES ── */
+  .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 5px 0; margin-bottom: 10px; }
+
+  /* ── TABLE ── */
   table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
   th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: left; }
   td { padding: 5px 10px; border-bottom: 1px solid #e0e0e0; }
@@ -141,16 +149,28 @@ export const REPORT_CARD_STYLES = `
   .band-me1, .band-me2 { color: #2563eb; font-weight: bold; }
   .band-ae1, .band-ae2 { color: #d97706; font-weight: bold; }
   .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
-  .comments-section { font-size: 13px; margin-bottom: 10px; }
-  .comment-box { border: 1px solid #999; min-height: 50px; padding: 6px 8px; margin-top: 4px; font-size: 13px; }
-  .sig-section { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 14px; border-top: 2px solid #1e3a5f; padding-top: 10px; gap: 10px; page-break-inside: avoid; }
-  .sig-block { flex: 1; font-size: 11px; }
-  .sig-row-line { display: flex; gap: 4px; margin-bottom: 8px; align-items: baseline; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
-  .sig-field-label { font-weight: bold; white-space: nowrap; min-width: 85px; }
-  .sig-field-value { flex: 1; min-width: 0; }
-  .stamp-block-center { width: 130px; text-align: center; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-  .stamp-area { border: 2px dashed #999; height: 80px; width: 110px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; border-radius: 50%; }
-  .stamp-label { font-size: 10px; color: #666; font-weight: bold; }
+
+  /* ── SECTION DIVIDERS ── */
+  .section-divider { background: #e8eef6; border-left: 4px solid #1e3a5f; padding: 4px 10px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #1e3a5f; margin-bottom: 6px; margin-top: 12px; }
+  .section-divider.headteacher { background: #fef3e8; border-left-color: #c2410c; color: #c2410c; }
+
+  /* ── COMMENTS ── */
+  .comments-section { font-size: 13px; margin-bottom: 8px; }
+  .comment-box { border: 1px solid #bbb; min-height: 48px; padding: 6px 8px; margin-top: 4px; font-size: 13px; background: #fafafa; }
+
+  /* ── SIGNATURES ── */
+  .sig-row-standalone { font-size: 12px; margin-bottom: 6px; }
+  .sig-row-line { display: flex; gap: 4px; margin-bottom: 7px; align-items: baseline; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+  .sig-field-label { font-weight: bold; white-space: nowrap; min-width: 75px; }
+  .sig-field-value { flex: 1; }
+
+  /* ── HEAD TEACHER ROW (sigs + stamp side by side) ── */
+  .ht-sig-stamp-row { display: flex; align-items: flex-start; gap: 20px; }
+  .flex-sig { flex: 1; }
+  .stamp-block-center { width: 110px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 4px; }
+  .stamp-area { border: 2px dashed #aaa; height: 90px; width: 90px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; border-radius: 50%; text-align: center; line-height: 1.4; }
+
+  /* ── FOOTER ── */
   .footer { text-align: center; font-size: 10px; color: #888; margin-top: 14px; border-top: 1px solid #eee; padding-top: 6px; }
 `;
 
