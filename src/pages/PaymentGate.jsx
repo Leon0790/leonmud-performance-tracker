@@ -5,13 +5,35 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { GraduationCap, Phone, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { GraduationCap, Phone, Clock, XCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+
+const TRIAL_HOURS = 24;
+
+function isWithinTrial(user) {
+  if (!user?.created_date) return false;
+  const created = new Date(user.created_date);
+  const now = new Date();
+  const hoursSince = (now - created) / (1000 * 60 * 60);
+  return hoursSince < TRIAL_HOURS;
+}
+
+function trialTimeLeft(user) {
+  if (!user?.created_date) return '';
+  const created = new Date(user.created_date);
+  const now = new Date();
+  const msLeft = TRIAL_HOURS * 60 * 60 * 1000 - (now - created);
+  if (msLeft <= 0) return '0h 0m';
+  const h = Math.floor(msLeft / (1000 * 60 * 60));
+  const m = Math.floor((msLeft % (1000 * 60 * 60)) / (1000 * 60));
+  return `${h}h ${m}m`;
+}
 
 export default function PaymentGate({ user, children }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [mpesaCode, setMpesaCode] = useState('');
+  const [codeError, setCodeError] = useState('');
 
   const { data: payments = [], isLoading } = useQuery({
     queryKey: ['payment', user?.email],
@@ -19,7 +41,6 @@ export default function PaymentGate({ user, children }) {
     enabled: !!user?.email,
   });
 
-  // Load ALL payments to check for duplicate/already-used codes
   const { data: allPayments = [] } = useQuery({
     queryKey: ['all-payments-check'],
     queryFn: () => base44.entities.Payment.list(),
@@ -28,23 +49,18 @@ export default function PaymentGate({ user, children }) {
 
   const payment = payments[0] || null;
 
-  // Real M-Pesa codes: start with a letter, followed by 9 alphanumeric chars (total 10)
   const isValidMpesaFormat = (code) => /^[A-Z][A-Z0-9]{9}$/.test(code);
-
-  const [codeError, setCodeError] = useState('');
 
   const submitMutation = useMutation({
     mutationFn: async () => {
       const code = mpesaCode.trim().toUpperCase();
       setCodeError('');
 
-      // Validate format
       if (!isValidMpesaFormat(code)) {
-        setCodeError('Invalid M-Pesa code format. It must be exactly 10 characters (e.g. QGH3X7ABCD).');
+        setCodeError('Invalid M-Pesa code format. Must be exactly 10 characters (e.g. QGH3X7ABCD).');
         throw new Error('invalid_format');
       }
 
-      // Check code has not been used before by anyone
       const alreadyUsed = allPayments.some(p => p.mpesa_code === code);
       if (alreadyUsed) {
         setCodeError('This M-Pesa code has already been used. Please use a new transaction code.');
@@ -60,7 +76,7 @@ export default function PaymentGate({ user, children }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      toast({ title: 'Payment verified! Access granted.' });
+      toast({ title: 'Payment submitted! Awaiting admin approval.' });
       setMpesaCode('');
     },
   });
@@ -73,15 +89,18 @@ export default function PaymentGate({ user, children }) {
     );
   }
 
-  // Not yet loaded, let App handle auth state
   if (!user) return children;
 
-  // Admin bypass - admins don't need to pay
+  // Admins always bypass
   if (user?.role === 'admin') return children;
 
-  // Approved - let them through
+  // Approved payment — full access
   if (payment?.status === 'approved') return children;
 
+  // Within free trial window — let them in
+  if (isWithinTrial(user)) return children;
+
+  // --- Blocked: show payment wall ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
@@ -103,9 +122,9 @@ export default function PaymentGate({ user, children }) {
             </CardHeader>
             <CardContent className="text-center space-y-3">
               <p className="text-muted-foreground">
-                Your M-Pesa code <span className="font-mono font-bold text-foreground">{payment.mpesa_code}</span> could not be automatically verified and is under review.
+                Your M-Pesa code <span className="font-mono font-bold text-foreground">{payment.mpesa_code}</span> is under review.
               </p>
-              <p className="text-sm text-muted-foreground">Please ensure the code is correct or contact the administrator.</p>
+              <p className="text-sm text-muted-foreground">Contact the administrator to speed up approval.</p>
               <div className="bg-muted rounded-lg p-3 text-sm">
                 <p className="font-medium">Admin Contact</p>
                 <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
@@ -123,7 +142,7 @@ export default function PaymentGate({ user, children }) {
               <CardTitle className="text-lg text-destructive">Payment Rejected</CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
-              <p className="text-muted-foreground">Your payment code was rejected. Please make payment and submit a valid M-Pesa code.</p>
+              <p className="text-muted-foreground">Your payment code was rejected. Please submit a valid M-Pesa code.</p>
               <PaymentForm
                 mpesaCode={mpesaCode}
                 setMpesaCode={setMpesaCode}
@@ -136,9 +155,13 @@ export default function PaymentGate({ user, children }) {
         ) : (
           <Card className="shadow-xl border-border/50">
             <CardHeader className="pb-4">
-              <CardTitle className="text-lg text-center">Access Payment Required</CardTitle>
+              <CardTitle className="text-lg text-center">Your Free Trial Has Ended</CardTitle>
             </CardHeader>
             <CardContent className="space-y-5">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center text-sm text-amber-800">
+                <Sparkles className="w-5 h-5 mx-auto mb-1 text-amber-500" />
+                Your 1-day free trial has expired. Pay <strong>KES 200</strong> to continue using LeonMud Tracker.
+              </div>
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
                 <p className="font-semibold text-sm text-primary">Payment Instructions</p>
                 <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
@@ -147,7 +170,7 @@ export default function PaymentGate({ user, children }) {
                   <li>Enter number: <strong>0700938979</strong></li>
                   <li>Enter amount: <strong>KES 200</strong></li>
                   <li>Enter your PIN and confirm</li>
-                  <li>Copy the <strong>M-Pesa transaction code</strong> sent via SMS</li>
+                  <li>Copy the <strong>M-Pesa transaction code</strong> from SMS</li>
                   <li>Paste it below and submit</li>
                 </ol>
                 <div className="mt-3 pt-3 border-t border-primary/20 text-sm">
@@ -189,7 +212,7 @@ function PaymentForm({ mpesaCode, setMpesaCode, onSubmit, isSubmitting, codeErro
         disabled={!mpesaCode.trim() || isSubmitting}
         className="w-full"
       >
-        {isSubmitting ? 'Verifying...' : 'Submit Payment Code'}
+        {isSubmitting ? 'Submitting...' : 'Submit Payment Code'}
       </Button>
     </div>
   );
