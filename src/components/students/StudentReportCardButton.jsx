@@ -97,8 +97,8 @@ function buildHTML(student, marksRecords, profile, schoolLogoDataUrl) {
       <div class="card">
         <div class="header">
           ${schoolLogoDataUrl ? `<img src="${schoolLogoDataUrl}" class="school-logo" alt="School Logo" />` : ''}
-          <div class="school-name">CBC STUDENT REPORT CARD</div>
-          <div class="sub-header">Competency Based Curriculum · Year ${year}</div>
+          <div class="school-name">CBE STUDENT REPORT CARD</div>
+          <div class="sub-header">Competency Based Education (CBE) · Year ${year}</div>
         </div>
 
         <div class="student-name-block">

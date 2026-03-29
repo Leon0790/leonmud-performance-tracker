@@ -58,7 +58,7 @@ export default function MarkList({ students, grade, term, examType, profile, ope
       </head>
       <body>
         <div class="header">
-          <h1>CBC PERFORMANCE MARK LIST</h1>
+          <h1>CBE PERFORMANCE MARK LIST</h1>
           <h2>${grade.toUpperCase()} &nbsp;|&nbsp; ${term.toUpperCase()} &nbsp;|&nbsp; ${examType.toUpperCase()} &nbsp;|&nbsp; YEAR ${year}</h2>
           <h3>Class Teacher: ${profile?.full_name || '—'} &nbsp;|&nbsp; Class: ${profile?.class_name || '—'} &nbsp;|&nbsp; Total Students: ${ranked.length}</h3>
         </div>
