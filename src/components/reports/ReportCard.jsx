@@ -41,8 +41,8 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
         <!-- HEADER: Logo centered above title -->
         <div class="header">
           ${schoolLogoDataUrl ? `<img src="${schoolLogoDataUrl}" class="school-logo" alt="School Logo" />` : ''}
-          <div class="school-name">CBC PERFORMANCE REPORT CARD</div>
-          <div class="sub-header">Competency Based Curriculum (CBC) · Year ${new Date().getFullYear()}</div>
+          <div class="school-name">CBE PERFORMANCE REPORT CARD</div>
+          <div class="sub-header">Competency Based Education (CBE) · Year ${new Date().getFullYear()}</div>
         </div>
 
         <!-- STUDENT NAME — prominent full-width row -->
