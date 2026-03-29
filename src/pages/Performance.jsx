@@ -9,8 +9,11 @@ import LearnerGraph from '../components/performance/LearnerGraph';
 import ClassGraph from '../components/performance/ClassGraph';
 import TopBottomStudents from '../components/performance/TopBottomStudents';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import PremiumLock from '@/components/PremiumLock';
+import { usePremium } from '@/hooks/use-premium';
 
 export default function Performance() {
+  const { isPremium, isLoading: isPremiumLoading } = usePremium();
   const [filters, setFilters] = useState({
     grade: 'Grade 7',
     term: 'Term 1',
@@ -65,12 +68,19 @@ export default function Performance() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BarChart3 className="w-7 h-7 text-primary" />
-          Performance Analysis
-        </h1>
-        <p className="text-muted-foreground mt-1">View learner and class performance trends</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <BarChart3 className="w-7 h-7 text-primary" />
+            Performance Analysis
+          </h1>
+          <p className="text-muted-foreground mt-1">View learner and class performance trends</p>
+        </div>
+        {!isPremiumLoading && !isPremium && (
+          <Link to="/my-payment" className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full bg-amber-500 text-white hover:bg-amber-600 transition-colors shadow">
+            🔒 Unlock Advanced Analytics — KES 200
+          </Link>
+        )}
       </div>
 
       <Card className="shadow-md border-border/50">
@@ -89,14 +99,16 @@ export default function Performance() {
       ) : (
         <div className="space-y-6">
           <TopBottomStudents students={students} />
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            <LearnerGraph
-              students={students}
-              selectedStudent={selectedStudent}
-              onSelectStudent={setSelectedStudent}
-            />
-            <ClassGraph students={students} />
-          </div>
+          <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Advanced Charts & Analytics" mode="block">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <LearnerGraph
+                students={students}
+                selectedStudent={selectedStudent}
+                onSelectStudent={setSelectedStudent}
+              />
+              <ClassGraph students={students} />
+            </div>
+          </PremiumLock>
         </div>
       )}
     </div>

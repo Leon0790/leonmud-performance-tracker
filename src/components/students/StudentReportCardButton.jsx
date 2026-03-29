@@ -7,6 +7,8 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { getBand, bandColor } from '@/utils/bands';
+import PremiumLock from '@/components/PremiumLock';
+import { usePremium } from '@/hooks/use-premium';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -153,6 +155,7 @@ function buildHTML(student, marksRecords, profile, schoolLogoDataUrl) {
 export default function StudentReportCardButton({ student, profile }) {
   const [logoDataUrl, setLogoDataUrl] = useState(null);
   const logoInputRef = useRef(null);
+  const { isPremium, isLoading } = usePremium();
 
   const { data: marksRecords = [] } = useQuery({
     queryKey: ['student-marks', student.admission_number],
@@ -185,23 +188,25 @@ export default function StudentReportCardButton({ student, profile }) {
 
   return (
     <div className="flex items-center gap-1">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="outline" className="gap-1.5">
-            <FileDown className="w-4 h-4" />
-            Report Card
-            <ChevronDown className="w-3 h-3 opacity-60" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handlePrint(logoDataUrl)}>
-            Print without logo
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleLogoThenPrint}>
-            Print with school logo…
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <PremiumLock isPremium={isPremium} isLoading={isLoading} feature="PDF Report Cards" mode="overlay">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" className="gap-1.5">
+              <FileDown className="w-4 h-4" />
+              Report Card
+              <ChevronDown className="w-3 h-3 opacity-60" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handlePrint(null)}>
+              Print without logo
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogoThenPrint}>
+              Print with school logo…
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </PremiumLock>
       <input ref={logoInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
     </div>
   );

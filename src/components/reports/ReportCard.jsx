@@ -5,6 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Printer, Download } from 'lucide-react';
 import { downloadSingleReportPDF } from '@/utils/generateReportPDF';
 import { getBand, bandColor } from '@/utils/bands';
+import PremiumLock from '@/components/PremiumLock';
+import { usePremium } from '@/hooks/use-premium';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -181,6 +183,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const [classTeacherName, setClassTeacherName] = useState(profile?.full_name || '');
   const [classTeacherDate, setClassTeacherDate] = useState('');
   const [headteacherDate, setHeadteacherDate] = useState('');
+  const { isPremium, isLoading: isPremiumLoading } = usePremium();
 
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
@@ -204,12 +207,16 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '—'} · Total: <span className="font-semibold">{total}</span> · Avg: <span className="font-semibold">{avg}</span></p>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Button size="sm" variant="outline" onClick={handlePrint}>
-            <Printer className="w-4 h-4 mr-1" /> Print
-          </Button>
-          <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate))}>
-            <Download className="w-4 h-4 mr-1" /> PDF
-          </Button>
+          <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Print Report Cards" mode="overlay">
+            <Button size="sm" variant="outline" onClick={handlePrint}>
+              <Printer className="w-4 h-4 mr-1" /> Print
+            </Button>
+          </PremiumLock>
+          <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="PDF Download" mode="overlay">
+            <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate))}>
+              <Download className="w-4 h-4 mr-1" /> PDF
+            </Button>
+          </PremiumLock>
         </div>
       </div>
 
@@ -252,7 +259,9 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           </div>
           <div>
             <Label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments</Label>
-            <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={2} placeholder="Enter head teacher comments..." value={headteacherComment} onChange={(e) => setHeadteacherComment(e.target.value)} />
+            <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Comments" mode="overlay">
+              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={2} placeholder="Enter head teacher comments..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
+            </PremiumLock>
           </div>
         </div>
 
@@ -273,14 +282,18 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             </div>
             <div className="space-y-2">
               <p className="text-xs font-medium">Head Teacher</p>
-              <div>
-                <Label className="text-xs text-muted-foreground">Name</Label>
-                <Input value={headteacherName} onChange={(e) => setHeadteacherName(e.target.value)} className="mt-1 text-sm h-8" placeholder="Full name" />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Date Signed</Label>
-                <input type="date" value={headteacherDate} onChange={e => setHeadteacherDate(e.target.value)} className="flex h-8 mt-1 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
-              </div>
+              <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Signature" mode="overlay">
+                <div className="space-y-2 w-full">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Name</Label>
+                    <Input value={headteacherName} onChange={(e) => setHeadteacherName(e.target.value)} className="mt-1 text-sm h-8" placeholder="Full name" readOnly={!isPremium} />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Date Signed</Label>
+                    <input type="date" value={headteacherDate} onChange={e => setHeadteacherDate(e.target.value)} className="flex h-8 mt-1 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" readOnly={!isPremium} />
+                  </div>
+                </div>
+              </PremiumLock>
             </div>
           </div>
         </div>
