@@ -59,13 +59,15 @@ export default function PaymentModal({ open, onOpenChange, feature }) {
       return base44.entities.Payment.create({
         teacher_email: user.email,
         mpesa_code: code,
-        status: 'pending',
+        status: 'approved',
         amount: selectedPlan.amount,
+        approved_by: 'auto',
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      setStep('pending');
+      queryClient.invalidateQueries({ queryKey: ['all-payments-check'] });
+      setStep('success');
       setMpesaCode('');
     },
   });
@@ -208,25 +210,22 @@ export default function PaymentModal({ open, onOpenChange, feature }) {
           </div>
         )}
 
-        {step === 'pending' && (
+        {step === 'success' && (
           <div className="text-center space-y-4 py-4">
-            <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto">
-              <Clock className="w-8 h-8 text-amber-600" />
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <div>
-              <p className="font-bold text-lg">Payment Submitted!</p>
+              <p className="font-bold text-lg">🎉 Premium Unlocked!</p>
               <p className="text-muted-foreground text-sm mt-1">
-                Your M-Pesa code is under review by the admin. You'll get full access once approved — usually within a few minutes.
+                Your payment has been received and your account is now fully activated. Enjoy all premium features!
               </p>
             </div>
-            <div className="bg-muted/50 rounded-lg p-3 text-sm">
-              <p className="font-medium">Need faster approval?</p>
-              <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
-                <Phone className="w-3.5 h-3.5" /> Call/WhatsApp: <strong>0700938979</strong>
-              </p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800 flex items-center gap-2 justify-center">
+              <Shield className="w-4 h-4 text-green-600" /> Full premium access granted
             </div>
             <Button className="w-full" onClick={handleClose}>
-              Got it — close
+              Start using premium →
             </Button>
           </div>
         )}

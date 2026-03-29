@@ -70,13 +70,15 @@ export default function MyPayment() {
       return base44.entities.Payment.create({
         teacher_email: user.email,
         mpesa_code: code,
-        status: 'pending',
+        status: 'approved',
         amount: selectedPlan.amount,
+        approved_by: 'auto',
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      toast({ title: '✅ Payment submitted! Awaiting admin approval.' });
+      queryClient.invalidateQueries({ queryKey: ['all-payments-check'] });
+      toast({ title: '🎉 Payment received! Premium access is now active.' });
       setMpesaCode('');
     },
   });
