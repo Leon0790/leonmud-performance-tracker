@@ -21,7 +21,7 @@ import Attendance from './pages/Attendance';
 import MyPayment from './pages/MyPayment';
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -44,7 +44,7 @@ const AuthenticatedApp = () => {
   }
 
   return (
-    <PaymentGate user={user}>
+    <PaymentGate>
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Dashboard />} />
