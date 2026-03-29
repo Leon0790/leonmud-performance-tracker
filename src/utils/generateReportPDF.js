@@ -44,10 +44,10 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.setTextColor(...WHITE);
   doc.setFontSize(13);
   doc.setFont('times', 'bold');
-  doc.text('CBC PERFORMANCE REPORT CARD', pageW / 2, y + 8, { align: 'center' });
+  doc.text('CBE PERFORMANCE REPORT CARD', pageW / 2, y + 8, { align: 'center' });
   doc.setFontSize(8);
   doc.setFont('times', 'normal');
-  doc.text(`Competency Based Curriculum (CBC) · Year ${new Date().getFullYear()}`, pageW / 2, y + 14, { align: 'center' });
+  doc.text(`Competency Based Education (CBE) · Year ${new Date().getFullYear()}`, pageW / 2, y + 14, { align: 'center' });
 
   y += 24;
 
