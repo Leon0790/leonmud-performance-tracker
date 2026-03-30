@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { UserPlus, ClipboardList } from 'lucide-react';
+import { UserPlus, ClipboardList, Upload } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import MarksFilters from '../components/marks/MarksFilters';
 import MarksTable from '../components/marks/MarksTable';
@@ -100,10 +101,18 @@ export default function MarksEntry() {
             {profile?.class_name && ` ${profile.class_name}`}
           </p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)}>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Student
-        </Button>
+        <div className="flex gap-2">
+          <Link to="/marks/import">
+            <Button variant="outline">
+              <Upload className="w-4 h-4 mr-2" />
+              Import CSV
+            </Button>
+          </Link>
+          <Button onClick={() => setShowAddDialog(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Student
+          </Button>
+        </div>
       </div>
 
       <Card className="shadow-md border-border/50">

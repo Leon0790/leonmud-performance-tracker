@@ -19,6 +19,7 @@ import StudentProfile from './pages/students/Profile';
 import ImportStudents from './pages/students/Import';
 import Attendance from './pages/Attendance';
 import MyPayment from './pages/MyPayment';
+import ImportMarks from './pages/ImportMarks';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
           <Route path="/students/import" element={<ImportStudents />} />
           <Route path="/attendance" element={<Attendance />} />
           <Route path="/my-payment" element={<MyPayment />} />
+          <Route path="/marks/import" element={<ImportMarks />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
