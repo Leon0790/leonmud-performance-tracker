@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { getBand, bandRGB } from '@/utils/bands';
+import { getSubjectComment } from '@/utils/subjectComments';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -95,20 +96,32 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.line(margin, y, margin + contentW, y);
   y += 5;
 
-  // Table
-  const colWidths = [8, contentW - 8 - 20 - 26, 20, 26];
-  const colX = [margin, margin + 8, margin + 8 + colWidths[1], margin + 8 + colWidths[1] + 20];
-  const rowH = 6;
+  // Table — 5 columns: #, Subject, Marks, Band, Remarks
+  const numW = 8;
+  const marksW = 20;
+  const bandW = 20;
+  const remarkW = 72;
+  const subjectW = contentW - numW - marksW - bandW - remarkW;
+  const colWidths = [numW, subjectW, marksW, bandW, remarkW];
+  const colX = [
+    margin,
+    margin + numW,
+    margin + numW + subjectW,
+    margin + numW + subjectW + marksW,
+    margin + numW + subjectW + marksW + bandW,
+  ];
+  const rowH = 7;
 
   doc.setFillColor(...PRIMARY);
   doc.rect(margin, y, contentW, rowH, 'F');
   doc.setTextColor(...WHITE);
   doc.setFontSize(8);
   doc.setFont('times', 'bold');
-  doc.text('#', colX[0] + 2, y + 4);
-  doc.text('Learning Area', colX[1] + 2, y + 4);
-  doc.text('Marks (/100)', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
-  doc.text('Band', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
+  doc.text('#', colX[0] + 2, y + 4.5);
+  doc.text('Learning Area', colX[1] + 2, y + 4.5);
+  doc.text('Marks', colX[2] + marksW / 2, y + 4.5, { align: 'center' });
+  doc.text('Band', colX[3] + bandW / 2, y + 4.5, { align: 'center' });
+  doc.text('Remarks', colX[4] + 2, y + 4.5);
 
   y += rowH;
   doc.setFont('times', 'normal');
@@ -116,6 +129,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   SUBJECTS.forEach((s, i) => {
     const mark = student[s.key];
     const band = student[`${s.key}_band`] || getBand(mark);
+    const remark = getSubjectComment(s.key, band);
     const bg = i % 2 === 0 ? WHITE : LIGHT_ROW;
     doc.setFillColor(...bg);
     doc.rect(margin, y, contentW, rowH, 'F');
@@ -125,19 +139,24 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(8);
-    doc.text(String(i + 1), colX[0] + 2, y + 4);
-    doc.text(s.label, colX[1] + 2, y + 4);
-    doc.setFont('times', 'normal');
-    doc.text(mark !== null && mark !== undefined && mark !== '' ? String(mark) : '—', colX[2] + colWidths[2] / 2, y + 4, { align: 'center' });
+    doc.text(String(i + 1), colX[0] + 2, y + 4.5);
+    doc.text(s.label, colX[1] + 2, y + 4.5);
+    doc.text(mark !== null && mark !== undefined && mark !== '' ? String(mark) : '—', colX[2] + marksW / 2, y + 4.5, { align: 'center' });
 
     if (band) {
       doc.setTextColor(...bandRGB(band));
       doc.setFont('times', 'bold');
     }
-    doc.text(band || '—', colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
+    doc.text(band || '—', colX[3] + bandW / 2, y + 4.5, { align: 'center' });
+
+    doc.setTextColor(80, 80, 80);
+    doc.setFont('times', 'italic');
+    doc.setFontSize(7);
+    doc.text(remark, colX[4] + 2, y + 4.5, { maxWidth: remarkW - 3 });
 
     doc.setTextColor(0, 0, 0);
     doc.setFont('times', 'normal');
+    doc.setFontSize(8);
     y += rowH;
   });
 
@@ -151,8 +170,8 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     doc.setTextColor(0, 0, 0);
     doc.setFont('times', 'bold');
     doc.setFontSize(8);
-    doc.text(label, colX[1] + 2, y + 4);
-    doc.text(val, colX[3] + colWidths[3] / 2, y + 4, { align: 'center' });
+    doc.text(label, colX[1] + 2, y + 4.5);
+    doc.text(val, colX[2] + marksW / 2, y + 4.5, { align: 'center' });
     y += rowH;
   });
 

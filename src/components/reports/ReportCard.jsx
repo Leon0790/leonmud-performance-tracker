@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Printer, Download } from 'lucide-react';
 import { downloadSingleReportPDF } from '@/utils/generateReportPDF';
 import { getBand, bandColor } from '@/utils/bands';
+import { getSubjectComment } from '@/utils/subjectComments';
 import PremiumLock from '@/components/PremiumLock';
 import { usePremium } from '@/hooks/use-premium';
 
@@ -27,11 +28,13 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
   const rows = SUBJECTS.map((s, i) => {
     const mark = student[s.key];
     const band = student[`${s.key}_band`] || getBand(mark);
+    const autoComment = getSubjectComment(s.key, band);
     return `<tr>
       <td>${i + 1}</td>
       <td>${s.label}</td>
-      <td>${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
-      <td class="band-${(band || '').toLowerCase()}">${band || '—'}</td>
+      <td style="text-align:center">${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
+      <td class="band-${(band || '').toLowerCase()}" style="text-align:center">${band || '—'}</td>
+      <td style="font-size:11px;color:#444">${autoComment}</td>
     </tr>`;
   }).join('');
 
@@ -69,12 +72,12 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 
         <table>
           <thead>
-            <tr><th>#</th><th>Learning Area</th><th>Marks (/100)</th><th>Band</th></tr>
+            <tr><th>#</th><th>Learning Area</th><th>Marks (/100)</th><th>Band</th><th>Remarks</th></tr>
           </thead>
           <tbody>
             ${rows}
-            <tr class="total-row"><td colspan="2">TOTAL</td><td>${total}</td><td>—</td></tr>
-            <tr class="total-row"><td colspan="2">AVERAGE</td><td>${avg}</td><td>—</td></tr>
+            <tr class="total-row"><td colspan="2">TOTAL</td><td style="text-align:center">${total}</td><td>—</td><td></td></tr>
+            <tr class="total-row"><td colspan="2">AVERAGE</td><td style="text-align:center">${avg}</td><td>—</td><td></td></tr>
           </tbody>
         </table>
 
@@ -225,19 +228,22 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <thead>
             <tr className="bg-primary text-primary-foreground">
               <th className="px-2 py-1.5 text-left">Learning Area</th>
-              <th className="px-2 py-1.5">Marks</th>
-              <th className="px-2 py-1.5">Band</th>
+              <th className="px-2 py-1.5 text-center">Marks</th>
+              <th className="px-2 py-1.5 text-center">Band</th>
+              <th className="px-2 py-1.5 text-left">Remarks</th>
             </tr>
           </thead>
           <tbody>
             {SUBJECTS.map((s) => {
               const mark = student[s.key];
               const band = student[`${s.key}_band`] || getBand(mark);
+              const autoComment = getSubjectComment(s.key, band);
               return (
                 <tr key={s.key} className="border-b border-border/50">
-                  <td className="px-2 py-1">{s.label}</td>
+                  <td className="px-2 py-1 font-medium">{s.label}</td>
                   <td className="px-2 py-1 text-center">{mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
                   <td className="px-2 py-1 text-center font-bold" style={{ color: bandColor(band) }}>{band || '—'}</td>
+                  <td className="px-2 py-1 text-muted-foreground italic">{band ? autoComment : '—'}</td>
                 </tr>
               );
             })}
@@ -245,6 +251,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
               <td className="px-2 py-1">Total / Average</td>
               <td className="px-2 py-1 text-center">{total}</td>
               <td className="px-2 py-1 text-center">{avg}</td>
+              <td />
             </tr>
           </tbody>
         </table>
