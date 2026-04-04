@@ -194,7 +194,11 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   y += 8;
 
   // ── CLASS TEACHER SECTION ──
-  // Section header bar
+  const pageH = doc.internal.pageSize.getHeight();
+  const commentLines = comment ? doc.splitTextToSize(comment, contentW - 8) : [];
+  const commentBoxH = Math.max(35, commentLines.length * 4.8 + 10);
+  if (y > pageH - (commentBoxH + 60)) { doc.addPage(); y = margin; }
+
   doc.setFillColor(232, 238, 246);
   doc.rect(margin, y, contentW, 7, 'F');
   doc.setFillColor(...PRIMARY);
@@ -205,18 +209,14 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.text('CLASS TEACHER', margin + 5, y + 4.8);
   y += 10;
 
-  // Comments label
   doc.setTextColor(0, 0, 0);
   doc.setFont('times', 'bold');
   doc.setFontSize(9);
   doc.text("Class Teacher's Comments:", margin, y);
   y += 5;
 
-  // Comment box — measure height based on content
   doc.setFont('times', 'normal');
   doc.setFontSize(9);
-  const commentLines = comment ? doc.splitTextToSize(comment, contentW - 8) : [];
-  const commentBoxH = Math.max(35, commentLines.length * 4.8 + 10);
   doc.setDrawColor(...BORDER);
   doc.setLineWidth(0.4);
   doc.setFillColor(255, 255, 255);
@@ -227,30 +227,41 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   }
   y += commentBoxH + 6;
 
-  // Class Teacher signature rows
-  const sigLineLen = 55;
+  const sigLineLen = 60;
+
+  // Helper: draw a signature row (increments y)
   const drawSigRow = (x, label, value) => {
+    // Start new page if near bottom
+    if (y > pageH - 20) { doc.addPage(); y = margin; }
     doc.setFont('times', 'bold');
     doc.setFontSize(9);
+    doc.setTextColor(0, 0, 0);
     doc.text(label, x, y);
     doc.setFont('times', 'normal');
     if (value) {
-      doc.text(value, x + 22, y);
+      doc.text(value, x + 24, y);
     } else {
       doc.setDrawColor(100, 100, 100);
       doc.setLineWidth(0.3);
-      doc.line(x + 22, y + 1, x + 22 + sigLineLen, y + 1);
+      doc.line(x + 24, y + 1, x + 24 + sigLineLen, y + 1);
     }
-    y += 8;
+    y += 9;
   };
 
+  // Check if Class Teacher sig block fits, else new page
+  if (y > pageH - 40) { doc.addPage(); y = margin; }
   drawSigRow(margin, 'Name:', classTeacherName);
   drawSigRow(margin, 'Signature:', '');
   drawSigRow(margin, 'Date:', classTeacherDate || '');
 
-  y += 4;
+  y += 6;
 
   // ── HEAD TEACHER SECTION ──
+  // Check if entire HT section fits, else new page
+  const htLines = headteacherComment ? doc.splitTextToSize(headteacherComment, contentW - 8) : [];
+  const htBoxH = Math.max(35, htLines.length * 4.8 + 10);
+  if (y > pageH - (htBoxH + 80)) { doc.addPage(); y = margin; }
+
   doc.setFillColor(254, 243, 232);
   doc.rect(margin, y, contentW, 7, 'F');
   doc.setFillColor(194, 65, 12);
@@ -267,8 +278,6 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.text("Head Teacher's Comments:", margin, y);
   y += 5;
 
-  const htLines = headteacherComment ? doc.splitTextToSize(headteacherComment, contentW - 8) : [];
-  const htBoxH = Math.max(35, htLines.length * 4.8 + 10);
   doc.setDrawColor(...BORDER);
   doc.setLineWidth(0.4);
   doc.setFillColor(255, 255, 255);
@@ -282,16 +291,16 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   // Head Teacher sig rows — left side, stamp on right
   const stampCX = margin + contentW - 18;
-  const stampCY = y + 10;
+  const sigStartY = y;
 
   drawSigRow(margin, 'Name:', headteacherName);
   drawSigRow(margin, 'Signature:', '');
   drawSigRow(margin, 'Date:', headteacherDate || '');
 
-  // Stamp (dashed circle, right side)
+  // Stamp — positioned vertically centred beside the 3 sig rows
+  const stampCY = sigStartY + 12;
   doc.setDrawColor(180, 180, 180);
   doc.setLineWidth(0.6);
-  // Draw dashed circle approximation using arc segments
   doc.circle(stampCX, stampCY, 14, 'S');
   doc.setFontSize(6.5);
   doc.setTextColor(170, 170, 170);
@@ -299,9 +308,10 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.text('OFFICIAL', stampCX, stampCY - 2, { align: 'center' });
   doc.text('STAMP', stampCX, stampCY + 3, { align: 'center' });
 
-  y += 12;
+  y += 10;
 
   // ── FOOTER ──
+  if (y > pageH - 12) { doc.addPage(); y = margin; }
   doc.setFontSize(7);
   doc.setTextColor(150, 150, 150);
   doc.setFont('times', 'normal');
