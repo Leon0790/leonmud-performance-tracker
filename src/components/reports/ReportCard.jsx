@@ -270,9 +270,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
                 <AICommentGenerator student={student} onCommentGenerated={setHeadteacherComment} role="headteacher" />
               </PremiumLock>
             </div>
-            <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Comments" mode="overlay">
-              <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={3} placeholder="Optional — leave blank or use AI Generate..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
-            </PremiumLock>
+            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={3} placeholder="Optional — type or use AI Generate..." value={headteacherComment} onChange={(e) => setHeadteacherComment(e.target.value)} />
           </div>
         </div>
 
@@ -293,18 +291,16 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             </div>
             <div className="space-y-2">
               <p className="text-xs font-medium">Head Teacher</p>
-              <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Signature" mode="overlay">
-                <div className="space-y-2 w-full">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Name</Label>
-                    <Input value={headteacherName} onChange={(e) => setHeadteacherName(e.target.value)} className="mt-1 text-sm h-8" placeholder="Full name" readOnly={!isPremium} />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Date Signed</Label>
-                    <input type="date" value={headteacherDate} onChange={e => setHeadteacherDate(e.target.value)} className="flex h-8 mt-1 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" readOnly={!isPremium} />
-                  </div>
+              <div className="space-y-2 w-full">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Name</Label>
+                  <Input value={headteacherName} onChange={(e) => setHeadteacherName(e.target.value)} className="mt-1 text-sm h-8" placeholder="Full name" />
                 </div>
-              </PremiumLock>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Date Signed</Label>
+                  <input type="date" value={headteacherDate} onChange={e => setHeadteacherDate(e.target.value)} className="flex h-8 mt-1 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
