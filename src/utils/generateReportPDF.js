@@ -195,8 +195,8 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   // ── CLASS TEACHER SECTION ──
   const pageH = doc.internal.pageSize.getHeight();
-  const commentLines = comment ? doc.splitTextToSize(comment, contentW - 8) : [];
-  const commentBoxH = Math.max(35, commentLines.length * 4.8 + 10);
+  const commentLines = comment ? doc.splitTextToSize(comment, contentW - 10) : [];
+  const commentBoxH = Math.max(35, commentLines.length * 5.2 + 10);
   if (y > pageH - (commentBoxH + 60)) { doc.addPage(); y = margin; }
 
   doc.setFillColor(232, 238, 246);
@@ -223,7 +223,12 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.rect(margin, y, contentW, commentBoxH, 'FD');
   if (commentLines.length > 0) {
     doc.setTextColor(0, 0, 0);
-    doc.text(commentLines, margin + 4, y + 6);
+    // Clip text strictly inside box
+    doc.saveGraphicsState();
+    doc.rect(margin + 2, y + 1, contentW - 4, commentBoxH - 2);
+    doc.clip();
+    doc.text(commentLines, margin + 4, y + 6, { maxWidth: contentW - 8, lineHeightFactor: 1.4 });
+    doc.restoreGraphicsState();
   }
   y += commentBoxH + 6;
 
@@ -257,9 +262,8 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   y += 6;
 
   // ── HEAD TEACHER SECTION ──
-  // Check if entire HT section fits, else new page
   const htLines = headteacherComment ? doc.splitTextToSize(headteacherComment, contentW - 8) : [];
-  const htBoxH = Math.max(35, htLines.length * 4.8 + 10);
+  const htBoxH = htLines.length > 0 ? Math.max(25, htLines.length * 5.2 + 10) : 25;
   if (y > pageH - (htBoxH + 80)) { doc.addPage(); y = margin; }
 
   doc.setFillColor(254, 243, 232);
@@ -272,6 +276,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.text('HEAD TEACHER', margin + 5, y + 4.8);
   y += 10;
 
+  // Comments label + box (always shown for signing space)
   doc.setTextColor(0, 0, 0);
   doc.setFont('times', 'bold');
   doc.setFontSize(9);
@@ -285,7 +290,11 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   if (htLines.length > 0) {
     doc.setFont('times', 'normal');
     doc.setTextColor(0, 0, 0);
-    doc.text(htLines, margin + 4, y + 6);
+    doc.saveGraphicsState();
+    doc.rect(margin + 2, y + 1, contentW - 4, htBoxH - 2);
+    doc.clip();
+    doc.text(htLines, margin + 4, y + 6, { maxWidth: contentW - 8, lineHeightFactor: 1.4 });
+    doc.restoreGraphicsState();
   }
   y += htBoxH + 6;
 
