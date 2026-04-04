@@ -162,7 +162,7 @@ export const REPORT_CARD_STYLES = `
 
   /* ── COMMENTS ── */
   .comments-section { font-size: 13px; margin-bottom: 8px; }
-  .comment-box { border: 1px solid #bbb; min-height: 48px; padding: 6px 8px; margin-top: 4px; font-size: 13px; background: #fafafa; }
+  .comment-box { border: 1px solid #bbb; min-height: 80px; padding: 8px 10px; margin-top: 4px; font-size: 13px; background: #fafafa; line-height: 1.6; }
 
   /* ── SIGNATURES ── */
   .sig-row-standalone { font-size: 12px; margin-bottom: 6px; }
@@ -266,12 +266,12 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
               <Label className="text-xs font-medium text-muted-foreground">Class Teacher's Comments</Label>
               <AICommentGenerator student={student} onCommentGenerated={setComment} />
             </div>
-            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={4} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
+            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
           <div>
             <Label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments</Label>
             <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Comments" mode="overlay">
-              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={2} placeholder="Enter head teacher comments..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
+              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Enter head teacher comments..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
             </PremiumLock>
           </div>
         </div>
