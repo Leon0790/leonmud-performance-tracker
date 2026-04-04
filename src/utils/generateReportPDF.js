@@ -93,10 +93,10 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   // ── TABLE ──
   // Columns: Learning Area | Marks (/100) | Band | Remarks
-  const marksW = 22;
-  const bandW = 18;
-  const remarkW = 78;
-  const subjectW = contentW - marksW - bandW - remarkW;
+  const marksW = 20;
+  const bandW = 16;
+  const remarkW = contentW - 48 - 20 - 16;
+  const subjectW = 48;
   const colX = [
     margin,
     margin + subjectW,
@@ -127,8 +127,9 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
     // Measure remark lines
     doc.setFont('times', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(11);
     const remarkLines = doc.splitTextToSize(remark, remarkW - 4);
+    doc.setFontSize(8);
     const subjectLines = doc.splitTextToSize(s.label, subjectW - 4);
     const nLines = Math.max(remarkLines.length, subjectLines.length, 1);
     const rowH = Math.max(9, nLines * lineH + cellPadY * 2);
