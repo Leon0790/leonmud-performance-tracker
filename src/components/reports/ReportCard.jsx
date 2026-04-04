@@ -255,13 +255,13 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
 
       {/* Comments */}
       <div className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between mb-1">
               <Label className="text-xs font-medium text-muted-foreground">Class Teacher's Comments</Label>
               <AICommentGenerator student={student} onCommentGenerated={setComment} />
             </div>
-            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
+            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={5} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">
@@ -271,7 +271,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
               </PremiumLock>
             </div>
             <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Comments" mode="overlay">
-              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={4} placeholder="Optional — leave blank or use AI Generate..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
+              <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={3} placeholder="Optional — leave blank or use AI Generate..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
             </PremiumLock>
           </div>
         </div>

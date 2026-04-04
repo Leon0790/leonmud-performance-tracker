@@ -193,50 +193,11 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   y += 8;
 
-  // ── CLASS TEACHER SECTION ──
   const pageH = doc.internal.pageSize.getHeight();
-  const commentLines = comment ? doc.splitTextToSize(comment, contentW - 10) : [];
-  const commentBoxH = Math.max(35, commentLines.length * 5.2 + 10);
-  if (y > pageH - (commentBoxH + 60)) { doc.addPage(); y = margin; }
-
-  doc.setFillColor(232, 238, 246);
-  doc.rect(margin, y, contentW, 7, 'F');
-  doc.setFillColor(...PRIMARY);
-  doc.rect(margin, y, 3, 7, 'F');
-  doc.setTextColor(...PRIMARY);
-  doc.setFont('times', 'bold');
-  doc.setFontSize(9);
-  doc.text('CLASS TEACHER', margin + 5, y + 4.8);
-  y += 10;
-
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('times', 'bold');
-  doc.setFontSize(9);
-  doc.text("Class Teacher's Comments:", margin, y);
-  y += 5;
-
-  doc.setFont('times', 'normal');
-  doc.setFontSize(9);
-  doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.4);
-  doc.setFillColor(255, 255, 255);
-  doc.rect(margin, y, contentW, commentBoxH, 'FD');
-  if (commentLines.length > 0) {
-    doc.setTextColor(0, 0, 0);
-    // Clip text strictly inside box
-    doc.saveGraphicsState();
-    doc.rect(margin + 2, y + 1, contentW - 4, commentBoxH - 2);
-    doc.clip();
-    doc.text(commentLines, margin + 4, y + 6, { maxWidth: contentW - 8, lineHeightFactor: 1.4 });
-    doc.restoreGraphicsState();
-  }
-  y += commentBoxH + 6;
-
   const sigLineLen = 60;
 
   // Helper: draw a signature row (increments y)
   const drawSigRow = (x, label, value) => {
-    // Start new page if near bottom
     if (y > pageH - 20) { doc.addPage(); y = margin; }
     doc.setFont('times', 'bold');
     doc.setFontSize(9);
@@ -253,69 +214,72 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     y += 9;
   };
 
-  // Check if Class Teacher sig block fits, else new page
-  if (y > pageH - 40) { doc.addPage(); y = margin; }
-  drawSigRow(margin, 'Name:', classTeacherName);
-  drawSigRow(margin, 'Signature:', '');
-  drawSigRow(margin, 'Date:', classTeacherDate || '');
+  // Helper: draw a section (divider + label + comment box + sig rows)
+  const drawSection = (title, accentRGB, bgRGB, commentText, sigName, sigDate, withStamp) => {
+    doc.setFontSize(9);
+    const lines = commentText ? doc.splitTextToSize(commentText, contentW - 8) : [];
+    const lineH = 5.2;
+    const boxH = Math.max(25, lines.length * lineH + 12);
+    const totalNeeded = 10 + 5 + boxH + 6 + 27 + (withStamp ? 0 : 0) + 10;
+    if (y > pageH - totalNeeded) { doc.addPage(); y = margin; }
 
-  y += 6;
+    // Section header bar
+    doc.setFillColor(...bgRGB);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setFillColor(...accentRGB);
+    doc.rect(margin, y, 3, 7, 'F');
+    doc.setTextColor(...accentRGB);
+    doc.setFont('times', 'bold');
+    doc.text(title, margin + 5, y + 4.8);
+    y += 10;
+
+    // Comment label
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('times', 'bold');
+    doc.text(`${title.charAt(0) + title.slice(1).toLowerCase().replace('teacher', 'Teacher')} Comments:`, margin, y);
+    y += 5;
+
+    // Comment box — expands to fit all text, no clipping
+    doc.setFont('times', 'normal');
+    doc.setDrawColor(...BORDER);
+    doc.setLineWidth(0.4);
+    doc.setFillColor(255, 255, 255);
+    doc.rect(margin, y, contentW, boxH, 'FD');
+    if (lines.length > 0) {
+      doc.setTextColor(0, 0, 0);
+      doc.text(lines, margin + 4, y + 7, { lineHeightFactor: 1.45 });
+    }
+    y += boxH + 6;
+
+    // Signature rows
+    if (y > pageH - 40) { doc.addPage(); y = margin; }
+    const sigStartY = y;
+    drawSigRow(margin, 'Name:', sigName || '');
+    drawSigRow(margin, 'Signature:', '');
+    drawSigRow(margin, 'Date:', sigDate || '');
+
+    // Stamp circle (head teacher only)
+    if (withStamp) {
+      const stampCX = margin + contentW - 18;
+      const stampCY = sigStartY + 12;
+      doc.setDrawColor(180, 180, 180);
+      doc.setLineWidth(0.6);
+      doc.circle(stampCX, stampCY, 14, 'S');
+      doc.setFontSize(6.5);
+      doc.setTextColor(170, 170, 170);
+      doc.setFont('times', 'bold');
+      doc.text('OFFICIAL', stampCX, stampCY - 2, { align: 'center' });
+      doc.text('STAMP', stampCX, stampCY + 3, { align: 'center' });
+    }
+
+    y += 6;
+  };
+
+  // ── CLASS TEACHER SECTION ──
+  drawSection('CLASS TEACHER', PRIMARY, [232, 238, 246], comment, classTeacherName, classTeacherDate, false);
 
   // ── HEAD TEACHER SECTION ──
-  const htLines = headteacherComment ? doc.splitTextToSize(headteacherComment, contentW - 8) : [];
-  const htBoxH = htLines.length > 0 ? Math.max(25, htLines.length * 5.2 + 10) : 25;
-  if (y > pageH - (htBoxH + 80)) { doc.addPage(); y = margin; }
-
-  doc.setFillColor(254, 243, 232);
-  doc.rect(margin, y, contentW, 7, 'F');
-  doc.setFillColor(194, 65, 12);
-  doc.rect(margin, y, 3, 7, 'F');
-  doc.setTextColor(194, 65, 12);
-  doc.setFont('times', 'bold');
-  doc.setFontSize(9);
-  doc.text('HEAD TEACHER', margin + 5, y + 4.8);
-  y += 10;
-
-  // Comments label + box (always shown for signing space)
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('times', 'bold');
-  doc.setFontSize(9);
-  doc.text("Head Teacher's Comments:", margin, y);
-  y += 5;
-
-  doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.4);
-  doc.setFillColor(255, 255, 255);
-  doc.rect(margin, y, contentW, htBoxH, 'FD');
-  if (htLines.length > 0) {
-    doc.setFont('times', 'normal');
-    doc.setTextColor(0, 0, 0);
-    doc.saveGraphicsState();
-    doc.rect(margin + 2, y + 1, contentW - 4, htBoxH - 2);
-    doc.clip();
-    doc.text(htLines, margin + 4, y + 6, { maxWidth: contentW - 8, lineHeightFactor: 1.4 });
-    doc.restoreGraphicsState();
-  }
-  y += htBoxH + 6;
-
-  // Head Teacher sig rows — left side, stamp on right
-  const stampCX = margin + contentW - 18;
-  const sigStartY = y;
-
-  drawSigRow(margin, 'Name:', headteacherName);
-  drawSigRow(margin, 'Signature:', '');
-  drawSigRow(margin, 'Date:', headteacherDate || '');
-
-  // Stamp — positioned vertically centred beside the 3 sig rows
-  const stampCY = sigStartY + 12;
-  doc.setDrawColor(180, 180, 180);
-  doc.setLineWidth(0.6);
-  doc.circle(stampCX, stampCY, 14, 'S');
-  doc.setFontSize(6.5);
-  doc.setTextColor(170, 170, 170);
-  doc.setFont('times', 'bold');
-  doc.text('OFFICIAL', stampCX, stampCY - 2, { align: 'center' });
-  doc.text('STAMP', stampCX, stampCY + 3, { align: 'center' });
+  drawSection('HEAD TEACHER', [194, 65, 12], [254, 243, 232], headteacherComment, headteacherName, headteacherDate, true);
 
   y += 10;
 
