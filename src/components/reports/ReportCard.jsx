@@ -142,7 +142,7 @@ export const REPORT_CARD_STYLES = `
   .dates-row { display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 4px 0; margin-bottom: 8px; }
 
   /* ── TABLE ── */
-  table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 10px; table-layout: fixed; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; table-layout: fixed; }
   col.col-subj  { width: 22%; }
   col.col-marks { width: 12%; }
   col.col-band  { width: 10%; }

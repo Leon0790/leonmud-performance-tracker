@@ -168,7 +168,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     // Remark — normal (no italics)
     doc.setTextColor(0, 0, 0);
     doc.setFont('times', 'normal');
-    doc.setFontSize(8);
+    doc.setFontSize(11);
     doc.text(remarkLines, colX[3] + 2, textY);
 
     y += rowH;
