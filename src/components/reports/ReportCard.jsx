@@ -161,7 +161,7 @@ export const REPORT_CARD_STYLES = `
   .section-divider.headteacher { background: #fef3e8; border-left-color: #c2410c; color: #c2410c; }
 
   /* ── COMMENTS ── */
-  .comment-box { border: 1px solid #bbb; min-height: 100px; padding: 10px 12px; margin-bottom: 8px; font-size: 11px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; overflow: hidden; box-sizing: border-box; width: 100%; }
+  .comment-box { border: 1px solid #bbb; min-height: 100px; padding: 10px 12px; margin-bottom: 8px; font-size: 12px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; overflow: hidden; box-sizing: border-box; width: 100%; }
 
   /* ── SIGNATURES (table-based for reliable print) ── */
   .sig-table { border-collapse: collapse; margin: 6px 0; font-size: 11.5px; }

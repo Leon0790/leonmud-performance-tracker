@@ -216,10 +216,11 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   // Helper: draw a section (divider + label + comment box + sig rows)
   const drawSection = (title, accentRGB, bgRGB, commentText, sigName, sigDate, withStamp) => {
-    doc.setFontSize(9);
+    doc.setFontSize(12);
     const lines = commentText ? doc.splitTextToSize(commentText, contentW - 8) : [];
-    const lineH = 5.2;
+    const lineH = 6.5;
     const boxH = Math.max(25, lines.length * lineH + 12);
+    doc.setFontSize(9);
     const totalNeeded = 10 + 5 + boxH + 6 + 27 + (withStamp ? 0 : 0) + 10;
     if (y > pageH - totalNeeded) { doc.addPage(); y = margin; }
 
@@ -241,6 +242,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
     // Comment box — expands to fit all text, no clipping
     doc.setFont('times', 'normal');
+    doc.setFontSize(12);
     doc.setDrawColor(...BORDER);
     doc.setLineWidth(0.4);
     doc.setFillColor(255, 255, 255);
@@ -249,6 +251,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
       doc.setTextColor(0, 0, 0);
       doc.text(lines, margin + 4, y + 7, { lineHeightFactor: 1.45 });
     }
+    doc.setFontSize(9);
     y += boxH + 6;
 
     // Signature rows
