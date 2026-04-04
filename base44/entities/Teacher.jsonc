@@ -19,9 +19,9 @@
       "type": "string",
       "description": "Class name or section"
     },
-    "phone": {
+    "email": {
       "type": "string",
-      "description": "Teacher's phone number (Kenyan format, e.g. 07XXXXXXXX)"
+      "description": "Teacher's email address for welcome message"
     },
     "welcome_sent": {
       "type": "boolean",

@@ -4,26 +4,17 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Save, User, Phone, MessageSquare } from 'lucide-react';
+import { Save, User, Mail, MessageSquare } from 'lucide-react';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 
-function normalizePhone(phone) {
-  if (!phone) return null;
-  const digits = phone.replace(/\D/g, '');
-  if (digits.startsWith('254')) return digits;
-  if (digits.startsWith('0') && digits.length === 10) return '254' + digits.slice(1);
-  if (digits.length === 9) return '254' + digits;
-  return digits;
-}
-
-function buildWelcomeWhatsApp(phone, name) {
-  const normalized = normalizePhone(phone);
-  if (!normalized) return null;
-  const message = encodeURIComponent(
-    `Hello ${name || 'Teacher'} 👋, welcome to *LeonMud Performance Tracker*!\n\nYour teacher profile has been successfully registered. You can now:\n• Enter & track student marks\n• Generate report cards\n• Monitor class performance\n\nHappy teaching! 🎓`
+function buildWelcomeMailto(email, name) {
+  if (!email) return null;
+  const subject = encodeURIComponent('Welcome to LeonMud Performance Tracker!');
+  const body = encodeURIComponent(
+    `Hello ${name || 'Teacher'},\n\nWelcome to LeonMud Performance Tracker!\n\nYour teacher profile has been successfully registered. You can now:\n• Enter & track student marks\n• Generate report cards\n• Monitor class performance\n\nHappy teaching!`
   );
-  return `https://wa.me/${normalized}?text=${message}`;
+  return `mailto:${email}?subject=${subject}&body=${body}`;
 }
 
 export default function TeacherProfileCard({ profile, onSave, isSaving, isNewProfile }) {
@@ -31,7 +22,7 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
     full_name: profile?.full_name || '',
     class_grade: profile?.class_grade || '',
     class_name: profile?.class_name || '',
-    phone: profile?.phone || '',
+    email: profile?.email || '',
   });
 
   const [showWelcomePrompt, setShowWelcomePrompt] = useState(false);
@@ -44,7 +35,7 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
         full_name: profile.full_name || '',
         class_grade: profile.class_grade || '',
         class_name: profile.class_name || '',
-        phone: profile.phone || '',
+        email: profile.email || '',
       });
     }
   }, [profile?.id]);
@@ -52,9 +43,8 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
   const handleSave = () => {
     const isFirstSave = !profile;
     onSave(form, (savedProfile) => {
-      // After save, if phone provided and first-time, show welcome prompt
-      if (isFirstSave && form.phone) {
-        setSavedPhone(form.phone);
+      if (isFirstSave && form.email) {
+        setSavedPhone(form.email);
         setSavedName(form.full_name);
         setShowWelcomePrompt(true);
       }
@@ -62,8 +52,8 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
   };
 
   const handleSendWelcome = () => {
-    const url = buildWelcomeWhatsApp(savedPhone, savedName);
-    if (url) window.open(url, '_blank');
+    const url = buildWelcomeMailto(savedPhone, savedName);
+    if (url) window.location.href = url;
     setShowWelcomePrompt(false);
   };
 
@@ -108,16 +98,17 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
           />
         </div>
         <div>
-          <Label htmlFor="phone" className="flex items-center gap-1">
-            <Phone className="w-3.5 h-3.5" /> Phone Number
+          <Label htmlFor="teacher-email" className="flex items-center gap-1">
+            <Mail className="w-3.5 h-3.5" /> Email Address
           </Label>
           <Input
-            id="phone"
-            placeholder="e.g. 0712345678"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            id="teacher-email"
+            type="email"
+            placeholder="e.g. teacher@school.ac.ke"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
-          <p className="text-xs text-muted-foreground mt-1">Used to send WhatsApp welcome message after first registration.</p>
+          <p className="text-xs text-muted-foreground mt-1">Used to send a welcome email after first registration.</p>
         </div>
 
         <Button onClick={handleSave} disabled={isSaving} className="w-full">
@@ -133,11 +124,11 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
               Profile registered! Send welcome message?
             </div>
             <p className="text-xs text-green-700">
-              A WhatsApp welcome message will be sent to <strong>{savedPhone}</strong>.
+              A welcome email will be sent to <strong>{savedPhone}</strong>.
             </p>
             <div className="flex gap-2">
               <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white gap-1.5" onClick={handleSendWelcome}>
-                <MessageSquare className="w-3.5 h-3.5" /> Send via WhatsApp
+                <Mail className="w-3.5 h-3.5" /> Send Welcome Email
               </Button>
               <Button size="sm" variant="outline" onClick={() => setShowWelcomePrompt(false)}>
                 Skip
@@ -147,18 +138,18 @@ export default function TeacherProfileCard({ profile, onSave, isSaving, isNewPro
         )}
 
         {/* Manual send button if phone is on file and already registered */}
-        {profile && profile.phone && !showWelcomePrompt && (
+        {profile && profile.email && !showWelcomePrompt && (
           <Button
             variant="outline"
             size="sm"
             className="w-full gap-2 text-green-700 border-green-300"
             onClick={() => {
-              const url = buildWelcomeWhatsApp(profile.phone, profile.full_name);
-              if (url) window.open(url, '_blank');
+              const url = buildWelcomeMailto(profile.email, profile.full_name);
+              if (url) window.location.href = url;
             }}
           >
-            <MessageSquare className="w-4 h-4" />
-            Re-send Welcome Message
+            <Mail className="w-4 h-4" />
+            Re-send Welcome Email
           </Button>
         )}
       </CardContent>
