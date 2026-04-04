@@ -147,7 +147,7 @@ export const REPORT_CARD_STYLES = `
   col.col-band  { width: 9%; }
   col.col-rem   { width: 57%; }
   th { background: #1e3a5f; color: #fff; padding: 6px 6px; text-align: left; }
-  td { padding: 7px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.7; }
+  td { padding: 8px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; vertical-align: top; line-height: 1.75; height: auto; overflow: visible; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
   .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }

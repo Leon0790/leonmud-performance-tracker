@@ -9,8 +9,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets the expected standard; focus on speed and accuracy in calculations.',
     AE1: 'Approaching expectations; more practice on number operations and problem-solving is needed.',
     AE2: 'Needs to strengthen foundational mathematical skills through regular practice.',
-    BE1: 'Struggling with core mathematical concepts; targeted revision and support required.',
-    BE2: 'Very limited understanding; urgent remedial intervention strongly recommended.',
+    BE1: 'Shows potential in Mathematics; with dedicated practice and extra support, great improvement is achievable.',
+    BE2: 'Keep trying in Mathematics — every effort counts; seek help early and believe in your ability to improve.',
   },
   english: {
     EE1: 'Demonstrates outstanding proficiency in English — reading, writing, and oral communication are exemplary.',
@@ -19,8 +19,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets the basic standard in English; consistent reading practice will improve performance.',
     AE1: 'Approaching expectations; needs to work on comprehension and written expression.',
     AE2: 'Shows limited English proficiency; extra reading and writing exercises are recommended.',
-    BE1: 'Significant gaps in English language skills; intensive support is required.',
-    BE2: 'Very low performance in English; immediate remedial support is essential.',
+    BE1: 'Keep going in English — reading a little each day will make a big difference; you can do it!',
+    BE2: 'Do not give up on English; with encouragement and daily reading practice, improvement will come.',
   },
   kiswahili: {
     EE1: 'Anaonyesha ujuzi wa hali ya juu katika Kiswahili — mazungumzo, uandishi, na usomaji ni bora sana.',
@@ -29,8 +29,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Anakidhi kiwango cha chini; jifunze maneno mapya na soma vitabu zaidi.',
     AE1: 'Anakaribia matarajio; anahitaji mazoezi zaidi ya uandishi na mazungumzo ya Kiswahili.',
     AE2: 'Ufahamu mdogo wa Kiswahili; msaada wa ziada na mazoezi ya kila siku unahitajika.',
-    BE1: 'Matokeo ya chini sana; msaada wa haraka na maalum unahitajika katika Kiswahili.',
-    BE2: 'Kiwango cha chini kabisa; hatua za haraka za kurekebisha zinahitajika.',
+    BE1: 'Usikate tamaa — jitahidi kila siku na utaona maboresho makubwa katika Kiswahili.',
+    BE2: 'Endelea kujaribu; kwa msaada na bidii, utaweza kufanikiwa vizuri katika Kiswahili.',
   },
   integrated_science: {
     EE1: 'Exceptional scientific inquiry skills; analyses and interprets data with outstanding precision.',
@@ -39,8 +39,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets expectations; strengthen understanding of key scientific processes and terminology.',
     AE1: 'Approaching expectations; needs more engagement with science investigations and concepts.',
     AE2: 'Limited understanding of core science concepts; regular review and practice is necessary.',
-    BE1: 'Very low performance; requires significant support in understanding scientific principles.',
-    BE2: 'Critical gaps in science knowledge; immediate remedial attention is required.',
+    BE1: 'Shows curiosity in Science — keep asking questions and exploring; improvement is well within reach.',
+    BE2: 'Do not be discouraged; with extra support and curiosity, Science can become an exciting subject.',
   },
   agriculture: {
     EE1: 'Outstanding knowledge of agricultural practices; applies concepts to real farming situations excellently.',
@@ -49,8 +49,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets the standard; work on understanding agricultural inputs and their management.',
     AE1: 'Approaching expectations; more hands-on practice and revision of agricultural concepts needed.',
     AE2: 'Limited understanding of Agriculture; consistent study and practical engagement required.',
-    BE1: 'Very low grasp of agricultural concepts; targeted support and revision is necessary.',
-    BE2: 'Critical performance; urgent remedial action in Agriculture is strongly recommended.',
+    BE1: 'Has the potential to improve in Agriculture; hands-on practice and revision will build confidence.',
+    BE2: 'Keep trying in Agriculture — practical involvement and extra study will help you grow and improve.',
   },
   social_studies: {
     EE1: 'Exceptional understanding of social, civic, and environmental issues; demonstrates outstanding critical thinking.',
@@ -59,8 +59,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets the expected standard; work on improving essay responses and map reading.',
     AE1: 'Approaching expectations; needs to engage more with social studies content and revision.',
     AE2: 'Limited understanding; regular revision and wider reading on social issues is recommended.',
-    BE1: 'Very low performance; significant support in Social Studies content is required.',
-    BE2: 'Critical gaps in knowledge; immediate remedial attention in Social Studies is needed.',
+    BE1: 'Shows interest in the world around them — reading and discussions will help build stronger knowledge.',
+    BE2: 'Keep engaging with Social Studies topics; with encouragement and effort, great progress is possible.',
   },
   pretechnical_studies: {
     EE1: 'Exceptional technical skills and creativity; demonstrates mastery in design and construction tasks.',
@@ -69,8 +69,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets expectations; continue practising technical drawing and workshop skills.',
     AE1: 'Approaching expectations; more practice in technical skills and theory is recommended.',
     AE2: 'Limited technical skills; additional support and guided practice is necessary.',
-    BE1: 'Very low performance; intensive hands-on support in Pre-Technical Studies is required.',
-    BE2: 'Critical performance; immediate remedial intervention in technical skills is urgently needed.',
+    BE1: 'Has practical potential — with guided practice and patience, technical skills will improve greatly.',
+    BE2: 'Every expert was once a beginner; keep practising and seeking help to grow in Pre-Technical Studies.',
   },
   religious_studies: {
     EE1: 'Demonstrates outstanding moral reasoning and deep understanding of religious teachings and their application.',
@@ -79,8 +79,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets the standard; work on relating religious teachings to contemporary life situations.',
     AE1: 'Approaching expectations; needs deeper engagement with religious texts and moral reasoning.',
     AE2: 'Limited understanding of religious concepts; regular revision and reflection is needed.',
-    BE1: 'Very low performance; support in understanding core religious principles is required.',
-    BE2: 'Critical performance; immediate remedial support in Religious Studies is recommended.',
+    BE1: 'Shows good character and values — with more revision and reflection, academic performance will rise.',
+    BE2: 'Keep exploring religious values; with dedication and reflection, improvement in this subject is assured.',
   },
   creative_art: {
     EE1: 'Outstanding creativity and artistic expression; produces work of exceptional quality and originality.',
@@ -89,8 +89,8 @@ const SUBJECT_REMARKS = {
     ME2: 'Meets expectations; work on improving precision and creativity in artistic tasks.',
     AE1: 'Approaching expectations; needs to spend more time on art projects and techniques.',
     AE2: 'Limited artistic expression; more practice and experimentation with art media is recommended.',
-    BE1: 'Very low performance in Creative Art; additional guidance and practice is required.',
-    BE2: 'Critical performance; intensive support and encouragement in art activities is needed.',
+    BE1: 'Has a creative spirit — with more practice and confidence, artistic skills will shine through.',
+    BE2: 'Every artist starts somewhere; keep creating, experimenting, and enjoying the process of making art.',
   },
 };
 
