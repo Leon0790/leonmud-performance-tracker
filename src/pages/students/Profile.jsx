@@ -15,6 +15,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import StudentReportCardButton from '@/components/students/StudentReportCardButton';
+import StudentMarksHistory from '@/components/students/StudentMarksHistory';
+import { BookOpen } from 'lucide-react';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -219,6 +221,18 @@ export default function StudentProfile() {
           </CardContent>
         </Card>
       )}
+
+      {/* Marks History */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold">Academic Marks History</h2>
+        </div>
+        <StudentMarksHistory
+          admissionNumber={student.admission_number}
+          studentName={`${student.first_name} ${student.last_name}`}
+        />
+      </div>
     </div>
   );
 }
