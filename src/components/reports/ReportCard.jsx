@@ -96,10 +96,10 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 
         <!-- HEAD TEACHER SECTION — clearly separated -->
         <div class="section-divider headteacher">Head Teacher</div>
-        <div class="comments-section">
+        ${headteacherComment ? `<div class="comments-section">
           <strong>Head Teacher's Comments:</strong>
-          <div class="comment-box">${headteacherComment || ''}</div>
-        </div>
+          <div class="comment-box">${headteacherComment}</div>
+        </div>` : ''}
         <div class="ht-sig-stamp-row">
           <div class="sig-row-standalone flex-sig">
             <div class="sig-row-line"><span class="sig-field-label">Name:</span><span class="sig-field-value">${headteacherName || '___________________________________'}</span></div>
@@ -274,9 +274,9 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
           <div>
-            <Label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments</Label>
+            <Label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments <span className="text-muted-foreground/60">(optional)</span></Label>
             <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Head Teacher Comments" mode="overlay">
-              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Enter head teacher comments..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
+              <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-y bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={6} placeholder="Optional — leave blank if not needed..." value={headteacherComment} onChange={(e) => isPremium && setHeadteacherComment(e.target.value)} readOnly={!isPremium} />
             </PremiumLock>
           </div>
         </div>
