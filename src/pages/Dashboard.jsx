@@ -46,6 +46,8 @@ export default function Dashboard() {
     enabled: !!user?.email,
   });
 
+  const [onSaveCallback, setOnSaveCallback] = useState(null);
+
   const saveMutation = useMutation({
     mutationFn: (data) => {
       if (profile) {
@@ -53,9 +55,13 @@ export default function Dashboard() {
       }
       return base44.entities.Teacher.create(data);
     },
-    onSuccess: () => {
+    onSuccess: (savedProfile) => {
       queryClient.invalidateQueries({ queryKey: ['teacher-profile'] });
       toast({ title: 'Profile saved successfully!' });
+      if (onSaveCallback) {
+        onSaveCallback(savedProfile);
+        setOnSaveCallback(null);
+      }
     },
   });
 
@@ -86,7 +92,10 @@ export default function Dashboard() {
         <div className="lg:col-span-1">
           <TeacherProfileCard
             profile={profile}
-            onSave={(data) => saveMutation.mutate(data)}
+            onSave={(data, cb) => {
+              setOnSaveCallback(() => cb);
+              saveMutation.mutate(data);
+            }}
             isSaving={saveMutation.isPending}
           />
         </div>

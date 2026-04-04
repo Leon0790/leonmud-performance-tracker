@@ -1,0 +1,35 @@
+{
+  "name": "Teacher",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Teacher's full name"
+    },
+    "class_grade": {
+      "type": "string",
+      "enum": [
+        "Grade 7",
+        "Grade 8",
+        "Grade 9"
+      ],
+      "description": "Class grade the teacher manages"
+    },
+    "class_name": {
+      "type": "string",
+      "description": "Class name or section"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Teacher's phone number (Kenyan format, e.g. 07XXXXXXXX)"
+    },
+    "welcome_sent": {
+      "type": "boolean",
+      "description": "Whether a welcome message has been sent to this teacher",
+      "default": false
+    }
+  },
+  "required": [
+    "full_name"
+  ]
+}
