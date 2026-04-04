@@ -26,12 +26,11 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
 
-  const rows = SUBJECTS.map((s, i) => {
+  const rows = SUBJECTS.map((s) => {
     const mark = student[s.key];
     const band = student[`${s.key}_band`] || getBand(mark);
     const autoComment = getSubjectComment(s.key, band);
     return `<tr>
-      <td>${i + 1}</td>
       <td>${s.label}</td>
       <td style="text-align:center">${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
       <td class="band-${(band || '').toLowerCase()}" style="text-align:center">${band || '—'}</td>
@@ -73,15 +72,15 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 
         <table>
           <colgroup>
-            <col class="col-num" /><col class="col-subj" /><col class="col-marks" /><col class="col-band" /><col class="col-rem" />
+            <col class="col-subj" /><col class="col-marks" /><col class="col-band" /><col class="col-rem" />
           </colgroup>
           <thead>
-            <tr><th>#</th><th>Learning Area</th><th style="text-align:center">Marks</th><th style="text-align:center">Band</th><th>Remarks</th></tr>
+            <tr><th>Learning Area</th><th style="text-align:center">Marks<br/>(/100)</th><th style="text-align:center">Band</th><th>Remarks</th></tr>
           </thead>
           <tbody>
             ${rows}
-            <tr class="total-row"><td colspan="2">TOTAL</td><td style="text-align:center">${total}</td><td>—</td><td></td></tr>
-            <tr class="total-row"><td colspan="2">AVERAGE</td><td style="text-align:center">${avg}</td><td>—</td><td></td></tr>
+            <tr class="total-row"><td>TOTAL</td><td style="text-align:center">${total}</td><td>—</td><td></td></tr>
+            <tr class="total-row"><td>AVERAGE</td><td style="text-align:center">${avg}</td><td>—</td><td></td></tr>
           </tbody>
         </table>
 
@@ -97,7 +96,8 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 
         <!-- HEAD TEACHER SECTION -->
         <div class="section-divider headteacher">Head Teacher</div>
-        ${headteacherComment ? `<p style="font-size:11px;font-weight:bold;margin:4px 0 2px;">Head Teacher's Comments:</p><div class="comment-box">${headteacherComment}</div>` : ''}
+        <p style="font-size:11px;font-weight:bold;margin:4px 0 2px;">Head Teacher's Comments:</p>
+        <div class="comment-box">${headteacherComment || '&nbsp;'}</div>
         <table class="sig-table" style="width:70%">
           <tr><td class="sig-lbl">Name:</td><td class="sig-val">${headteacherName || ''}</td></tr>
           <tr><td class="sig-lbl">Signature:</td><td class="sig-val">&nbsp;</td></tr>
@@ -141,11 +141,10 @@ export const REPORT_CARD_STYLES = `
 
   /* ── TABLE ── */
   table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 10px; table-layout: fixed; }
-  col.col-num   { width: 4%; }
-  col.col-subj  { width: 20%; }
-  col.col-marks { width: 10%; }
-  col.col-band  { width: 9%; }
-  col.col-rem   { width: 57%; }
+  col.col-subj  { width: 22%; }
+  col.col-marks { width: 12%; }
+  col.col-band  { width: 10%; }
+  col.col-rem   { width: 56%; }
   th { background: #1e3a5f; color: #fff; padding: 6px 6px; text-align: left; }
   td { padding: 8px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; vertical-align: top; line-height: 1.75; height: auto; overflow: visible; }
   tr:nth-child(even) td { background: #f5f8ff; }
