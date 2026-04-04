@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AICommentGenerator from './AICommentGenerator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -261,8 +262,11 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
       <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <Label className="text-xs font-medium text-muted-foreground">Class Teacher's Comments</Label>
-            <textarea className="w-full mt-1 text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={2} placeholder="Enter class teacher comments..." value={comment} onChange={(e) => setComment(e.target.value)} />
+            <div className="flex items-center justify-between mb-1">
+              <Label className="text-xs font-medium text-muted-foreground">Class Teacher's Comments</Label>
+              <AICommentGenerator student={student} onCommentGenerated={setComment} />
+            </div>
+            <textarea className="w-full text-sm border border-input rounded-md px-3 py-2 resize-none bg-background focus:outline-none focus:ring-1 focus:ring-ring" rows={4} placeholder="Type a comment or click AI Generate for a detailed CBC comment..." value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
           <div>
             <Label className="text-xs font-medium text-muted-foreground">Head Teacher's Comments</Label>
