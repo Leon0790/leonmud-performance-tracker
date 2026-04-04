@@ -143,12 +143,12 @@ export const REPORT_CARD_STYLES = `
 
   /* ── TABLE ── */
   table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; table-layout: fixed; }
-  col.col-subj  { width: 18%; }
-  col.col-marks { width: 10%; }
+  col.col-subj  { width: 16%; }
+  col.col-marks { width: 9%; }
   col.col-band  { width: 8%; }
-  col.col-rem   { width: 64%; }
+  col.col-rem   { width: 67%; }
   th { background: #1e3a5f; color: #fff; padding: 6px 6px; text-align: left; }
-  td { padding: 8px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; vertical-align: top; line-height: 1.75; height: auto; overflow: visible; }
+  td { padding: 8px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; vertical-align: top; line-height: 1.75; height: auto; overflow: visible; font-size: 11px; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
   .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
