@@ -147,7 +147,7 @@ export const REPORT_CARD_STYLES = `
   col.col-band  { width: 9%; }
   col.col-rem   { width: 57%; }
   th { background: #1e3a5f; color: #fff; padding: 6px 6px; text-align: left; }
-  td { padding: 5px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.55; }
+  td { padding: 7px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.7; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
   .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
@@ -160,7 +160,7 @@ export const REPORT_CARD_STYLES = `
   .section-divider.headteacher { background: #fef3e8; border-left-color: #c2410c; color: #c2410c; }
 
   /* ── COMMENTS ── */
-  .comment-box { border: 1px solid #bbb; min-height: 70px; padding: 8px 10px; margin-bottom: 6px; font-size: 11.5px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+  .comment-box { border: 1px solid #bbb; min-height: 130px; padding: 10px 12px; margin-bottom: 8px; font-size: 11.5px; background: #fafafa; line-height: 1.8; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
 
   /* ── SIGNATURES (table-based for reliable print) ── */
   .sig-table { width: 100%; border-collapse: collapse; margin: 6px 0; font-size: 11px; }
