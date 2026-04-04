@@ -42,7 +42,7 @@ function buildSubjectSummary(student) {
     .join(', ');
 }
 
-export default function AICommentGenerator({ student, onCommentGenerated }) {
+export default function AICommentGenerator({ student, onCommentGenerated, role = 'class' }) {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const generate = async () => {
@@ -53,7 +53,28 @@ export default function AICommentGenerator({ student, onCommentGenerated }) {
     const overallBand = student.overall_band || '';
     const subjectSummary = buildSubjectSummary(student);
 
-    const prompt = `
+    const isHeadTeacher = role === 'headteacher';
+
+    const prompt = isHeadTeacher ? `
+You are a school Head Teacher in Kenya writing a formal, brief end-of-term report card endorsement comment for a learner under the CBC curriculum.
+
+Student Name: ${student.name}
+Grade: ${student.grade}
+Term: ${student.term}
+Exam Type: ${student.exam_type}
+Class Average Score: ${avg}/100
+Overall Performance Band: ${BAND_LABELS[overallBand] || overallBand || 'Not specified'}
+
+Write a brief, formal Head Teacher's report card comment that:
+1. Is 2–3 sentences only — concise and authoritative
+2. Affirms the student's overall performance and the school's commitment to their growth
+3. Encourages the learner and their family
+4. Is written in third person (referring to the student by first name)
+5. Does NOT repeat subject details — focus on overall character, effort, and school values
+6. Is aligned with Kenyan CBC standards and school leadership tone
+
+Write only the comment text, nothing else.
+    `.trim() : `
 You are an experienced CBC (Competency-Based Curriculum) class teacher in Kenya writing a formal, personalized end-of-term report card comment for a learner.
 
 Student Name: ${student.name}
