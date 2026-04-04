@@ -72,8 +72,11 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
         </div>
 
         <table>
+          <colgroup>
+            <col class="col-num" /><col class="col-subj" /><col class="col-marks" /><col class="col-band" /><col class="col-rem" />
+          </colgroup>
           <thead>
-            <tr><th>#</th><th>Learning Area</th><th>Marks (/100)</th><th>Band</th><th>Remarks</th></tr>
+            <tr><th>#</th><th>Learning Area</th><th style="text-align:center">Marks</th><th style="text-align:center">Band</th><th>Remarks</th></tr>
           </thead>
           <tbody>
             ${rows}
@@ -118,42 +121,42 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 }
 
 export const REPORT_CARD_STYLES = `
-  @page { size: A4; margin: 12mm; }
+  @page { size: A4; margin: 10mm; }
   * { box-sizing: border-box; }
   body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; background: #fff; color: #000; }
-  .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
+  .page { page-break-after: always; }
   .page:last-child { page-break-after: auto; }
-  .card { width: 100%; max-width: 700px; border: 2px solid #1e3a5f; padding: 18px 22px; page-break-inside: auto; }
+  .card { width: 100%; border: 2px solid #1e3a5f; padding: 14px 18px; }
 
   /* ── HEADER ── */
-  .header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; }
-  .school-logo { display: block; height: 90px; width: 90px; object-fit: contain; margin: 0 auto 8px; }
-  .school-name { font-size: 20px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: #1e3a5f; }
-  .sub-header { font-size: 11px; color: #555; margin-top: 3px; }
+  .header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 8px; margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; }
+  .school-logo { display: block; height: 75px; width: 75px; object-fit: contain; margin: 0 auto 6px; }
+  .school-name { font-size: 17px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase; color: #1e3a5f; }
+  .sub-header { font-size: 10px; color: #555; margin-top: 2px; }
 
-  /* ── STUDENT NAME — big & bold ── */
-  .student-name-block { background: #1e3a5f; color: #fff; padding: 8px 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-  .name-label { font-size: 11px; font-weight: bold; white-space: nowrap; letter-spacing: 1px; opacity: 0.85; }
-  .name-value { font-size: 18px; font-weight: bold; letter-spacing: 0.5px; flex: 1; }
+  /* ── STUDENT NAME ── */
+  .student-name-block { background: #1e3a5f; color: #fff; padding: 6px 10px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .name-label { font-size: 10px; font-weight: bold; white-space: nowrap; letter-spacing: 1px; opacity: 0.85; }
+  .name-value { font-size: 16px; font-weight: bold; letter-spacing: 0.5px; flex: 1; }
 
   /* ── INFO GRID ── */
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 10px; font-size: 13px; }
-  .info-row { display: flex; border-bottom: 1px dotted #ccc; padding-bottom: 3px; }
-  .info-label { font-weight: bold; white-space: nowrap; width: 80px; flex-shrink: 0; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 16px; margin-bottom: 8px; font-size: 12px; }
+  .info-row { display: flex; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+  .info-label { font-weight: bold; white-space: nowrap; width: 75px; flex-shrink: 0; }
   .info-value { flex: 1; }
 
   /* ── DATES ── */
-  .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 5px 0; margin-bottom: 10px; }
+  .dates-row { display: flex; justify-content: space-between; font-size: 11px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 4px 0; margin-bottom: 8px; }
 
   /* ── TABLE ── */
-  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; table-layout: fixed; }
-  th { background: #1e3a5f; color: #fff; padding: 7px 8px; text-align: left; }
-  th:nth-child(1) { width: 4%; }
-  th:nth-child(2) { width: 22%; }
-  th:nth-child(3) { width: 12%; text-align: center; }
-  th:nth-child(4) { width: 10%; text-align: center; }
-  th:nth-child(5) { width: 52%; }
-  td { padding: 6px 8px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 10px; table-layout: fixed; }
+  col.col-num   { width: 4%; }
+  col.col-subj  { width: 20%; }
+  col.col-marks { width: 10%; }
+  col.col-band  { width: 9%; }
+  col.col-rem   { width: 57%; }
+  th { background: #1e3a5f; color: #fff; padding: 6px 6px; text-align: left; }
+  td { padding: 5px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.55; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
   .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
@@ -162,27 +165,27 @@ export const REPORT_CARD_STYLES = `
   .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
 
   /* ── SECTION DIVIDERS ── */
-  .section-divider { background: #e8eef6; border-left: 4px solid #1e3a5f; padding: 4px 10px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #1e3a5f; margin-bottom: 6px; margin-top: 12px; }
+  .section-divider { background: #e8eef6; border-left: 4px solid #1e3a5f; padding: 3px 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #1e3a5f; margin-bottom: 5px; margin-top: 10px; }
   .section-divider.headteacher { background: #fef3e8; border-left-color: #c2410c; color: #c2410c; }
 
   /* ── COMMENTS ── */
-  .comments-section { font-size: 13px; margin-bottom: 8px; }
-  .comment-box { border: 1px solid #bbb; min-height: 100px; padding: 10px 12px; margin-top: 4px; font-size: 13px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+  .comments-section { font-size: 12px; margin-bottom: 6px; }
+  .comment-box { border: 1px solid #bbb; min-height: 90px; padding: 8px 10px; margin-top: 4px; font-size: 12px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
 
   /* ── SIGNATURES ── */
-  .sig-row-standalone { font-size: 12px; margin-bottom: 6px; }
-  .sig-row-line { display: flex; gap: 4px; margin-bottom: 7px; align-items: baseline; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
-  .sig-field-label { font-weight: bold; white-space: nowrap; min-width: 75px; }
+  .sig-row-standalone { font-size: 11px; margin-bottom: 5px; }
+  .sig-row-line { display: flex; gap: 4px; margin-bottom: 6px; align-items: baseline; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+  .sig-field-label { font-weight: bold; white-space: nowrap; min-width: 70px; }
   .sig-field-value { flex: 1; }
 
   /* ── HEAD TEACHER ROW (sigs + stamp side by side) ── */
-  .ht-sig-stamp-row { display: flex; align-items: flex-start; gap: 20px; }
+  .ht-sig-stamp-row { display: flex; align-items: flex-start; gap: 16px; }
   .flex-sig { flex: 1; }
-  .stamp-block-center { width: 110px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 4px; }
-  .stamp-area { border: 2px dashed #aaa; height: 90px; width: 90px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; border-radius: 50%; text-align: center; line-height: 1.4; }
+  .stamp-block-center { width: 100px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 4px; }
+  .stamp-area { border: 2px dashed #aaa; height: 80px; width: 80px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 9px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; border-radius: 50%; text-align: center; line-height: 1.4; }
 
   /* ── FOOTER ── */
-  .footer { text-align: center; font-size: 10px; color: #888; margin-top: 14px; border-top: 1px solid #eee; padding-top: 6px; }
+  .footer { text-align: center; font-size: 9px; color: #888; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; }
 `;
 
 export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl }) {
