@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +50,19 @@ export default function MarksEntry() {
     }),
     enabled: !!user?.email,
   });
+
+  const { data: registerStudents = [] } = useQuery({
+    queryKey: ['student-register', user?.email],
+    queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  // Build a map from admission_number → register record (for parent phone lookup)
+  const studentRegisterMap = useMemo(() => {
+    const map = {};
+    registerStudents.forEach(s => { if (s.admission_number) map[s.admission_number] = s; });
+    return map;
+  }, [registerStudents]);
 
   const addMutation = useMutation({
     mutationFn: (data) => base44.entities.Student.create({
@@ -134,6 +147,8 @@ export default function MarksEntry() {
           onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
           onDelete={(id) => deleteMutation.mutate(id)}
           isSaving={updateMutation.isPending}
+          filters={filters}
+          studentRegisterMap={studentRegisterMap}
         />
       )}
 

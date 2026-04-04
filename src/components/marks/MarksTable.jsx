@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Save, SaveAll } from 'lucide-react';
+import { Trash2, Save, SaveAll, MessageSquare } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { getBand, bandTailwindColor } from '@/utils/bands';
+import SmsNotifyModal from './SmsNotifyModal';
 
 // Subjects with simple single-mark entry (no papers)
 const SIMPLE_SUBJECTS = [
@@ -98,9 +99,10 @@ function PaperInput({ value, max, onChange }) {
   );
 }
 
-export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving }) {
+export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving, filters, studentRegisterMap }) {
   const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
+  const [smsModal, setSmsModal] = useState(null); // { student, marksData }
 
   useEffect(() => {
     const init = {};
@@ -149,6 +151,11 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
     data.overall_band = getBand(overall / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
     onUpdateMarks(studentId, data);
     setDirtyStudents((prev) => { const n = new Set(prev); n.delete(studentId); return n; });
+
+    // Show SMS notify modal after save
+    const studentRecord = students.find(s => s.id === studentId);
+    const registerInfo = studentRegisterMap?.[studentRecord?.admission_number] || {};
+    setSmsModal({ student: { ...studentRecord, parent_phone: registerInfo.parent_phone }, marksData: data });
   };
 
   const handleSaveAll = () => dirtyStudents.forEach((id) => handleSave(id));
@@ -319,6 +326,18 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                           <Save className="w-3.5 h-3.5 text-primary" />
                         </Button>
                       )}
+                      {!dirtyStudents.has(student.id) && (
+                        <Button
+                          size="icon" variant="ghost" className="h-7 w-7"
+                          title="Notify parent"
+                          onClick={() => {
+                            const registerInfo = studentRegisterMap?.[student.admission_number] || {};
+                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone }, marksData: marks[student.id] || {} });
+                          }}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-green-600" />
+                        </Button>
+                      )}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="icon" variant="ghost" className="h-7 w-7">
@@ -393,6 +412,14 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
           </TableBody>
         </Table>
       </div>
+
+      <SmsNotifyModal
+        open={!!smsModal}
+        onOpenChange={(v) => !v && setSmsModal(null)}
+        student={smsModal?.student}
+        marksData={smsModal?.marksData}
+        filters={filters}
+      />
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
