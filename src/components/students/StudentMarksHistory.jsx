@@ -1,6 +1,4 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen } from 'lucide-react';
@@ -32,19 +30,7 @@ const bandBadgeColor = (band) => {
   return 'bg-muted text-muted-foreground';
 };
 
-export default function StudentMarksHistory({ admissionNumber, studentName }) {
-  const { data: marksRecords = [], isLoading } = useQuery({
-    queryKey: ['student-marks-history', admissionNumber],
-    queryFn: () => base44.entities.Student.filter({ admission_number: admissionNumber }),
-    enabled: !!admissionNumber,
-  });
-
-  if (isLoading) return (
-    <div className="flex justify-center py-8">
-      <div className="w-6 h-6 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-    </div>
-  );
-
+export default function StudentMarksHistory({ marksRecords = [] }) {
   if (marksRecords.length === 0) return (
     <Card className="border-border/50">
       <CardContent className="text-center py-10 text-muted-foreground">

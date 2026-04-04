@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import StudentReportCardButton from '@/components/students/StudentReportCardButton';
 import StudentMarksHistory from '@/components/students/StudentMarksHistory';
-import { BookOpen } from 'lucide-react';
+import StudentPerformanceCharts from '@/components/students/StudentPerformanceCharts';
+import { BookOpen, BarChart2 } from 'lucide-react';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -58,6 +59,12 @@ export default function StudentProfile() {
       const list = await base44.entities.StudentRegister.filter({ id });
       return list[0] || null;
     },
+  });
+
+  const { data: marksRecords = [] } = useQuery({
+    queryKey: ['student-marks-history', student?.admission_number],
+    queryFn: () => base44.entities.Student.filter({ admission_number: student.admission_number }),
+    enabled: !!student?.admission_number,
   });
 
   useEffect(() => {
@@ -222,16 +229,24 @@ export default function StudentProfile() {
         </Card>
       )}
 
+      {/* Performance Charts */}
+      {marksRecords.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart2 className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-semibold">Performance Analytics</h2>
+          </div>
+          <StudentPerformanceCharts marksRecords={marksRecords} />
+        </div>
+      )}
+
       {/* Marks History */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <BookOpen className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold">Academic Marks History</h2>
         </div>
-        <StudentMarksHistory
-          admissionNumber={student.admission_number}
-          studentName={`${student.first_name} ${student.last_name}`}
-        />
+        <StudentMarksHistory marksRecords={marksRecords} />
       </div>
     </div>
   );
