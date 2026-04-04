@@ -35,7 +35,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
       <td>${s.label}</td>
       <td style="text-align:center">${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td>
       <td class="band-${(band || '').toLowerCase()}" style="text-align:center">${band || '—'}</td>
-      <td style="font-size:11px;color:#444">${autoComment}</td>
+      <td style="color:#333">${autoComment}</td>
     </tr>`;
   }).join('');
 
@@ -123,7 +123,7 @@ export const REPORT_CARD_STYLES = `
   body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; background: #fff; color: #000; }
   .page { page-break-after: always; display: flex; justify-content: center; align-items: flex-start; padding: 0; }
   .page:last-child { page-break-after: auto; }
-  .card { width: 100%; max-width: 700px; border: 2px solid #1e3a5f; padding: 18px 22px; }
+  .card { width: 100%; max-width: 700px; border: 2px solid #1e3a5f; padding: 18px 22px; page-break-inside: auto; }
 
   /* ── HEADER ── */
   .header { text-align: center; border-bottom: 3px solid #1e3a5f; padding-bottom: 10px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; }
@@ -146,9 +146,14 @@ export const REPORT_CARD_STYLES = `
   .dates-row { display: flex; justify-content: space-between; font-size: 12px; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 5px 0; margin-bottom: 10px; }
 
   /* ── TABLE ── */
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
-  th { background: #1e3a5f; color: #fff; padding: 7px 10px; text-align: left; }
-  td { padding: 5px 10px; border-bottom: 1px solid #e0e0e0; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 12px; table-layout: fixed; }
+  th { background: #1e3a5f; color: #fff; padding: 7px 8px; text-align: left; }
+  th:nth-child(1) { width: 4%; }
+  th:nth-child(2) { width: 22%; }
+  th:nth-child(3) { width: 12%; text-align: center; }
+  th:nth-child(4) { width: 10%; text-align: center; }
+  th:nth-child(5) { width: 52%; }
+  td { padding: 6px 8px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; vertical-align: top; line-height: 1.5; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
   .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
@@ -162,7 +167,7 @@ export const REPORT_CARD_STYLES = `
 
   /* ── COMMENTS ── */
   .comments-section { font-size: 13px; margin-bottom: 8px; }
-  .comment-box { border: 1px solid #bbb; min-height: 80px; padding: 8px 10px; margin-top: 4px; font-size: 13px; background: #fafafa; line-height: 1.6; }
+  .comment-box { border: 1px solid #bbb; min-height: 100px; padding: 10px 12px; margin-top: 4px; font-size: 13px; background: #fafafa; line-height: 1.7; word-wrap: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
 
   /* ── SIGNATURES ── */
   .sig-row-standalone { font-size: 12px; margin-bottom: 6px; }
