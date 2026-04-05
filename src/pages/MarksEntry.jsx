@@ -25,7 +25,7 @@ export default function MarksEntry() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: teachers = [], isLoading: isLoadingProfile } = useQuery({
+  const { data: teachers = [] } = useQuery({
     queryKey: ['teacher-profile'],
     queryFn: () => base44.entities.Teacher.filter({ created_by: user?.email }),
     enabled: !!user?.email,
@@ -33,58 +33,71 @@ export default function MarksEntry() {
 
   const profile = teachers[0] || null;
 
-  // Pre-fill grade from teacher profile once loaded
   useEffect(() => {
     if (profile?.class_grade) {
       setFilters((prev) => ({ ...prev, grade: profile.class_grade }));
     }
   }, [profile?.class_grade]);
 
+  // ✅ FIXED FETCH (no over-restriction)
   const { data: students = [], isLoading } = useQuery({
-    queryKey: ['students', filters, user?.email],
+    queryKey: ['students', user?.email, filters],
     queryFn: () => base44.entities.Student.filter({
       teacher_email: user?.email,
       grade: filters.grade,
-      term: filters.term,
-      exam_type: filters.exam_type,
     }),
     enabled: !!user?.email,
   });
 
   const { data: registerStudents = [] } = useQuery({
     queryKey: ['student-register', user?.email],
-    queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
+    queryFn: () => base44.entities.StudentRegister.filter({
+      teacher_email: user?.email,
+    }),
     enabled: !!user?.email,
   });
 
-  // Build a map from admission_number → register record (for parent phone lookup)
   const studentRegisterMap = useMemo(() => {
     const map = {};
-    registerStudents.forEach(s => { if (s.admission_number) map[s.admission_number] = s; });
+    registerStudents.forEach(s => {
+      if (s.admission_number) map[s.admission_number] = s;
+    });
     return map;
   }, [registerStudents]);
 
+  // ✅ FIXED ADD (safe user + correct invalidation)
   const addMutation = useMutation({
-    mutationFn: (data) => base44.entities.Student.create({
-      ...data,
-      grade: filters.grade,
-      term: filters.term,
-      exam_type: filters.exam_type,
-      teacher_email: user.email,
-    }),
+    mutationFn: (data) => {
+      if (!user?.email) throw new Error("User not loaded");
+
+      return base44.entities.Student.create({
+        ...data,
+        grade: filters.grade,
+        term: filters.term,
+        exam_type: filters.exam_type,
+        teacher_email: user.email,
+      });
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      queryClient.invalidateQueries({ queryKey: ['all-students'] });
+      queryClient.invalidateQueries({
+        queryKey: ['students', user?.email, filters],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['student-register', user?.email],
+      });
+
       setShowAddDialog(false);
       toast({ title: 'Student added!' });
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
+    mutationFn: ({ id, data }) =>
+      base44.entities.Student.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      queryClient.invalidateQueries({ queryKey: ['all-students'] });
+      queryClient.invalidateQueries({
+        queryKey: ['students', user?.email, filters],
+      });
       toast({ title: 'Marks saved!' });
     },
   });
@@ -92,13 +105,19 @@ export default function MarksEntry() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Student.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
-      queryClient.invalidateQueries({ queryKey: ['all-students'] });
+      queryClient.invalidateQueries({
+        queryKey: ['students', user?.email, filters],
+      });
       toast({ title: 'Student deleted.' });
     },
   });
 
-  
+  // ✅ SAFE FRONTEND FILTER
+  const filteredStudents = students.filter(s =>
+    s.grade === filters.grade &&
+    s.term === filters.term &&
+    s.exam_type === filters.exam_type
+  );
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
@@ -109,11 +128,16 @@ export default function MarksEntry() {
             Marks Entry
           </h1>
           <p className="text-muted-foreground mt-1">
-            {profile?.full_name && <span className="text-primary font-semibold">{profile.full_name}</span>}
+            {profile?.full_name && (
+              <span className="text-primary font-semibold">
+                {profile.full_name}
+              </span>
+            )}
             {profile?.class_grade && ` · ${profile.class_grade}`}
             {profile?.class_name && ` ${profile.class_name}`}
           </p>
         </div>
+
         <div className="flex gap-2">
           <Link to="/marks/import">
             <Button variant="outline">
@@ -121,7 +145,16 @@ export default function MarksEntry() {
               Import CSV
             </Button>
           </Link>
-          <Button onClick={() => setShowAddDialog(true)}>
+
+          <Button
+            onClick={() => {
+              if (!user?.email) {
+                toast({ title: "User not ready, try again" });
+                return;
+              }
+              setShowAddDialog(true);
+            }}
+          >
             <UserPlus className="w-4 h-4 mr-2" />
             Add Student
           </Button>
@@ -130,7 +163,9 @@ export default function MarksEntry() {
 
       <Card className="shadow-md border-border/50">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Select Class & Exam</CardTitle>
+          <CardTitle className="text-lg">
+            Select Class & Exam
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <MarksFilters filters={filters} onChange={setFilters} />
@@ -143,8 +178,10 @@ export default function MarksEntry() {
         </div>
       ) : (
         <MarksTable
-          students={students}
-          onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
+          students={filteredStudents}
+          onUpdateMarks={(id, data) =>
+            updateMutation.mutate({ id, data })
+          }
           onDelete={(id) => deleteMutation.mutate(id)}
           isSaving={updateMutation.isPending}
           filters={filters}
