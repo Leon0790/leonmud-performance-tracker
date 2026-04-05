@@ -20,11 +20,12 @@ export default function MarksEntry() {
     exam_type: 'Mid Term',
   });
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
+  // Load teacher profile
   const { data: teachers = [] } = useQuery({
     queryKey: ['teacher-profile'],
     queryFn: () => base44.entities.Teacher.filter({ created_by: user?.email }),
@@ -33,15 +34,14 @@ export default function MarksEntry() {
 
   const profile = teachers[0] || null;
 
+  // Pre-fill grade from teacher profile
   useEffect(() => {
-    if (profile?.class_grade) {
-      setFilters((prev) => ({ ...prev, grade: profile.class_grade }));
-    }
+    if (profile?.class_grade) setFilters(prev => ({ ...prev, grade: profile.class_grade }));
   }, [profile?.class_grade]);
 
-  // ✅ FIXED FETCH (no over-restriction)
+  // Fetch all students for teacher + grade
   const { data: students = [], isLoading } = useQuery({
-    queryKey: ['students', user?.email, filters],
+    queryKey: ['students', filters.grade, user?.email],
     queryFn: () => base44.entities.Student.filter({
       teacher_email: user?.email,
       grade: filters.grade,
@@ -49,123 +49,98 @@ export default function MarksEntry() {
     enabled: !!user?.email,
   });
 
+  // Frontend filter by term + exam_type
+  const filteredStudents = useMemo(() => {
+    return students.filter(s =>
+      s.term === filters.term &&
+      s.exam_type === filters.exam_type
+    );
+  }, [students, filters.term, filters.exam_type]);
+
   const { data: registerStudents = [] } = useQuery({
     queryKey: ['student-register', user?.email],
-    queryFn: () => base44.entities.StudentRegister.filter({
-      teacher_email: user?.email,
-    }),
+    queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
     enabled: !!user?.email,
   });
 
   const studentRegisterMap = useMemo(() => {
     const map = {};
-    registerStudents.forEach(s => {
-      if (s.admission_number) map[s.admission_number] = s;
-    });
+    registerStudents.forEach(s => { if (s.admission_number) map[s.admission_number] = s; });
     return map;
   }, [registerStudents]);
 
-  // ✅ FIXED ADD (safe user + correct invalidation)
+  // Add new student
   const addMutation = useMutation({
-    mutationFn: (data) => {
-      if (!user?.email) throw new Error("User not loaded");
-
-      return base44.entities.Student.create({
+    mutationFn: async (data) => {
+      // Ensure teacher_email, grade, term, exam_type are attached
+      const payload = {
         ...data,
+        teacher_email: user?.email,
         grade: filters.grade,
         term: filters.term,
         exam_type: filters.exam_type,
-        teacher_email: user.email,
-      });
+      };
+      console.log('Adding student with payload:', payload); // debug
+      return base44.entities.Student.create(payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['students', user?.email, filters],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ['student-register', user?.email],
-      });
-
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       setShowAddDialog(false);
       toast({ title: 'Student added!' });
     },
+    onError: (err) => {
+      toast({ title: 'Error adding student', description: err.message });
+    }
   });
 
+  // Update student marks
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) =>
-      base44.entities.Student.update(id, data),
+    mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['students', user?.email, filters],
-      });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({ title: 'Marks saved!' });
     },
   });
 
+  // Delete student
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Student.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['students', user?.email, filters],
-      });
+      queryClient.invalidateQueries({ queryKey: ['students'] });
       toast({ title: 'Student deleted.' });
     },
   });
 
-  // ✅ SAFE FRONTEND FILTER
-  const filteredStudents = students.filter(s =>
-    s.grade === filters.grade &&
-    s.term === filters.term &&
-    s.exam_type === filters.exam_type
-  );
+  if (userLoading) return <div>Loading...</div>;
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <ClipboardList className="w-7 h-7 text-primary" />
-            Marks Entry
+            <ClipboardList className="w-7 h-7 text-primary" /> Marks Entry
           </h1>
           <p className="text-muted-foreground mt-1">
-            {profile?.full_name && (
-              <span className="text-primary font-semibold">
-                {profile.full_name}
-              </span>
-            )}
+            {profile?.full_name && <span className="text-primary font-semibold">{profile.full_name}</span>}
             {profile?.class_grade && ` · ${profile.class_grade}`}
             {profile?.class_name && ` ${profile.class_name}`}
           </p>
         </div>
-
         <div className="flex gap-2">
           <Link to="/marks/import">
             <Button variant="outline">
-              <Upload className="w-4 h-4 mr-2" />
-              Import CSV
+              <Upload className="w-4 h-4 mr-2" /> Import CSV
             </Button>
           </Link>
-
-          <Button
-            onClick={() => {
-              if (!user?.email) {
-                toast({ title: "User not ready, try again" });
-                return;
-              }
-              setShowAddDialog(true);
-            }}
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Add Student
+          <Button onClick={() => setShowAddDialog(true)}>
+            <UserPlus className="w-4 h-4 mr-2" /> Add Student
           </Button>
         </div>
       </div>
 
       <Card className="shadow-md border-border/50">
         <CardHeader className="pb-4">
-          <CardTitle className="text-lg">
-            Select Class & Exam
-          </CardTitle>
+          <CardTitle className="text-lg">Select Class & Exam</CardTitle>
         </CardHeader>
         <CardContent>
           <MarksFilters filters={filters} onChange={setFilters} />
@@ -179,9 +154,7 @@ export default function MarksEntry() {
       ) : (
         <MarksTable
           students={filteredStudents}
-          onUpdateMarks={(id, data) =>
-            updateMutation.mutate({ id, data })
-          }
+          onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
           onDelete={(id) => deleteMutation.mutate(id)}
           isSaving={updateMutation.isPending}
           filters={filters}
