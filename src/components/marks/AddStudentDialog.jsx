@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,11 +8,33 @@ export default function AddStudentDialog({ open, onOpenChange, onAdd, isAdding }
   const [name, setName] = useState('');
   const [admNo, setAdmNo] = useState('');
 
-  const handleAdd = () => {
+  // ✅ Reset fields when dialog opens
+  useEffect(() => {
+    if (open) {
+      setName('');
+      setAdmNo('');
+    }
+  }, [open]);
+
+  const handleAdd = async () => {
     if (!name.trim()) return;
-    onAdd({ name: name.trim(), admission_number: admNo.trim() });
-    setName('');
-    setAdmNo('');
+
+    try {
+      await onAdd({
+        name: name.trim(),
+        admission_number: admNo.trim()
+      });
+
+      // ✅ Only clear AFTER successful add
+      setName('');
+      setAdmNo('');
+
+      // ✅ Close dialog after adding
+      onOpenChange(false);
+
+    } catch (error) {
+      console.error('Error adding student:', error);
+    }
   };
 
   return (
@@ -21,6 +43,7 @@ export default function AddStudentDialog({ open, onOpenChange, onAdd, isAdding }
         <DialogHeader>
           <DialogTitle>Add New Student</DialogTitle>
         </DialogHeader>
+
         <div className="space-y-4 py-4">
           <div>
             <Label htmlFor="studentName">Student Name</Label>
@@ -31,6 +54,7 @@ export default function AddStudentDialog({ open, onOpenChange, onAdd, isAdding }
               onChange={(e) => setName(e.target.value)}
             />
           </div>
+
           <div>
             <Label htmlFor="admNo">Admission Number (optional)</Label>
             <Input
@@ -41,8 +65,12 @@ export default function AddStudentDialog({ open, onOpenChange, onAdd, isAdding }
             />
           </div>
         </div>
+
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+
           <Button onClick={handleAdd} disabled={!name.trim() || isAdding}>
             {isAdding ? 'Adding...' : 'Add Student'}
           </Button>
