@@ -80,7 +80,6 @@ export default function MarksEntry() {
         term: filters.term,
         exam_type: filters.exam_type,
       };
-      console.log('Adding student with payload:', payload); // debug
       return base44.entities.Student.create(payload);
     },
     onSuccess: () => {

@@ -14,8 +14,8 @@ export default function TrialBanner({ daysLeft }) {
         <Clock className="w-4 h-4 shrink-0" />
         <span className="font-medium">
           {urgency
-            ? `⚠️ Your free trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}! Upgrade to keep your premium features.`
-            : `Your free trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}. Enjoy full access while it lasts!`}
+            ? `⚠️ Trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}! Upgrade to keep PDF, print & AI features. Adding students & marks stays free.`
+            : `Free trial: ${daysLeft} day${daysLeft === 1 ? '' : 's'} left. Adding students & marks is always free — upgrade for PDF & AI features.`}
         </span>
       </div>
       <div className="flex items-center gap-2 shrink-0">

@@ -99,6 +99,24 @@ export default function MyPayment() {
         </div>
       </div>
 
+      {/* Current Plan Status Badge */}
+      {payment?.status === 'approved' ? (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-300 w-fit">
+          <Shield className="w-4 h-4 text-green-600" />
+          <span className="text-sm font-bold text-green-700">Premium Plan — Active</span>
+        </div>
+      ) : isInTrial && payment?.status !== 'pending' ? (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 border border-amber-300 w-fit">
+          <Clock className="w-4 h-4 text-amber-600" />
+          <span className="text-sm font-bold text-amber-700">Free Trial — {daysLeft} day{daysLeft === 1 ? '' : 's'} left</span>
+        </div>
+      ) : payment?.status !== 'pending' && payment?.status !== 'rejected' ? (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border w-fit">
+          <CheckCircle className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-bold text-muted-foreground">Free Plan</span>
+        </div>
+      ) : null}
+
       {/* Trial status */}
       {isInTrial && payment?.status !== 'pending' && (
         <div className={`rounded-xl border p-4 flex items-start gap-3 ${daysLeft <= 2 ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
@@ -196,43 +214,69 @@ export default function MyPayment() {
         </Card>
 
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" /> Upgrade to Premium
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <PlanSelector plans={PLANS} selected={selectedPlan} onSelect={setSelectedPlan} />
-
-            {/* Features list */}
-            <div className="bg-muted/40 rounded-xl p-4 space-y-2 text-sm">
-              <p className="font-semibold">What you unlock:</p>
-              {['Download & print report cards', 'Advanced analytics & charts', 'School logo & branding', 'Head teacher comments & signatures', 'Bulk PDF export'].map(f => (
-                <div key={f} className="flex items-center gap-2 text-muted-foreground">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
+        <>
+          {/* Free vs Premium comparison */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Free Plan */}
+            <div className="rounded-xl border-2 border-border p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                  <CheckCircle className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <span className="font-bold text-sm">Free Plan</span>
+              </div>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Included always:</p>
+              {['Add & manage students', 'Enter & save marks', 'View class performance', 'Student register', 'Attendance tracking'].map(f => (
+                <div key={f} className="flex items-start gap-2 text-xs text-foreground">
+                  <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0 mt-0.5" />
                   <span>{f}</span>
                 </div>
               ))}
             </div>
 
-            <PaymentInstructions amount={selectedPlan.amount} />
-
-            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-              <Shield className="w-4 h-4 text-green-600 shrink-0" />
-              Secure payment via M-Pesa. No hidden charges. Access granted within minutes of approval.
+            {/* Premium Plan */}
+            <div className="rounded-xl border-2 border-amber-400 bg-amber-50/50 p-4 space-y-3 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">PREMIUM</div>
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                </div>
+                <span className="font-bold text-sm text-amber-800">Premium</span>
+              </div>
+              <p className="text-xs text-amber-700 font-semibold uppercase tracking-wide">Unlock with upgrade:</p>
+              {['Print & PDF report cards', 'AI comment generation', 'School logo & branding', 'Head teacher signatures', 'Bulk PDF export'].map(f => (
+                <div key={f} className="flex items-start gap-2 text-xs text-amber-800">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <PaymentForm
-              mpesaCode={mpesaCode}
-              setMpesaCode={setMpesaCode}
-              onSubmit={() => submitMutation.mutate()}
-              isSubmitting={submitMutation.isPending}
-              codeError={codeError}
-              setCodeError={setCodeError}
-            />
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" /> Upgrade to Premium
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <PlanSelector plans={PLANS} selected={selectedPlan} onSelect={setSelectedPlan} />
+              <PaymentInstructions amount={selectedPlan.amount} />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <Shield className="w-4 h-4 text-green-600 shrink-0" />
+                Secure payment via M-Pesa. No hidden charges. Access granted within minutes of approval.
+              </div>
+              <PaymentForm
+                mpesaCode={mpesaCode}
+                setMpesaCode={setMpesaCode}
+                onSubmit={() => submitMutation.mutate()}
+                isSubmitting={submitMutation.isPending}
+                codeError={codeError}
+                setCodeError={setCodeError}
+              />
+            </CardContent>
+          </Card>
+        </>
       )}
     </div>
   );
