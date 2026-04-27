@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, Clock, XCircle, CreditCard, Phone, Shield, Sparkles, AlertCircle, Calendar } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { usePremium, trialDaysLeft } from '@/hooks/use-premium';
-import { format, addDays, addMonths } from 'date-fns';
+import { usePremium, trialDaysLeft, getPaymentExpiry, subscriptionDaysLeft } from '@/hooks/use-premium';
+import { format } from 'date-fns';
 
 const isValidMpesaFormat = (code) => /^[A-Z][A-Z0-9]{9}$/.test(code);
 
@@ -45,11 +45,10 @@ export default function MyPayment() {
   const daysLeft = trialDaysLeft(user);
   const isInTrial = daysLeft > 0 && payment?.status !== 'approved';
 
-  // Estimate expiry based on approval date or now
-  const approvalDate = payment?.updated_date ? new Date(payment.updated_date) : new Date();
-  const expiryDate = payment?.status === 'approved'
-    ? addMonths(approvalDate, selectedPlan.months)
-    : null;
+  // Use the approved payment for expiry calculation
+  const approvedPayment = payments.find(p => p.status === 'approved') || null;
+  const expiryDate = approvedPayment ? getPaymentExpiry(approvedPayment) : null;
+  const subDaysLeft = approvedPayment ? subscriptionDaysLeft(approvedPayment) : 0;
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -100,10 +99,12 @@ export default function MyPayment() {
       </div>
 
       {/* Current Plan Status Badge */}
-      {payment?.status === 'approved' ? (
+      {approvedPayment ? (
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-300 w-fit">
           <Shield className="w-4 h-4 text-green-600" />
-          <span className="text-sm font-bold text-green-700">Premium Plan — Active</span>
+          <span className="text-sm font-bold text-green-700">
+            Premium Plan — {subDaysLeft > 0 ? `${subDaysLeft} day${subDaysLeft === 1 ? '' : 's'} remaining` : 'Expired'}
+          </span>
         </div>
       ) : isInTrial && payment?.status !== 'pending' ? (
         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 border border-amber-300 w-fit">
@@ -134,8 +135,8 @@ export default function MyPayment() {
         </div>
       )}
 
-      {/* Approved */}
-      {payment?.status === 'approved' ? (
+      {/* Approved & still active */}
+      {approvedPayment && subDaysLeft > 0 ? (
         <Card className="border-green-200 bg-green-50">
           <CardHeader className="text-center pb-3">
             <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
@@ -157,13 +158,20 @@ export default function MyPayment() {
               {expiryDate && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Expires</span>
-                  <span className="font-semibold">{format(expiryDate, 'dd MMM yyyy')}</span>
+                  <span className={`font-semibold ${subDaysLeft <= 7 ? 'text-red-600' : 'text-green-700'}`}>
+                    {format(expiryDate, 'dd MMM yyyy')} ({subDaysLeft} day{subDaysLeft === 1 ? '' : 's'} left)
+                  </span>
                 </div>
               )}
             </div>
             <div className="flex items-center justify-center gap-1.5 text-xs text-green-700">
               <Shield className="w-3.5 h-3.5" /> All premium features are unlocked
             </div>
+            {subDaysLeft <= 7 && subDaysLeft > 0 && (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-medium">
+                ⚠️ Your subscription expires in {subDaysLeft} day{subDaysLeft === 1 ? '' : 's'}. Renew to avoid losing premium access.
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -215,6 +223,15 @@ export default function MyPayment() {
 
       ) : (
         <>
+          {approvedPayment && subDaysLeft === 0 && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
+              <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-semibold text-sm text-red-800">Subscription Expired</p>
+                <p className="text-xs text-red-700 mt-0.5">Your premium access has ended. Renew below to restore all features.</p>
+              </div>
+            </div>
+          )}
           {/* Free vs Premium comparison */}
           <div className="grid grid-cols-2 gap-3">
             {/* Free Plan */}
