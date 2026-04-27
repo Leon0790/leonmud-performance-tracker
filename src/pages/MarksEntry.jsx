@@ -40,14 +40,27 @@ export default function MarksEntry() {
   }, [profile?.class_grade]);
 
   // Fetch all students for teacher + grade
-  const { data: students = [], isLoading } = useQuery({
-    queryKey: ['students', filters.grade, user?.email],
-    queryFn: () => base44.entities.Student.filter({
-      teacher_email: user?.email,
-      grade: filters.grade,
-    }),
+  // We fetch by both teacher_email AND created_by to catch students where teacher_email may not have been set
+  const { data: studentsByTeacherEmail = [], isLoading: loadingByEmail } = useQuery({
+    queryKey: ['students-by-email', filters.grade, user?.email],
+    queryFn: () => base44.entities.Student.filter({ teacher_email: user?.email, grade: filters.grade }),
     enabled: !!user?.email,
   });
+
+  const { data: studentsByCreatedBy = [], isLoading: loadingByCreatedBy } = useQuery({
+    queryKey: ['students-by-creator', filters.grade, user?.email],
+    queryFn: () => base44.entities.Student.filter({ created_by: user?.email, grade: filters.grade }),
+    enabled: !!user?.email,
+  });
+
+  // Merge and deduplicate by id
+  const students = useMemo(() => {
+    const map = {};
+    [...studentsByTeacherEmail, ...studentsByCreatedBy].forEach(s => { map[s.id] = s; });
+    return Object.values(map);
+  }, [studentsByTeacherEmail, studentsByCreatedBy]);
+
+  const isLoading = loadingByEmail || loadingByCreatedBy;
 
   // Frontend filter by term + exam_type
   const filteredStudents = useMemo(() => {
@@ -57,11 +70,21 @@ export default function MarksEntry() {
     );
   }, [students, filters.term, filters.exam_type]);
 
-  const { data: registerStudents = [] } = useQuery({
-    queryKey: ['student-register', user?.email],
+  const { data: registerByEmail = [] } = useQuery({
+    queryKey: ['register-by-email', user?.email],
     queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
     enabled: !!user?.email,
   });
+  const { data: registerByCreator = [] } = useQuery({
+    queryKey: ['register-by-creator', user?.email],
+    queryFn: () => base44.entities.StudentRegister.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+  const registerStudents = useMemo(() => {
+    const map = {};
+    [...registerByEmail, ...registerByCreator].forEach(s => { map[s.id] = s; });
+    return Object.values(map);
+  }, [registerByEmail, registerByCreator]);
 
   const studentRegisterMap = useMemo(() => {
     const map = {};
@@ -83,7 +106,8 @@ export default function MarksEntry() {
       return base44.entities.Student.create(payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-email'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-creator'] });
       setShowAddDialog(false);
       toast({ title: 'Student added!' });
     },
@@ -96,7 +120,8 @@ export default function MarksEntry() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-email'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-creator'] });
       toast({ title: 'Marks saved!' });
     },
   });
@@ -105,7 +130,8 @@ export default function MarksEntry() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Student.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-email'] });
+      queryClient.invalidateQueries({ queryKey: ['students-by-creator'] });
       toast({ title: 'Student deleted.' });
     },
   });

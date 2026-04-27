@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
@@ -32,11 +32,25 @@ export default function StudentsList() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: students = [], isLoading } = useQuery({
-    queryKey: ['student-register', user?.email],
+  const { data: studentsByEmail = [], isLoading: loadingByEmail } = useQuery({
+    queryKey: ['student-register-by-email', user?.email],
     queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
     enabled: !!user?.email,
   });
+
+  const { data: studentsByCreator = [], isLoading: loadingByCreator } = useQuery({
+    queryKey: ['student-register-by-creator', user?.email],
+    queryFn: () => base44.entities.StudentRegister.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const students = useMemo(() => {
+    const map = {};
+    [...studentsByEmail, ...studentsByCreator].forEach(s => { map[s.id] = s; });
+    return Object.values(map);
+  }, [studentsByEmail, studentsByCreator]);
+
+  const isLoading = loadingByEmail || loadingByCreator;
 
   const { containerRef, isRefreshing } = usePullToRefresh(async () => {
     await queryClient.invalidateQueries({ queryKey: ['student-register'] });
