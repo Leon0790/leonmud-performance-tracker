@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft, Info } from 'lucide-react';
+import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft, Info, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -65,17 +65,72 @@ export default function ImportMarks() {
     enabled: !!user?.email,
   });
 
-  const handleFileChange = (e) => {
+  const [isParsing, setIsParsing] = useState(false);
+
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setFileName(file.name);
     setResults(null);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const rows = parseCSV(ev.target.result);
-      setParsed(rows);
-    };
-    reader.readAsText(file);
+    setParsed(null);
+
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'csv') {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const rows = parseCSV(ev.target.result);
+        setParsed(rows);
+      };
+      reader.readAsText(file);
+    } else {
+      setIsParsing(true);
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: 'object',
+            properties: {
+              students: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    admission_number: { type: 'string' },
+                    mathematics: { type: 'number' },
+                    english_p1: { type: 'number' },
+                    english_p2: { type: 'number' },
+                    english: { type: 'number' },
+                    kiswahili_p1: { type: 'number' },
+                    kiswahili_p2: { type: 'number' },
+                    kiswahili: { type: 'number' },
+                    integrated_science_p1: { type: 'number' },
+                    integrated_science_p2: { type: 'number' },
+                    integrated_science: { type: 'number' },
+                    agriculture: { type: 'number' },
+                    social_studies: { type: 'number' },
+                    pretechnical_studies: { type: 'number' },
+                    religious_studies: { type: 'number' },
+                    creative_art: { type: 'number' },
+                  }
+                }
+              }
+            }
+          }
+        });
+        if (result.status === 'success' && result.output?.students) {
+          setParsed(result.output.students);
+        } else {
+          toast({ title: 'Could not extract marks from file', description: result.details || 'Please check the file format.' });
+        }
+      } catch (err) {
+        toast({ title: 'File processing failed', description: err.message });
+      } finally {
+        setIsParsing(false);
+      }
+    }
   };
 
   const handleDownloadTemplate = () => {
@@ -225,16 +280,18 @@ export default function ImportMarks() {
 
       {/* Step 3: Upload */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3"><CardTitle className="text-base">Step 3 — Upload CSV</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Step 3 — Upload File (CSV, Word, or PDF)</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div
             className="border-2 border-dashed border-primary/30 rounded-xl p-8 text-center cursor-pointer hover:border-primary/60 transition-colors"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => !isParsing && fileInputRef.current?.click()}
           >
-            <Upload className="w-10 h-10 text-primary/40 mx-auto mb-3" />
-            <p className="text-sm font-medium">{fileName || 'Click to select a CSV file'}</p>
-            <p className="text-xs text-muted-foreground mt-1">Use the template above for correct column order</p>
-            <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
+            {isParsing
+              ? <Loader2 className="w-10 h-10 text-primary/40 mx-auto mb-3 animate-spin" />
+              : <Upload className="w-10 h-10 text-primary/40 mx-auto mb-3" />}
+            <p className="text-sm font-medium">{isParsing ? 'Extracting marks data...' : (fileName || 'Click to select a file')}</p>
+            <p className="text-xs text-muted-foreground mt-1">Supports CSV, Word (.docx), and PDF files</p>
+            <input ref={fileInputRef} type="file" accept=".csv,.docx,.pdf" className="hidden" onChange={handleFileChange} />
           </div>
 
           {parsed && (

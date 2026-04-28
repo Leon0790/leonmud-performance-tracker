@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 
@@ -40,17 +40,70 @@ export default function ImportStudents() {
     enabled: !!user?.email,
   });
 
-  const handleFileChange = (e) => {
+  const [isParsing, setIsParsing] = useState(false);
+
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const rows = parseCSV(ev.target.result);
-      setParsed(rows);
-      setResults(null);
-    };
-    reader.readAsText(file);
+    setResults(null);
+    setParsed(null);
+
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'csv') {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const rows = parseCSV(ev.target.result);
+        setParsed(rows);
+      };
+      reader.readAsText(file);
+    } else {
+      // PDF or DOCX — upload and use AI extraction
+      setIsParsing(true);
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url,
+          json_schema: {
+            type: 'object',
+            properties: {
+              students: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    first_name: { type: 'string' },
+                    last_name: { type: 'string' },
+                    admission_number: { type: 'string' },
+                    date_of_birth: { type: 'string' },
+                    gender: { type: 'string' },
+                    grade: { type: 'string' },
+                    class_name: { type: 'string' },
+                    stream: { type: 'string' },
+                    parent_name: { type: 'string' },
+                    parent_phone: { type: 'string' },
+                    parent_email: { type: 'string' },
+                    address: { type: 'string' },
+                    status: { type: 'string' },
+                    notes: { type: 'string' },
+                  }
+                }
+              }
+            }
+          }
+        });
+        if (result.status === 'success' && result.output?.students) {
+          setParsed(result.output.students);
+        } else {
+          toast({ title: 'Could not extract student data from file', description: result.details || 'Please check the file format.' });
+        }
+      } catch (err) {
+        toast({ title: 'File processing failed', description: err.message });
+      } finally {
+        setIsParsing(false);
+      }
+    }
   };
 
   const importMutation = useMutation({
@@ -119,16 +172,18 @@ export default function ImportStudents() {
 
       {/* Import */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3"><CardTitle className="text-base">Import from CSV</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Import from CSV, Word, or PDF</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div
             className="border-2 border-dashed border-indigo-200 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 transition-colors"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => !isParsing && fileInputRef.current?.click()}
           >
-            <Upload className="w-10 h-10 text-indigo-300 mx-auto mb-3" />
-            <p className="text-sm font-medium">{fileName || 'Click to select a CSV file'}</p>
-            <p className="text-xs text-muted-foreground mt-1">Use the template above for correct column order</p>
-            <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
+            {isParsing
+              ? <Loader2 className="w-10 h-10 text-indigo-400 mx-auto mb-3 animate-spin" />
+              : <Upload className="w-10 h-10 text-indigo-300 mx-auto mb-3" />}
+            <p className="text-sm font-medium">{isParsing ? 'Extracting student data...' : (fileName || 'Click to select a file')}</p>
+            <p className="text-xs text-muted-foreground mt-1">Supports CSV, Word (.docx), and PDF files</p>
+            <input ref={fileInputRef} type="file" accept=".csv,.docx,.pdf" className="hidden" onChange={handleFileChange} />
           </div>
 
           {parsed && (
