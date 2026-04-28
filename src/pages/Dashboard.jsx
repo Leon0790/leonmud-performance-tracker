@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import WelcomeAnimation from '../components/dashboard/WelcomeAnimation';
@@ -40,11 +40,23 @@ export default function Dashboard() {
 
   const profile = teachers[0] || null;
 
-  const { data: students = [] } = useQuery({
-    queryKey: ['all-students', user?.email],
+  const { data: studentsByEmail = [] } = useQuery({
+    queryKey: ['all-students-by-email', user?.email],
     queryFn: () => base44.entities.Student.filter({ teacher_email: user?.email }),
     enabled: !!user?.email,
   });
+
+  const { data: studentsByCreator = [] } = useQuery({
+    queryKey: ['all-students-by-creator', user?.email],
+    queryFn: () => base44.entities.Student.filter({ created_by: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const students = useMemo(() => {
+    const map = {};
+    [...studentsByEmail, ...studentsByCreator].forEach(s => { map[s.id] = s; });
+    return Object.values(map);
+  }, [studentsByEmail, studentsByCreator]);
 
   const [onSaveCallback, setOnSaveCallback] = useState(null);
 

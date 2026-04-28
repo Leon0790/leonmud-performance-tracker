@@ -9,6 +9,9 @@
           "teacher_email": "{{user.email}}"
         },
         {
+          "created_by": "{{user.email}}"
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -21,6 +24,9 @@
           "teacher_email": "{{user.email}}"
         },
         {
+          "created_by": "{{user.email}}"
+        },
+        {
           "user_condition": {
             "role": "admin"
           }
@@ -31,6 +37,9 @@
       "$or": [
         {
           "teacher_email": "{{user.email}}"
+        },
+        {
+          "created_by": "{{user.email}}"
         },
         {
           "user_condition": {
