@@ -322,13 +322,13 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                   <TableCell>
                     <div className="flex items-center gap-1 justify-center">
                       {dirtyStudents.has(student.id) && (
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleSave(student.id)} disabled={isSaving}>
-                          <Save className="w-3.5 h-3.5 text-primary" />
+                        <Button size="icon" variant="ghost" className="h-11 w-11" onClick={() => handleSave(student.id)} disabled={isSaving}>
+                          <Save className="w-4 h-4 text-primary" />
                         </Button>
                       )}
                       {!dirtyStudents.has(student.id) && (
                         <Button
-                          size="icon" variant="ghost" className="h-7 w-7"
+                          size="icon" variant="ghost" className="h-11 w-11"
                           title="Notify parent"
                           onClick={() => {
                             const registerInfo = studentRegisterMap?.[student.admission_number] || {};
@@ -340,8 +340,8 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                       )}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-7 w-7">
-                            <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                          <Button size="icon" variant="ghost" className="h-11 w-11">
+                            <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>

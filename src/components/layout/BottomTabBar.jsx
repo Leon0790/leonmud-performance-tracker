@@ -40,13 +40,13 @@ export default function BottomTabBar() {
           <Link
             key={tab.path}
             to={tab.path}
-            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-[10px] font-medium transition-colors select-none ${
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-1 text-xs font-medium transition-colors select-none min-h-[56px] ${
               isActive
                 ? 'text-sidebar-primary'
                 : 'text-sidebar-foreground/50 hover:text-sidebar-foreground/80'
             }`}
           >
-            <tab.icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
+            <tab.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.5]'}`} />
             {tab.label}
           </Link>
         );

@@ -116,9 +116,24 @@ export default function MarksEntry() {
     }
   });
 
-  // Update student marks
+  // Update student marks (with optimistic update)
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['students-by-email'] });
+      await queryClient.cancelQueries({ queryKey: ['students-by-creator'] });
+      const prevByEmail = queryClient.getQueryData(['students-by-email', filters.grade, user?.email]);
+      const prevByCreator = queryClient.getQueryData(['students-by-creator', filters.grade, user?.email]);
+      const patcher = (old) => old?.map(s => s.id === id ? { ...s, ...data } : s) ?? old;
+      queryClient.setQueryData(['students-by-email', filters.grade, user?.email], patcher);
+      queryClient.setQueryData(['students-by-creator', filters.grade, user?.email], patcher);
+      return { prevByEmail, prevByCreator };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevByEmail) queryClient.setQueryData(['students-by-email', filters.grade, user?.email], context.prevByEmail);
+      if (context?.prevByCreator) queryClient.setQueryData(['students-by-creator', filters.grade, user?.email], context.prevByCreator);
+      toast({ title: 'Failed to save marks', description: 'Changes rolled back.' });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students-by-email'] });
       queryClient.invalidateQueries({ queryKey: ['students-by-creator'] });

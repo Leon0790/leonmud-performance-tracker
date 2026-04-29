@@ -2,24 +2,78 @@ import { Toaster } from "@/components/ui/toaster"
 import ThemeProvider from '@/lib/ThemeProvider'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from './components/layout/AppLayout';
-import Dashboard from './pages/Dashboard';
-import MarksEntry from './pages/MarksEntry';
-import Performance from './pages/Performance';
-import Reports from './pages/Reports';
-import AdminPayments from './pages/AdminPayments';
 import PaymentGate from './pages/PaymentGate';
-import StudentsList from './pages/students/List';
-import RegisterStudent from './pages/students/Register';
-import StudentProfile from './pages/students/Profile';
-import ImportStudents from './pages/students/Import';
-import Attendance from './pages/Attendance';
-import MyPayment from './pages/MyPayment';
-import ImportMarks from './pages/ImportMarks';
+
+// Lazy-loaded page components
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const MarksEntry = lazy(() => import('./pages/MarksEntry'));
+const Performance = lazy(() => import('./pages/Performance'));
+const Reports = lazy(() => import('./pages/Reports'));
+const AdminPayments = lazy(() => import('./pages/AdminPayments'));
+const StudentsList = lazy(() => import('./pages/students/List'));
+const RegisterStudent = lazy(() => import('./pages/students/Register'));
+const StudentProfile = lazy(() => import('./pages/students/Profile'));
+const ImportStudents = lazy(() => import('./pages/students/Import'));
+const Attendance = lazy(() => import('./pages/Attendance'));
+const MyPayment = lazy(() => import('./pages/MyPayment'));
+const ImportMarks = lazy(() => import('./pages/ImportMarks'));
+
+const pageVariants = {
+  initial: { opacity: 0, x: 12 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -12 },
+};
+
+const pageTransition = { duration: 0.18, ease: 'easeOut' };
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={pageTransition}
+        className="flex-1 min-h-0 flex flex-col"
+      >
+        <Suspense fallback={
+          <div className="flex-1 flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+          </div>
+        }>
+          <Routes location={location}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/Dashboard" element={<Dashboard />} />
+              <Route path="/marks" element={<MarksEntry />} />
+              <Route path="/performance" element={<Performance />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/students/list" element={<StudentsList />} />
+              <Route path="/students/register" element={<RegisterStudent />} />
+              <Route path="/students/:id" element={<StudentProfile />} />
+              <Route path="/students/import" element={<ImportStudents />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/my-payment" element={<MyPayment />} />
+              <Route path="/marks/import" element={<ImportMarks />} />
+            </Route>
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </Suspense>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,28 +100,10 @@ const AuthenticatedApp = () => {
 
   return (
     <PaymentGate>
-      <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/marks" element={<MarksEntry />} />
-          <Route path="/performance" element={<Performance />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
-          <Route path="/students/list" element={<StudentsList />} />
-          <Route path="/students/register" element={<RegisterStudent />} />
-          <Route path="/students/:id" element={<StudentProfile />} />
-          <Route path="/students/import" element={<ImportStudents />} />
-          <Route path="/attendance" element={<Attendance />} />
-          <Route path="/my-payment" element={<MyPayment />} />
-          <Route path="/marks/import" element={<ImportMarks />} />
-        </Route>
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+      <AnimatedRoutes />
     </PaymentGate>
   );
 };
-
 
 function App() {
   return (
@@ -81,7 +117,7 @@ function App() {
         </QueryClientProvider>
       </AuthProvider>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;
