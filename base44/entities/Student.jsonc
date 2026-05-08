@@ -61,6 +61,12 @@
     "grade": {
       "type": "string",
       "enum": [
+        "Grade 1",
+        "Grade 2",
+        "Grade 3",
+        "Grade 4",
+        "Grade 5",
+        "Grade 6",
         "Grade 7",
         "Grade 8",
         "Grade 9"
@@ -104,19 +110,11 @@
         "BE2"
       ]
     },
-    "kiswahili_p1": {
+    "english": {
       "type": "number",
-      "description": "Kiswahili Paper 1 (out of 50)"
+      "description": "English total"
     },
-    "kiswahili_p2": {
-      "type": "number",
-      "description": "Kiswahili Paper 2 (out of 50)"
-    },
-    "kiswahili": {
-      "type": "number",
-      "description": "Kiswahili total (auto)"
-    },
-    "kiswahili_band": {
+    "english_band": {
       "type": "string",
       "enum": [
         "EE1",
@@ -137,11 +135,36 @@
       "type": "number",
       "description": "English Paper 2 (out of 50)"
     },
-    "english": {
+    "kiswahili": {
       "type": "number",
-      "description": "English total (auto)"
+      "description": "Kiswahili total"
     },
-    "english_band": {
+    "kiswahili_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "kiswahili_p1": {
+      "type": "number",
+      "description": "Kiswahili Paper 1 (out of 50)"
+    },
+    "kiswahili_p2": {
+      "type": "number",
+      "description": "Kiswahili Paper 2 (out of 50)"
+    },
+    "integrated_science": {
+      "type": "number",
+      "description": "Integrated Science total"
+    },
+    "integrated_science_band": {
       "type": "string",
       "enum": [
         "EE1",
@@ -161,23 +184,6 @@
     "integrated_science_p2": {
       "type": "number",
       "description": "Integrated Science Paper 2 (out of 30)"
-    },
-    "integrated_science": {
-      "type": "number",
-      "description": "Integrated Science total (auto)"
-    },
-    "integrated_science_band": {
-      "type": "string",
-      "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
-      ]
     },
     "agriculture": {
       "type": "number"
@@ -258,6 +264,166 @@
         "BE1",
         "BE2"
       ]
+    },
+    "literacy": {
+      "type": "number",
+      "description": "Literacy (Grades 1-3)"
+    },
+    "literacy_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "numeracy": {
+      "type": "number",
+      "description": "Numeracy (Grades 1-3)"
+    },
+    "numeracy_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "environmental_activities": {
+      "type": "number",
+      "description": "Environmental Activities (Grades 1-3)"
+    },
+    "environmental_activities_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "hygiene_nutrition": {
+      "type": "number",
+      "description": "Hygiene & Nutrition (Grades 1-3)"
+    },
+    "hygiene_nutrition_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "movement_creative_arts": {
+      "type": "number",
+      "description": "Movement & Creative Arts (Grades 1-3)"
+    },
+    "movement_creative_arts_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "psychomotor_creative_arts": {
+      "type": "number",
+      "description": "Psychomotor & Creative Arts (Grades 4-6)"
+    },
+    "psychomotor_creative_arts_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "science_technology": {
+      "type": "number",
+      "description": "Science & Technology (Grades 4-6)"
+    },
+    "science_technology_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "home_science": {
+      "type": "number",
+      "description": "Home Science (Grades 4-6)"
+    },
+    "home_science_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "business_studies": {
+      "type": "number",
+      "description": "Business Studies"
+    },
+    "business_studies_band": {
+      "type": "string",
+      "enum": [
+        "EE1",
+        "EE2",
+        "ME1",
+        "ME2",
+        "AE1",
+        "AE2",
+        "BE1",
+        "BE2"
+      ]
+    },
+    "subjects_config": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ordered list of subject keys used for this student's grade"
     },
     "overall_band": {
       "type": "string",

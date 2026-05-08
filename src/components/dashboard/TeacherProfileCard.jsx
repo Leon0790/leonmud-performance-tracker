@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Save, User, Mail, MessageSquare } from 'lucide-react';
 
-const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 
 function buildWelcomeMailto(email, name) {
   if (!email) return null;

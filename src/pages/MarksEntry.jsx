@@ -8,7 +8,10 @@ import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import MarksFilters from '../components/marks/MarksFilters';
 import MarksTable from '../components/marks/MarksTable';
+import SimpleMarksTable from '../components/marks/SimpleMarksTable';
+import SubjectPicker from '../components/marks/SubjectPicker';
 import AddStudentDialog from '../components/marks/AddStudentDialog';
+import { isJuniorSecondary, getDefaultSubjectsForGrade } from '@/utils/gradeSubjects';
 
 export default function MarksEntry() {
   const { toast } = useToast();
@@ -19,6 +22,8 @@ export default function MarksEntry() {
     term: 'Term 1',
     exam_type: 'Mid Term',
   });
+  const [subjectPickerConfirmed, setSubjectPickerConfirmed] = useState(false);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -38,6 +43,26 @@ export default function MarksEntry() {
   useEffect(() => {
     if (profile?.class_grade) setFilters(prev => ({ ...prev, grade: profile.class_grade }));
   }, [profile?.class_grade]);
+
+  // When grade changes, load saved subjects or reset picker
+  useEffect(() => {
+    const grade = filters.grade;
+    if (isJuniorSecondary(grade)) {
+      setSubjectPickerConfirmed(true);
+      setSelectedSubjects([]);
+      return;
+    }
+    // Load from teacher's saved grade_subjects config
+    const saved = profile?.grade_subjects?.[grade];
+    if (saved && saved.length > 0) {
+      setSelectedSubjects(saved);
+      setSubjectPickerConfirmed(true);
+    } else {
+      // Show picker with defaults pre-selected
+      setSelectedSubjects(getDefaultSubjectsForGrade(grade));
+      setSubjectPickerConfirmed(false);
+    }
+  }, [filters.grade, profile?.id]);
 
   // Fetch all students for teacher + grade
   // We fetch by both teacher_email AND created_by to catch students where teacher_email may not have been set
@@ -141,6 +166,25 @@ export default function MarksEntry() {
     },
   });
 
+  // Save subject config for grade to teacher profile
+  const saveSubjectsMutation = useMutation({
+    mutationFn: async (subjects) => {
+      const existing = profile?.grade_subjects || {};
+      const updated = { ...existing, [filters.grade]: subjects };
+      if (profile) {
+        return base44.entities.Teacher.update(profile.id, { grade_subjects: updated });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teacher-profile'] });
+      setSubjectPickerConfirmed(true);
+    },
+  });
+
+  const handleConfirmSubjects = () => {
+    saveSubjectsMutation.mutate(selectedSubjects);
+  };
+
   // Delete student
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Student.delete(id),
@@ -191,7 +235,7 @@ export default function MarksEntry() {
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
         </div>
-      ) : (
+      ) : isJuniorSecondary(filters.grade) ? (
         <MarksTable
           students={filteredStudents}
           onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
@@ -200,6 +244,31 @@ export default function MarksEntry() {
           filters={filters}
           studentRegisterMap={studentRegisterMap}
         />
+      ) : !subjectPickerConfirmed ? (
+        <SubjectPicker
+          grade={filters.grade}
+          selected={selectedSubjects}
+          onChange={setSelectedSubjects}
+          onConfirm={handleConfirmSubjects}
+        />
+      ) : (
+        <div className="space-y-3">
+          <div className="flex justify-end">
+            <button
+              onClick={() => setSubjectPickerConfirmed(false)}
+              className="text-xs text-primary font-medium hover:underline"
+            >
+              ✏️ Change subjects for {filters.grade}
+            </button>
+          </div>
+          <SimpleMarksTable
+            students={filteredStudents}
+            subjectKeys={selectedSubjects}
+            onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
+            onDelete={(id) => deleteMutation.mutate(id)}
+            isSaving={updateMutation.isPending}
+          />
+        </div>
       )}
 
       <AddStudentDialog

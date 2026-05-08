@@ -2,7 +2,7 @@ import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
-const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
 const EXAM_TYPES = ['Mid Term', 'End Term'];
 
