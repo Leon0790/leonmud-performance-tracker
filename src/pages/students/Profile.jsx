@@ -17,6 +17,7 @@ import {
 import StudentReportCardButton from '@/components/students/StudentReportCardButton';
 import StudentMarksHistory from '@/components/students/StudentMarksHistory';
 import StudentPerformanceCharts from '@/components/students/StudentPerformanceCharts';
+import ParentSmsNotifier from '@/components/students/ParentSmsNotifier';
 import { BookOpen, BarChart2 } from 'lucide-react';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
@@ -239,6 +240,9 @@ export default function StudentProfile() {
           <StudentPerformanceCharts marksRecords={marksRecords} />
         </div>
       )}
+
+      {/* Parent SMS Notifier */}
+      <ParentSmsNotifier student={student} marksRecords={marksRecords} />
 
       {/* Marks History */}
       <div>
