@@ -10,6 +10,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from './components/layout/AppLayout';
 import PaymentGate from './pages/PaymentGate';
+import AdminBadgeVisibility from './components/AdminBadgeVisibility';
 
 // Lazy-loaded page components
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -100,6 +101,7 @@ const AuthenticatedApp = () => {
 
   return (
     <PaymentGate>
+      <AdminBadgeVisibility />
       <AnimatedRoutes />
     </PaymentGate>
   );
