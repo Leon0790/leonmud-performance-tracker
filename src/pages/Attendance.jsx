@@ -10,7 +10,7 @@ import { CalendarCheck, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucid
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 
-const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
 const STATUS_OPTIONS = ['Present', 'Absent', 'Late'];
 
@@ -31,7 +31,7 @@ export default function Attendance() {
   const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
   const [selectedDate, setSelectedDate] = useState(today);
-  const [grade, setGrade] = useState('Grade 7');
+  const [grade, setGrade] = useState('Grade 1');
   const [term, setTerm] = useState('Term 1');
   const [markingStatus, setMarkingStatus] = useState({});
 
