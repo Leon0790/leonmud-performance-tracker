@@ -25,6 +25,7 @@ const ImportStudents = lazy(() => import('./pages/students/Import'));
 const Attendance = lazy(() => import('./pages/Attendance'));
 const MyPayment = lazy(() => import('./pages/MyPayment'));
 const ImportMarks = lazy(() => import('./pages/ImportMarks'));
+const LessonPlans = lazy(() => import('./pages/LessonPlans'));
 
 const pageVariants = {
   initial: { opacity: 0, x: 12 },
@@ -67,6 +68,7 @@ function AnimatedRoutes() {
               <Route path="/attendance" element={<Attendance />} />
               <Route path="/my-payment" element={<MyPayment />} />
               <Route path="/marks/import" element={<ImportMarks />} />
+              <Route path="/lesson-plans" element={<LessonPlans />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>

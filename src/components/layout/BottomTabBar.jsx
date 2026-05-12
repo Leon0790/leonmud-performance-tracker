@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck, CreditCard } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck, CreditCard, BookOpen } from 'lucide-react';
 
 const TEACHER_TABS = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const TEACHER_TABS = [
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Attend.', path: '/attendance', icon: CalendarCheck },
+  { label: 'Plans', path: '/lesson-plans', icon: BookOpen },
 ];
 
 const ADMIN_TABS = [

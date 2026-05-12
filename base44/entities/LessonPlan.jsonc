@@ -1,0 +1,154 @@
+{
+  "name": "LessonPlan",
+  "type": "object",
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "teacher_email": "{{user.email}}"
+        },
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  },
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Lesson plan title"
+    },
+    "grade": {
+      "type": "string",
+      "enum": [
+        "Grade 1",
+        "Grade 2",
+        "Grade 3",
+        "Grade 4",
+        "Grade 5",
+        "Grade 6",
+        "Grade 7",
+        "Grade 8",
+        "Grade 9"
+      ]
+    },
+    "subject": {
+      "type": "string",
+      "description": "Learning area / subject"
+    },
+    "term": {
+      "type": "string",
+      "enum": [
+        "Term 1",
+        "Term 2",
+        "Term 3"
+      ]
+    },
+    "week": {
+      "type": "number",
+      "description": "Week number"
+    },
+    "lesson": {
+      "type": "number",
+      "description": "Lesson number within the week"
+    },
+    "strand": {
+      "type": "string",
+      "description": "Strand e.g. Measurement; Length"
+    },
+    "sub_strand": {
+      "type": "string",
+      "description": "Sub strand"
+    },
+    "specific_outcomes": {
+      "type": "string",
+      "description": "Specific learning outcomes (lettered list)"
+    },
+    "key_inquiry_question": {
+      "type": "string"
+    },
+    "learning_resources": {
+      "type": "string"
+    },
+    "organization_of_learning": {
+      "type": "string"
+    },
+    "introduction": {
+      "type": "string",
+      "description": "5-minute introduction content"
+    },
+    "lesson_development": {
+      "type": "string",
+      "description": "20-minute lesson development with Step 1, Step 2, Step 3"
+    },
+    "extended_activities": {
+      "type": "string",
+      "description": "Extended / homework activities"
+    },
+    "conclusion": {
+      "type": "string",
+      "description": "5-minute conclusion / closing question"
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Teacher reflection notes"
+    },
+    "school_name": {
+      "type": "string"
+    },
+    "teacher_email": {
+      "type": "string"
+    },
+    "subscription_type": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "term"
+      ],
+      "description": "Which plan was used to generate this"
+    }
+  },
+  "required": [
+    "grade",
+    "subject",
+    "term",
+    "week",
+    "lesson"
+  ]
+}
