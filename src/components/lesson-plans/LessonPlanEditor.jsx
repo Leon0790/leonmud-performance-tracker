@@ -74,6 +74,7 @@ export default function LessonPlanEditor({ plan, onSaved, onBack, user }) {
           <ShortField label="School Name" value={data.school_name} onChange={v => set('school_name', v)} />
           <ShortField label="Strand" value={data.strand} onChange={v => set('strand', v)} />
           <ShortField label="Sub Strand" value={data.sub_strand} onChange={v => set('sub_strand', v)} />
+          <ShortField label="Lesson Duration (minutes)" value={String(data.duration || 40)} onChange={v => set('duration', Number(v))} />
         </CardContent>
       </Card>
 
@@ -92,10 +93,10 @@ export default function LessonPlanEditor({ plan, onSaved, onBack, user }) {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-sm">Lesson Flow (Time / Content Table)</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <Field label="Introduction (5 minutes)" value={data.introduction} onChange={v => set('introduction', v)} rows={3} />
-          <Field label="Lesson Development — Steps 1, 2, 3 (20 minutes)" value={data.lesson_development} onChange={v => set('lesson_development', v)} rows={8} />
+          <Field label={`Introduction (${Math.round((data.duration || 40) * 0.15)} minutes)`} value={data.introduction} onChange={v => set('introduction', v)} rows={3} />
+          <Field label={`Lesson Development — Steps 1, 2, 3 (${Math.round((data.duration || 40) * 0.6)} minutes)`} value={data.lesson_development} onChange={v => set('lesson_development', v)} rows={8} />
           <Field label="Extended Activities (homework / digital)" value={data.extended_activities} onChange={v => set('extended_activities', v)} rows={3} />
-          <Field label="Conclusion (5 minutes)" value={data.conclusion} onChange={v => set('conclusion', v)} rows={3} />
+          <Field label={`Conclusion (${(data.duration || 40) - Math.round((data.duration || 40) * 0.15) - Math.round((data.duration || 40) * 0.6)} minutes)`} value={data.conclusion} onChange={v => set('conclusion', v)} rows={3} />
         </CardContent>
       </Card>
 

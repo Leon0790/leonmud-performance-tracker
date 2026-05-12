@@ -115,7 +115,7 @@ export default function LessonPlans() {
             <BookOpen className="w-6 h-6 text-primary" />
             Lesson Plans
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">CBC-aligned lesson plans for all grades</p>
+          <p className="text-sm text-muted-foreground mt-0.5">CBE-aligned lesson plans for all grades</p>
         </div>
         <Button onClick={() => setView('generate')} className="gap-2">
           <Sparkles className="w-4 h-4" />

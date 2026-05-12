@@ -30,6 +30,7 @@ export default function LessonPlanGenerator({ user, onGenerated, onBack }) {
     term: 'Term 1',
     week: 1,
     lesson: 1,
+    duration: 40,
     strand: '',
     sub_strand: '',
     school_name: '',
@@ -47,12 +48,18 @@ export default function LessonPlanGenerator({ user, onGenerated, onBack }) {
     }
     setGenerating(true);
     try {
-      const prompt = `You are a Kenya CBC (Competency Based Curriculum) lesson plan generator for ${form.grade} ${form.subject}, ${form.term}, Week ${form.week}, Lesson ${form.lesson}.
+      const duration = Number(form.duration) || 40;
+      const introDuration = Math.round(duration * 0.15);
+      const devDuration = Math.round(duration * 0.6);
+      const concDuration = duration - introDuration - devDuration;
 
+      const prompt = `You are a Kenya CBE (Competency Based Education) lesson plan generator for ${form.grade} ${form.subject}, ${form.term}, Week ${form.week}, Lesson ${form.lesson}.
+
+Lesson Duration: ${duration} minutes
 Strand: ${form.strand}
 Sub Strand: ${form.sub_strand || '(generate an appropriate sub strand)'}
 
-Generate a complete lesson plan following the exact CBC format used in Kenya schools. Use this JSON schema:
+Generate a complete lesson plan following the CBE format used in Kenya schools. Time allocations: Introduction (${introDuration} min), Lesson Development (${devDuration} min), Conclusion (${concDuration} min). Use this JSON schema:
 
 {
   "title": "short descriptive title",
@@ -62,12 +69,12 @@ Generate a complete lesson plan following the exact CBC format used in Kenya sch
   "key_inquiry_question": "A single key inquiry question",
   "learning_resources": "Learner's book, relevant materials, digital devices etc.",
   "organization_of_learning": "In the Classroom: individual, in pairs and group work.",
-  "introduction": "5-minute introduction — what the teacher says/does to introduce the lesson",
-  "lesson_development": "Step 1\\n[20-minute description]\\n\\nStep 2\\n[description]\\n\\nStep 3\\n[description]\\n\\nExtended Activities\\n[homework activity for learners with parent/guardian]",
-  "conclusion": "5-minute conclusion — closing question the teacher asks learners"
+  "introduction": "${introDuration}-minute introduction — what the teacher says/does to introduce the lesson",
+  "lesson_development": "Step 1\\n[${devDuration}-minute description]\\n\\nStep 2\\n[description]\\n\\nStep 3\\n[description]\\n\\nExtended Activities\\n[homework activity for learners with parent/guardian]",
+  "conclusion": "${concDuration}-minute conclusion — closing question the teacher asks learners"
 }
 
-Make it age-appropriate for ${form.grade}, CBC-aligned, activity-based with group work, pairs, and individual tasks. The extended activity should involve using the internet or working with a parent/guardian at home. Return ONLY the JSON object.`;
+Make it age-appropriate for ${form.grade}, CBE-aligned, activity-based with group work, pairs, and individual tasks. The extended activity should involve using the internet or working with a parent/guardian at home. Return ONLY the JSON object.`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -92,6 +99,7 @@ Make it age-appropriate for ${form.grade}, CBC-aligned, activity-based with grou
         ...form,
         week: Number(form.week),
         lesson: Number(form.lesson),
+        duration: Number(form.duration) || 40,
         teacher_email: user?.email || '',
         title: result.title || `${form.subject} — ${result.strand || form.strand}`,
         strand: result.strand || form.strand,
@@ -124,7 +132,7 @@ Make it age-appropriate for ${form.grade}, CBC-aligned, activity-based with grou
         <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft className="w-4 h-4" /></Button>
         <div>
           <h2 className="text-xl font-bold">Generate Lesson Plan</h2>
-          <p className="text-xs text-muted-foreground">AI-powered CBC lesson plan generation</p>
+          <p className="text-xs text-muted-foreground">AI-powered CBE lesson plan generation</p>
         </div>
       </div>
 
@@ -156,14 +164,29 @@ Make it age-appropriate for ${form.grade}, CBC-aligned, activity-based with grou
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label className="text-xs text-muted-foreground">Week</Label>
-                <Input type="number" min={1} max={13} className="mt-1" value={form.week} onChange={e => set('week', e.target.value)} />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Lesson</Label>
-                <Input type="number" min={1} max={5} className="mt-1" value={form.lesson} onChange={e => set('lesson', e.target.value)} />
-              </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Week</Label>
+              <Input type="number" min={1} max={13} className="mt-1" value={form.week} onChange={e => set('week', e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Lesson</Label>
+              <Input type="number" min={1} max={5} className="mt-1" value={form.lesson} onChange={e => set('lesson', e.target.value)} />
+            </div>
+            </div>
+            <div>
+            <Label className="text-xs text-muted-foreground">Lesson Duration (minutes)</Label>
+            <Select value={String(form.duration)} onValueChange={v => set('duration', Number(v))}>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30">30 minutes</SelectItem>
+                <SelectItem value="35">35 minutes</SelectItem>
+                <SelectItem value="40">40 minutes</SelectItem>
+                <SelectItem value="45">45 minutes</SelectItem>
+                <SelectItem value="60">60 minutes</SelectItem>
+                <SelectItem value="70">70 minutes</SelectItem>
+                <SelectItem value="80">80 minutes</SelectItem>
+              </SelectContent>
+            </Select>
             </div>
           </div>
 
@@ -188,7 +211,7 @@ Make it age-appropriate for ${form.grade}, CBC-aligned, activity-based with grou
       </Button>
 
       <p className="text-xs text-center text-muted-foreground">
-        The AI generates a complete CBC-formatted lesson plan which you can then customise and download as PDF.
+        The AI generates a complete CBE-formatted lesson plan which you can then customise and download as PDF.
       </p>
     </div>
   );

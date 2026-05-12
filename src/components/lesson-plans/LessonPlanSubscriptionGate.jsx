@@ -11,7 +11,7 @@ import { toast } from '@/components/ui/use-toast';
 const FREE_TRIAL_LIMIT = 2;
 
 const FEATURES = [
-  'Unlimited AI-generated CBC lesson plans',
+  'Unlimited AI-generated CBE lesson plans',
   'All grades (1–9) and all subjects',
   'Fully customisable after generation',
   'Download / Print as PDF',
