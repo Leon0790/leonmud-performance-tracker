@@ -1,52 +1,47 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, BookOpen, Sparkles } from 'lucide-react';
+import { CheckCircle, BookOpen, Sparkles, Gift } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
+const FREE_TRIAL_LIMIT = 2;
+
 const FEATURES = [
-  'AI-generated CBC lesson plans for all grades 1–9',
-  'All subjects and learning areas',
-  'Customisable after generation',
+  'Unlimited AI-generated CBC lesson plans',
+  'All grades (1–9) and all subjects',
+  'Fully customisable after generation',
   'Download / Print as PDF',
-  'Reflection & teacher notes section',
+  'Teacher notes & reflection section',
 ];
 
-export default function LessonPlanSubscriptionGate({ user, children }) {
+export default function LessonPlanSubscriptionGate({ user, planCount, approvedPayments, children }) {
   const [mpesaCode, setMpesaCode] = useState('');
   const [plan, setPlan] = useState('monthly');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Check if user has a lesson plan subscription (approved payment)
-  const { data: payments = [] } = useQuery({
-    queryKey: ['lesson-plan-payments', user?.email],
-    queryFn: () => base44.entities.Payment.filter({ teacher_email: user?.email, status: 'approved' }),
-    enabled: !!user?.email,
-  });
+  // Has an approved lesson-plan payment?
+  const hasPaidAccess = approvedPayments.some(p => p.notes?.includes('lesson_plan'));
 
-  // Check if there is any approved lesson plan payment
-  const hasAccess = payments.some(p => p.lesson_plan_subscription === true) || 
-                    payments.some(p => p.notes?.includes('lesson_plan'));
+  // Still within free trial?
+  const isFreeTrial = planCount < FREE_TRIAL_LIMIT;
 
-  // For simplicity, check if user has ANY approved payment (same payment system)
-  const hasAnyPayment = payments.length > 0;
-
-  if (hasAnyPayment) {
+  // Allow access if free trial still valid OR paid
+  if (hasPaidAccess || isFreeTrial) {
     return children;
   }
 
+  // Show payment wall
   if (submitted) {
     return (
       <div className="p-6 max-w-md mx-auto text-center space-y-4 py-20">
         <CheckCircle className="w-14 h-14 text-green-500 mx-auto" />
         <h2 className="text-xl font-bold">Payment Submitted!</h2>
-        <p className="text-muted-foreground">Your M-Pesa payment is pending admin approval. You will gain access once approved.</p>
+        <p className="text-muted-foreground">Your M-Pesa code is pending admin approval. You will gain full access once approved.</p>
         <p className="text-sm font-mono bg-muted rounded px-3 py-2 inline-block">{mpesaCode}</p>
       </div>
     );
@@ -61,7 +56,7 @@ export default function LessonPlanSubscriptionGate({ user, children }) {
     try {
       await base44.entities.Payment.create({
         teacher_email: user?.email || '',
-        mpesa_code: mpesaCode.trim(),
+        mpesa_code: mpesaCode.trim().toUpperCase(),
         amount: plan === 'monthly' ? 300 : 1000,
         status: 'pending',
         notes: `lesson_plan_${plan}`,
@@ -80,26 +75,38 @@ export default function LessonPlanSubscriptionGate({ user, children }) {
         <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
           <BookOpen className="w-7 h-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold">Lesson Plan Generator</h2>
-        <p className="text-muted-foreground text-sm">AI-powered CBC lesson plans for Grades 1–9</p>
+        <h2 className="text-2xl font-bold">Unlock Lesson Plan Generator</h2>
+        <p className="text-muted-foreground text-sm">
+          You've used your <strong>{FREE_TRIAL_LIMIT} free trial</strong> plans. Subscribe to generate unlimited plans.
+        </p>
+      </div>
+
+      {/* Trial used notice */}
+      <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+        <Gift className="w-4 h-4 shrink-0" />
+        <span>Free trial: <strong>{planCount}/{FREE_TRIAL_LIMIT}</strong> plans used. Subscribe to continue.</span>
       </div>
 
       {/* Pricing cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card className={`cursor-pointer border-2 transition-all ${plan === 'monthly' ? 'border-primary' : 'border-border'}`}
-          onClick={() => setPlan('monthly')}>
+        <Card
+          className={`cursor-pointer border-2 transition-all ${plan === 'monthly' ? 'border-primary' : 'border-border'}`}
+          onClick={() => setPlan('monthly')}
+        >
           <CardContent className="p-4 text-center space-y-1">
             <p className="font-bold text-lg">KES 300</p>
             <p className="text-sm text-muted-foreground">Per Month</p>
             <Badge variant="outline" className="text-xs">Flexible</Badge>
           </CardContent>
         </Card>
-        <Card className={`cursor-pointer border-2 transition-all ${plan === 'term' ? 'border-green-600' : 'border-border'}`}
-          onClick={() => setPlan('term')}>
+        <Card
+          className={`cursor-pointer border-2 transition-all ${plan === 'term' ? 'border-green-600' : 'border-border'}`}
+          onClick={() => setPlan('term')}
+        >
           <CardContent className="p-4 text-center space-y-1">
             <p className="font-bold text-lg">KES 1,000</p>
             <p className="text-sm text-muted-foreground">Per Term</p>
-            <Badge className="text-xs bg-green-600">Best Value</Badge>
+            <Badge className="text-xs bg-green-600 text-white">Best Value</Badge>
           </CardContent>
         </Card>
       </div>
@@ -118,10 +125,17 @@ export default function LessonPlanSubscriptionGate({ user, children }) {
       <Card>
         <CardContent className="p-4 space-y-3">
           <p className="text-sm font-semibold">Pay via M-Pesa</p>
-          <p className="text-xs text-muted-foreground">Send <strong>KES {plan === 'monthly' ? 300 : 1000}</strong> to <strong>0712 345 678</strong> (or your school's M-Pesa number) then enter the transaction code below.</p>
+          <p className="text-xs text-muted-foreground">
+            Send <strong>KES {plan === 'monthly' ? 300 : 1000}</strong> to the school's M-Pesa number, then enter your transaction code below.
+          </p>
           <div>
             <Label className="text-xs text-muted-foreground">M-Pesa Transaction Code</Label>
-            <Input className="mt-1 font-mono uppercase" placeholder="e.g. QGX1234ABC" value={mpesaCode} onChange={e => setMpesaCode(e.target.value.toUpperCase())} />
+            <Input
+              className="mt-1 font-mono uppercase"
+              placeholder="e.g. QGX1234ABC"
+              value={mpesaCode}
+              onChange={e => setMpesaCode(e.target.value.toUpperCase())}
+            />
           </div>
           <Button className="w-full gap-2" onClick={handleSubmit} disabled={submitting}>
             <Sparkles className="w-4 h-4" />

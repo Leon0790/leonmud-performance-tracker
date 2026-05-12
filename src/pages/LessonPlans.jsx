@@ -43,6 +43,20 @@ export default function LessonPlans() {
     },
   });
 
+  // All plans by this user (for free trial count — unfiltered)
+  const { data: allMyPlans = [] } = useQuery({
+    queryKey: ['all-my-lesson-plans', user?.email],
+    queryFn: () => base44.entities.LessonPlan.filter({ teacher_email: user?.email }, '-created_date', 200),
+    enabled: !!user?.email,
+  });
+
+  // Approved payments for lesson plans
+  const { data: approvedPayments = [] } = useQuery({
+    queryKey: ['lesson-plan-approved-payments', user?.email],
+    queryFn: () => base44.entities.Payment.filter({ teacher_email: user?.email, status: 'approved' }),
+    enabled: !!user?.email,
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.LessonPlan.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['lesson-plans'] }),
@@ -67,7 +81,11 @@ export default function LessonPlans() {
 
   if (view === 'generate') {
     return (
-      <LessonPlanSubscriptionGate user={user}>
+      <LessonPlanSubscriptionGate
+        user={user}
+        planCount={allMyPlans.length}
+        approvedPayments={approvedPayments}
+      >
         <LessonPlanGenerator
           user={user}
           onGenerated={handleGenerated}
@@ -105,13 +123,21 @@ export default function LessonPlans() {
         </Button>
       </div>
 
-      {/* Pricing info */}
-      <div className="flex gap-3 flex-wrap">
+      {/* Trial / subscription status */}
+      <div className="flex gap-3 flex-wrap items-center">
+        {approvedPayments.some(p => p.notes?.includes('lesson_plan')) ? (
+          <Badge className="text-xs px-3 py-1.5 bg-green-600 text-white">Subscribed — Unlimited Plans</Badge>
+        ) : allMyPlans.length < 2 ? (
+          <Badge variant="outline" className="text-xs px-3 py-1.5 border-amber-400 bg-amber-50 text-amber-700">
+            Free Trial: {allMyPlans.length}/2 plans used
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-xs px-3 py-1.5 border-destructive/50 bg-destructive/5 text-destructive">
+            Free trial used — subscribe to generate more
+          </Badge>
+        )}
         <Badge variant="outline" className="text-xs px-3 py-1.5 border-primary/30 bg-primary/5 text-primary">
-          KES 300 / month — Unlimited plans
-        </Badge>
-        <Badge variant="outline" className="text-xs px-3 py-1.5 border-green-600/30 bg-green-50 text-green-700">
-          KES 1,000 / term — Best value
+          KES 300/month · KES 1,000/term
         </Badge>
       </div>
 
