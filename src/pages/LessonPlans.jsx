@@ -154,7 +154,7 @@ export default function LessonPlans() {
 
       {/* Trial / subscription status */}
       <div className="flex gap-3 flex-wrap items-center">
-        {approvedPayments.some(p => p.notes?.includes('lesson_plan')) ? (
+        {approvedPayments.length > 0 && approvedPayments.some(p => !p.notes || p.notes.includes('lesson_plan')) ? (
           <Badge className="text-xs px-3 py-1.5 bg-green-600 text-white">Subscribed — Unlimited Plans</Badge>
         ) : allMyPlans.length < 2 ? (
           <Badge variant="outline" className="text-xs px-3 py-1.5 border-amber-400 bg-amber-50 text-amber-700">

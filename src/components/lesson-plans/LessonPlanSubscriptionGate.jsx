@@ -24,8 +24,10 @@ export default function LessonPlanSubscriptionGate({ user, planCount, approvedPa
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // Has an approved lesson-plan payment?
-  const hasPaidAccess = approvedPayments.some(p => p.notes?.includes('lesson_plan'));
+  // Has an approved lesson-plan payment? (check notes field, or fall back to any approved payment)
+  const hasPaidAccess = approvedPayments.length > 0 && approvedPayments.some(p =>
+    !p.notes || p.notes.includes('lesson_plan')
+  );
 
   // Still within free trial?
   const isFreeTrial = planCount < FREE_TRIAL_LIMIT;

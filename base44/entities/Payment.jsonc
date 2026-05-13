@@ -1,0 +1,41 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "teacher_email": {
+      "type": "string",
+      "description": "Email of the teacher who paid"
+    },
+    "mpesa_code": {
+      "type": "string",
+      "description": "M-Pesa transaction code"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Payment approval status"
+    },
+    "amount": {
+      "type": "number",
+      "default": 200,
+      "description": "Amount paid in KES"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Admin email who approved"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Payment notes e.g. lesson_plan_monthly, lesson_plan_term"
+    }
+  },
+  "required": [
+    "teacher_email",
+    "mpesa_code"
+  ]
+}
