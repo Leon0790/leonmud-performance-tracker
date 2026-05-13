@@ -72,6 +72,7 @@ export default function LessonPlanEditor({ plan, onSaved, onBack, user }) {
         <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <ShortField label="Title" value={data.title} onChange={v => set('title', v)} />
           <ShortField label="School Name" value={data.school_name} onChange={v => set('school_name', v)} />
+          <ShortField label="Teacher Name" value={data.teacher_name} onChange={v => set('teacher_name', v)} />
           <ShortField label="Strand" value={data.strand} onChange={v => set('strand', v)} />
           <ShortField label="Sub Strand" value={data.sub_strand} onChange={v => set('sub_strand', v)} />
           <ShortField label="Lesson Duration (minutes)" value={String(data.duration || 40)} onChange={v => set('duration', Number(v))} />

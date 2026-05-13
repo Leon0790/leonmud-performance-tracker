@@ -88,6 +88,11 @@
       "type": "number",
       "description": "Lesson number within the week"
     },
+    "duration": {
+      "type": "number",
+      "default": 40,
+      "description": "Lesson duration in minutes"
+    },
     "strand": {
       "type": "string",
       "description": "Strand e.g. Measurement; Length"
@@ -111,11 +116,11 @@
     },
     "introduction": {
       "type": "string",
-      "description": "5-minute introduction content"
+      "description": "Introduction content"
     },
     "lesson_development": {
       "type": "string",
-      "description": "20-minute lesson development with Step 1, Step 2, Step 3"
+      "description": "Lesson development with Step 1, Step 2, Step 3"
     },
     "extended_activities": {
       "type": "string",
@@ -123,7 +128,7 @@
     },
     "conclusion": {
       "type": "string",
-      "description": "5-minute conclusion / closing question"
+      "description": "Conclusion / closing question"
     },
     "reflection": {
       "type": "string",
@@ -131,6 +136,10 @@
     },
     "school_name": {
       "type": "string"
+    },
+    "teacher_name": {
+      "type": "string",
+      "description": "Name of the teacher"
     },
     "teacher_email": {
       "type": "string"
