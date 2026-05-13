@@ -66,6 +66,7 @@ Generate a complete lesson plan following the CBE format used in Kenya schools. 
   "strand": "strand name",
   "sub_strand": "sub strand name",
   "specific_outcomes": "By the end of the lesson, the learner should be able to:\na) ...\nb) ...\nc) ...",
+  "core_competency": "List the CBE core competencies addressed, e.g. Communication and Collaboration, Critical Thinking and Problem Solving, Creativity and Imagination, Citizenship, Digital Literacy, Learning to Learn, Self-Efficacy",
   "key_inquiry_question": "A single key inquiry question",
   "learning_resources": "Learner's book, relevant materials, digital devices etc.",
   "organization_of_learning": "In the Classroom: individual, in pairs and group work.",
@@ -85,6 +86,7 @@ Make it age-appropriate for ${form.grade}, CBE-aligned, activity-based with grou
             strand: { type: 'string' },
             sub_strand: { type: 'string' },
             specific_outcomes: { type: 'string' },
+            core_competency: { type: 'string' },
             key_inquiry_question: { type: 'string' },
             learning_resources: { type: 'string' },
             organization_of_learning: { type: 'string' },
@@ -97,6 +99,7 @@ Make it age-appropriate for ${form.grade}, CBE-aligned, activity-based with grou
 
       const planData = {
         ...form,
+        plan_version: 'v1',
         week: Number(form.week),
         lesson: Number(form.lesson),
         duration: Number(form.duration) || 40,
@@ -105,6 +108,7 @@ Make it age-appropriate for ${form.grade}, CBE-aligned, activity-based with grou
         strand: result.strand || form.strand,
         sub_strand: result.sub_strand || form.sub_strand,
         specific_outcomes: result.specific_outcomes || '',
+        core_competency: result.core_competency || '',
         key_inquiry_question: result.key_inquiry_question || '',
         learning_resources: result.learning_resources || '',
         organization_of_learning: result.organization_of_learning || 'In the Classroom: individual, in pairs and group work.',

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Printer, FileText } from 'lucide-react';
 
-const CSS = `
+const BASE_CSS = `
   @page { size: A4; margin: 15mm 14mm; }
   * { box-sizing: border-box; }
   body { font-family: 'Times New Roman', serif; margin: 0; padding: 0; background: #fff; color: #000; font-size: 11px; }
@@ -22,6 +22,10 @@ const CSS = `
   .footer { text-align: center; font-size: 8px; color: #888; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; }
 `;
 
+function esc(s = '') {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function getDurations(plan) {
   const total = Number(plan.duration) || 40;
   const intro = Math.round(total * 0.15);
@@ -30,152 +34,218 @@ function getDurations(plan) {
   return { total, intro, dev, conc };
 }
 
-function buildHTML(plan) {
-  const escHtml = (s = '') => String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+function getV2StepMins(plan) {
+  const FRACTIONS = { v2_introduction: 0.125, v2_grapple: 0.125, v2_mini_lesson: 0.325, v2_guided_practice: 0.25, v2_work_time: 0.10, v2_debrief: 0.075 };
+  const d = Number(plan.duration) || 40;
+  const s = {};
+  let used = 0;
+  const keys = Object.keys(FRACTIONS);
+  keys.forEach((k, i) => {
+    if (i === keys.length - 1) { s[k] = d - used; }
+    else { s[k] = Math.round(d * FRACTIONS[k]); used += s[k]; }
+  });
+  return s;
+}
 
+// ─── V1 HTML ───────────────────────────────────────────────────────────────
+function buildV1HTML(plan) {
   const { total, intro, dev, conc } = getDurations(plan);
-
-  const timeContent = `
-    <tr>
-      <td class="time-col">${intro} minutes</td>
-      <td><strong>Introduction</strong><br/>${escHtml(plan.introduction)}</td>
-    </tr>
-    <tr>
-      <td class="time-col">${dev} minutes</td>
-      <td><strong>Lesson Development</strong><br/>${escHtml(plan.lesson_development)}${plan.extended_activities ? '\n\n<strong>Extended Activities</strong>\n' + escHtml(plan.extended_activities) : ''}</td>
-    </tr>
-    <tr>
-      <td class="time-col">${conc} minutes</td>
-      <td><strong>Conclusion</strong><br/>${escHtml(plan.conclusion)}</td>
-    </tr>
-  `;
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lesson Plan</title><style>${CSS}</style></head><body>
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lesson Plan</title><style>${BASE_CSS}</style></head><body>
   <div class="header">
-    <h1>${escHtml(plan.school_name || 'CBE LESSON PLAN')}</h1>
-    <p>${escHtml(plan.grade)} · ${escHtml(plan.subject)} · ${escHtml(plan.term)} · Week ${plan.week} Lesson ${plan.lesson} · ${new Date().getFullYear()}</p>
+    <h1>${esc(plan.school_name || 'CBE LESSON PLAN')}</h1>
+    <p>${esc(plan.grade)} · ${esc(plan.subject)} · ${esc(plan.term)} · Week ${plan.week} Lesson ${plan.lesson} · ${new Date().getFullYear()}</p>
   </div>
-
   <table class="info-table">
+    <tr><th>SCHOOL</th><th>LEVEL</th><th>LEARNING AREA</th><th>DATE</th><th>TIME</th><th>ROLL</th></tr>
     <tr>
-      <th>SCHOOL</th><th>LEVEL</th><th>LEARNING AREA</th><th>DATE</th><th>TIME</th><th>ROLL</th>
-    </tr>
-    <tr>
-      <td>${escHtml(plan.school_name || '')}</td>
-      <td><strong>${escHtml(plan.grade)}</strong></td>
-      <td><strong>${escHtml(plan.subject)}</strong></td>
+      <td>${esc(plan.school_name || '')}</td>
+      <td><strong>${esc(plan.grade)}</strong></td>
+      <td><strong>${esc(plan.subject)}</strong></td>
       <td></td><td>${total} min</td><td></td>
     </tr>
   </table>
-
-  ${plan.teacher_name ? `<p class="section-label">Teacher: <span style="font-weight:normal;text-decoration:none">${escHtml(plan.teacher_name)}</span></p>` : ''}
-
-  <p class="section-label">STRAND: ${escHtml(plan.strand)}</p>
-  <p class="section-label" style="font-size:11px">Sub Strand: ${escHtml(plan.sub_strand)}</p>
-
+  ${plan.teacher_name ? `<p class="section-label">Teacher: <span style="font-weight:normal;text-decoration:none">${esc(plan.teacher_name)}</span></p>` : ''}
+  <p class="section-label">STRAND: ${esc(plan.strand)}</p>
+  <p class="section-label" style="font-size:11px">Sub Strand: ${esc(plan.sub_strand)}</p>
   <p class="section-label">Specific Learning Outcomes:</p>
-  <p class="section-body">${escHtml(plan.specific_outcomes)}</p>
-
+  <p class="section-body">${esc(plan.specific_outcomes)}</p>
+  ${plan.core_competency ? `<p class="section-label">Core Competency:</p><p class="section-body">${esc(plan.core_competency)}</p>` : ''}
   <p class="section-label">Key Inquiry Question</p>
-  <p class="section-body">${escHtml(plan.key_inquiry_question)}</p>
-
+  <p class="section-body">${esc(plan.key_inquiry_question)}</p>
   <p class="section-label">Learning Resources:</p>
-  <p class="section-body">${escHtml(plan.learning_resources)}</p>
-
+  <p class="section-body">${esc(plan.learning_resources)}</p>
   <p class="section-label">Organisation of Learning:</p>
-  <p class="section-body">${escHtml(plan.organization_of_learning)}</p>
-
+  <p class="section-body">${esc(plan.organization_of_learning)}</p>
   <table class="time-content-table">
     <tr><th style="width:22%">TIME</th><th>CONTENT</th></tr>
-    ${timeContent}
+    <tr>
+      <td class="time-col">${intro} minutes</td>
+      <td><strong>Introduction</strong><br/>${esc(plan.introduction)}</td>
+    </tr>
+    <tr>
+      <td class="time-col">${dev} minutes</td>
+      <td><strong>Lesson Development</strong><br/>${esc(plan.lesson_development)}${plan.extended_activities ? '\n\n<strong>Extended Activities</strong>\n' + esc(plan.extended_activities) : ''}</td>
+    </tr>
+    <tr>
+      <td class="time-col">${conc} minutes</td>
+      <td><strong>Conclusion</strong><br/>${esc(plan.conclusion)}</td>
+    </tr>
   </table>
-
-  ${plan.reflection ? `<p class="section-label">Teacher's Additional Resources / Notes:</p><p class="section-body">${escHtml(plan.reflection)}</p>` : ''}
-
+  ${plan.reflection ? `<p class="section-label">Teacher's Notes / Reflection:</p><p class="section-body">${esc(plan.reflection)}</p>` : ''}
   <p class="section-label">Reflection in the Lesson / Self-Remarks:</p>
-  <div class="reflection-lines">
-    ${Array(6).fill('<p></p>').join('')}
-  </div>
-
+  <div class="reflection-lines">${Array(6).fill('<p></p>').join('')}</div>
   <div class="footer">Generated by LeonMud Performance Tracker · CBE Lesson Plan</div>
 </body></html>`;
 }
 
-function buildWordXML(plan) {
-  const esc = (s = '') => String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '</w:t><w:br/><w:t xml:space="preserve">');
+// ─── V2 HTML ───────────────────────────────────────────────────────────────
+function buildV2HTML(plan) {
+  const total = Number(plan.duration) || 40;
+  const mins = getV2StepMins(plan);
+  const steps = [
+    { key: 'v2_introduction', label: 'INTRODUCTION', mins: mins.v2_introduction },
+    { key: 'v2_grapple', label: 'GRAPPLE', mins: mins.v2_grapple },
+    { key: 'v2_mini_lesson', label: 'MINI-LESSON', mins: mins.v2_mini_lesson },
+    { key: 'v2_guided_practice', label: 'GUIDED PRACTICE', mins: mins.v2_guided_practice },
+    { key: 'v2_work_time', label: 'WORK-TIME', mins: mins.v2_work_time },
+    { key: 'v2_debrief', label: 'DEBRIEF', mins: mins.v2_debrief },
+  ];
 
+  const stepRows = steps.map(s => `
+    <tr>
+      <td class="time-col"><strong>${s.label}</strong><br/>(${s.mins} MINS)</td>
+      <td>${esc(plan[s.key] || '')}</td>
+    </tr>`).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Lesson Plan V2</title><style>${BASE_CSS}</style></head><body>
+  <div class="header">
+    <h1>${esc(plan.school_name || 'CBE LESSON PLAN')}</h1>
+    <p>${esc(plan.grade)} · ${esc(plan.subject)} · ${esc(plan.term)} · Week ${plan.week} Lesson ${plan.lesson} · ${new Date().getFullYear()}</p>
+  </div>
+  <table class="info-table">
+    <tr><th>NAME</th><th>SUBJECT</th><th>DATE</th><th>TIME</th><th>ROLL</th></tr>
+    <tr>
+      <td><strong>${esc(plan.teacher_name || '')}</strong></td>
+      <td><strong>${esc(plan.subject)}</strong></td>
+      <td></td><td>${total} min</td><td></td>
+    </tr>
+  </table>
+  <p class="section-label">BIG IDEA: <span style="font-weight:normal;text-decoration:none">${esc(plan.big_idea || plan.strand)}</span></p>
+  <p class="section-label">STRAND: <span style="font-weight:normal;text-decoration:none">${esc(plan.strand)}</span></p>
+  <p class="section-label">SUBSTRAND: <span style="font-weight:normal;text-decoration:none">${esc(plan.sub_strand)}</span></p>
+  ${plan.mission_vision ? `<p class="section-label">MISSION/VISION: <span style="font-weight:normal;text-decoration:none">${esc(plan.mission_vision)}</span></p>` : ''}
+  ${plan.lesson_target ? `<p class="section-label">Lesson Target: <span style="font-weight:normal;text-decoration:none;font-style:italic">${esc(plan.lesson_target)}</span></p>` : ''}
+  ${plan.core_competency ? `<p class="section-label">Core Competency: <span style="font-weight:normal;text-decoration:none">${esc(plan.core_competency)}</span></p>` : ''}
+  <p class="section-label">Learning Resources: <span style="font-weight:normal;text-decoration:none">${esc(plan.learning_resources)}</span></p>
+  <table class="time-content-table">
+    <tr><th style="width:22%">STEPS</th><th>LESSON PROGRESSION</th></tr>
+    ${stepRows}
+  </table>
+  ${plan.reflection ? `<p class="section-label">REFLECTION:</p><p class="section-body">${esc(plan.reflection)}</p>` : `<p class="section-label">REFLECTION:</p><div class="reflection-lines">${Array(4).fill('<p></p>').join('')}</div>`}
+  <div class="footer">Generated by LeonMud Performance Tracker · CBE Lesson Plan V2</div>
+</body></html>`;
+}
+
+// ─── V1 Word XML ───────────────────────────────────────────────────────────
+function buildV1Word(plan) {
+  const w = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '</w:t><w:br/><w:t xml:space="preserve">');
   const { total, intro, dev, conc } = getDurations(plan);
-
   const row = (time, label, content, extra = '') => `
     <w:tr>
-      <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/><w:shd w:val="clear" w:color="auto" w:fill="auto"/></w:tcPr>
-        <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${esc(time)}</w:t></w:r></w:p>
-      </w:tc>
-      <w:tc>
-        <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${esc(label)}</w:t></w:r></w:p>
-        <w:p><w:r><w:t xml:space="preserve">${esc(content)}</w:t></w:r></w:p>
-        ${extra}
-      </w:tc>
+      <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${w(time)}</w:t></w:r></w:p></w:tc>
+      <w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${w(label)}</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${w(content)}</w:t></w:r></w:p>${extra}</w:tc>
     </w:tr>`;
-
-  const extrasRow = plan.extended_activities ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Extended Activities</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${esc(plan.extended_activities)}</w:t></w:r></w:p>` : '';
-
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<?mso-application progid="Word.Document"?>
-<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml"
-  xmlns:wx="http://schemas.microsoft.com/office/word/2003/auxHint"
-  xmlns:o="urn:schemas-microsoft-com:office:office">
+  const ext = plan.extended_activities ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Extended Activities</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${w(plan.extended_activities)}</w:t></w:r></w:p>` : '';
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml">
 <w:body>
-  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr><w:t>${esc(plan.school_name || 'CBE LESSON PLAN')}</w:t></w:r></w:p>
-  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>${esc(plan.grade)} · ${esc(plan.subject)} · ${esc(plan.term)} · Week ${plan.week} Lesson ${plan.lesson}</w:t></w:r></w:p>
-  ${plan.teacher_name ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Teacher: </w:t></w:r><w:r><w:t>${esc(plan.teacher_name)}</w:t></w:r></w:p>` : ''}
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr><w:t>${w(plan.school_name || 'CBE LESSON PLAN')}</w:t></w:r></w:p>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>${w(plan.grade)} · ${w(plan.subject)} · ${w(plan.term)} · Week ${plan.week} Lesson ${plan.lesson}</w:t></w:r></w:p>
+  ${plan.teacher_name ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Teacher: </w:t></w:r><w:r><w:t>${w(plan.teacher_name)}</w:t></w:r></w:p>` : ''}
   <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Duration: ${total} minutes</w:t></w:r></w:p>
-  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>STRAND: </w:t></w:r><w:r><w:t>${esc(plan.strand)}</w:t></w:r></w:p>
-  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Sub Strand: </w:t></w:r><w:r><w:t>${esc(plan.sub_strand)}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>STRAND: </w:t></w:r><w:r><w:t>${w(plan.strand)}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Sub Strand: </w:t></w:r><w:r><w:t>${w(plan.sub_strand)}</w:t></w:r></w:p>
   <w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Specific Learning Outcomes:</w:t></w:r></w:p>
-  <w:p><w:r><w:t xml:space="preserve">${esc(plan.specific_outcomes)}</w:t></w:r></w:p>
+  <w:p><w:r><w:t xml:space="preserve">${w(plan.specific_outcomes)}</w:t></w:r></w:p>
+  ${plan.core_competency ? `<w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Core Competency:</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${w(plan.core_competency)}</w:t></w:r></w:p>` : ''}
   <w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Key Inquiry Question:</w:t></w:r></w:p>
-  <w:p><w:r><w:t xml:space="preserve">${esc(plan.key_inquiry_question)}</w:t></w:r></w:p>
+  <w:p><w:r><w:t xml:space="preserve">${w(plan.key_inquiry_question)}</w:t></w:r></w:p>
   <w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Learning Resources:</w:t></w:r></w:p>
-  <w:p><w:r><w:t xml:space="preserve">${esc(plan.learning_resources)}</w:t></w:r></w:p>
+  <w:p><w:r><w:t xml:space="preserve">${w(plan.learning_resources)}</w:t></w:r></w:p>
   <w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Organisation of Learning:</w:t></w:r></w:p>
-  <w:p><w:r><w:t xml:space="preserve">${esc(plan.organization_of_learning)}</w:t></w:r></w:p>
-
+  <w:p><w:r><w:t xml:space="preserve">${w(plan.organization_of_learning)}</w:t></w:r></w:p>
   <w:tbl>
     <w:tblPr><w:tblW w:w="9000" w:type="dxa"/><w:tblBorders>
-      <w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/>
-      <w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/>
-      <w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/>
+      <w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/>
     </w:tblBorders></w:tblPr>
     <w:tr>
       <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>TIME</w:t></w:r></w:p></w:tc>
       <w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>CONTENT</w:t></w:r></w:p></w:tc>
     </w:tr>
     ${row(`${intro} minutes`, 'Introduction', plan.introduction)}
-    ${row(`${dev} minutes`, 'Lesson Development', plan.lesson_development, extrasRow)}
+    ${row(`${dev} minutes`, 'Lesson Development', plan.lesson_development, ext)}
     ${row(`${conc} minutes`, 'Conclusion', plan.conclusion)}
   </w:tbl>
-
-  ${plan.reflection ? `<w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Teacher's Notes / Reflection:</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${esc(plan.reflection)}</w:t></w:r></w:p>` : ''}
-
+  ${plan.reflection ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Reflection:</w:t></w:r></w:p><w:p><w:r><w:t xml:space="preserve">${w(plan.reflection)}</w:t></w:r></w:p>` : ''}
   <w:p><w:r><w:rPr><w:b/><w:u w:val="single"/></w:rPr><w:t>Reflection in the Lesson / Self-Remarks:</w:t></w:r></w:p>
-  <w:p><w:r><w:t>&#160;</w:t></w:r></w:p>
-  <w:p><w:r><w:t>&#160;</w:t></w:r></w:p>
-  <w:p><w:r><w:t>&#160;</w:t></w:r></w:p>
-</w:body>
-</w:wordDocument>`;
+  <w:p><w:r><w:t>&#160;</w:t></w:r></w:p><w:p><w:r><w:t>&#160;</w:t></w:r></w:p><w:p><w:r><w:t>&#160;</w:t></w:r></w:p>
+</w:body></w:wordDocument>`;
+}
+
+// ─── V2 Word XML ───────────────────────────────────────────────────────────
+function buildV2Word(plan) {
+  const w = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '</w:t><w:br/><w:t xml:space="preserve">');
+  const total = Number(plan.duration) || 40;
+  const mins = getV2StepMins(plan);
+  const steps = [
+    { key: 'v2_introduction', label: 'INTRODUCTION', mins: mins.v2_introduction },
+    { key: 'v2_grapple', label: 'GRAPPLE', mins: mins.v2_grapple },
+    { key: 'v2_mini_lesson', label: 'MINI-LESSON', mins: mins.v2_mini_lesson },
+    { key: 'v2_guided_practice', label: 'GUIDED PRACTICE', mins: mins.v2_guided_practice },
+    { key: 'v2_work_time', label: 'WORK-TIME', mins: mins.v2_work_time },
+    { key: 'v2_debrief', label: 'DEBRIEF', mins: mins.v2_debrief },
+  ];
+  const stepRows = steps.map(s => `
+    <w:tr>
+      <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>${s.label} (${s.mins} MINS)</w:t></w:r></w:p></w:tc>
+      <w:tc><w:p><w:r><w:t xml:space="preserve">${w(plan[s.key] || '')}</w:t></w:r></w:p></w:tc>
+    </w:tr>`).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml">
+<w:body>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:b/><w:sz w:val="28"/></w:rPr><w:t>${w(plan.school_name || 'CBE LESSON PLAN')}</w:t></w:r></w:p>
+  <w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:t>${w(plan.grade)} · ${w(plan.subject)} · ${w(plan.term)} · Week ${plan.week} Lesson ${plan.lesson}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Name: </w:t></w:r><w:r><w:t>${w(plan.teacher_name || '')}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Duration: ${total} minutes</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>BIG IDEA: </w:t></w:r><w:r><w:t>${w(plan.big_idea || plan.strand)}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>STRAND: </w:t></w:r><w:r><w:t>${w(plan.strand)}</w:t></w:r></w:p>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>SUBSTRAND: </w:t></w:r><w:r><w:t>${w(plan.sub_strand)}</w:t></w:r></w:p>
+  ${plan.mission_vision ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>MISSION/VISION: </w:t></w:r><w:r><w:t xml:space="preserve">${w(plan.mission_vision)}</w:t></w:r></w:p>` : ''}
+  ${plan.lesson_target ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Lesson Target: </w:t></w:r><w:r><w:t xml:space="preserve">${w(plan.lesson_target)}</w:t></w:r></w:p>` : ''}
+  ${plan.core_competency ? `<w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Core Competency: </w:t></w:r><w:r><w:t xml:space="preserve">${w(plan.core_competency)}</w:t></w:r></w:p>` : ''}
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>Learning Resources: </w:t></w:r><w:r><w:t xml:space="preserve">${w(plan.learning_resources)}</w:t></w:r></w:p>
+  <w:tbl>
+    <w:tblPr><w:tblW w:w="9000" w:type="dxa"/><w:tblBorders>
+      <w:top w:val="single" w:sz="4"/><w:left w:val="single" w:sz="4"/><w:bottom w:val="single" w:sz="4"/><w:right w:val="single" w:sz="4"/><w:insideH w:val="single" w:sz="4"/><w:insideV w:val="single" w:sz="4"/>
+    </w:tblBorders></w:tblPr>
+    <w:tr>
+      <w:tc><w:tcPr><w:tcW w:w="2000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>STEPS</w:t></w:r></w:p></w:tc>
+      <w:tc><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>LESSON PROGRESSION</w:t></w:r></w:p></w:tc>
+    </w:tr>
+    ${stepRows}
+  </w:tbl>
+  <w:p><w:r><w:rPr><w:b/></w:rPr><w:t>REFLECTION:</w:t></w:r></w:p>
+  <w:p><w:r><w:t xml:space="preserve">${w(plan.reflection || '')}</w:t></w:r></w:p>
+  <w:p><w:r><w:t>&#160;</w:t></w:r></w:p><w:p><w:r><w:t>&#160;</w:t></w:r></w:p>
+</w:body></w:wordDocument>`;
 }
 
 export default function LessonPlanPDFExport({ plan, onClose }) {
+  const isV2 = plan.plan_version === 'v2';
+
   const handlePrint = () => {
-    const html = buildHTML(plan);
+    const html = isV2 ? buildV2HTML(plan) : buildV1HTML(plan);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const win = window.open(url, '_blank');
@@ -183,7 +253,7 @@ export default function LessonPlanPDFExport({ plan, onClose }) {
   };
 
   const handleDownloadHTML = () => {
-    const html = buildHTML(plan);
+    const html = isV2 ? buildV2HTML(plan) : buildV1HTML(plan);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -194,7 +264,7 @@ export default function LessonPlanPDFExport({ plan, onClose }) {
   };
 
   const handleDownloadWord = () => {
-    const xml = buildWordXML(plan);
+    const xml = isV2 ? buildV2Word(plan) : buildV1Word(plan);
     const blob = new Blob([xml], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -212,7 +282,8 @@ export default function LessonPlanPDFExport({ plan, onClose }) {
           <Button variant="ghost" size="icon" onClick={onClose}><X className="w-4 h-4" /></Button>
         </div>
         <p className="text-sm text-muted-foreground">
-          {plan.grade} · {plan.subject} · {plan.term} · Week {plan.week}, Lesson {plan.lesson} · {plan.duration || 40} min
+          {plan.grade} · {plan.subject} · {plan.term} · Wk {plan.week} L{plan.lesson} · {plan.duration || 40} min
+          {isV2 && <span className="ml-1 text-primary font-semibold">· V2</span>}
         </p>
         <div className="space-y-2">
           <Button className="w-full gap-2" onClick={handlePrint}>

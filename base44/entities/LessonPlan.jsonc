@@ -50,6 +50,15 @@
     }
   },
   "properties": {
+    "plan_version": {
+      "type": "string",
+      "enum": [
+        "v1",
+        "v2"
+      ],
+      "default": "v1",
+      "description": "v1 = standard CBE format, v2 = Big Idea / Grapple format"
+    },
     "title": {
       "type": "string",
       "description": "Lesson plan title"
@@ -93,6 +102,16 @@
       "default": 40,
       "description": "Lesson duration in minutes"
     },
+    "school_name": {
+      "type": "string"
+    },
+    "teacher_name": {
+      "type": "string",
+      "description": "Name of the teacher"
+    },
+    "teacher_email": {
+      "type": "string"
+    },
     "strand": {
       "type": "string",
       "description": "Strand e.g. Measurement; Length"
@@ -104,6 +123,10 @@
     "specific_outcomes": {
       "type": "string",
       "description": "Specific learning outcomes (lettered list)"
+    },
+    "core_competency": {
+      "type": "string",
+      "description": "Core competencies addressed in the lesson"
     },
     "key_inquiry_question": {
       "type": "string"
@@ -134,15 +157,41 @@
       "type": "string",
       "description": "Teacher reflection notes"
     },
-    "school_name": {
-      "type": "string"
-    },
-    "teacher_name": {
+    "big_idea": {
       "type": "string",
-      "description": "Name of the teacher"
+      "description": "V2: Big Idea / overarching theme"
     },
-    "teacher_email": {
-      "type": "string"
+    "mission_vision": {
+      "type": "string",
+      "description": "V2: Mission/Vision statement"
+    },
+    "lesson_target": {
+      "type": "string",
+      "description": "V2: I can... lesson target statement"
+    },
+    "v2_introduction": {
+      "type": "string",
+      "description": "V2: Introduction step content"
+    },
+    "v2_grapple": {
+      "type": "string",
+      "description": "V2: Grapple step content"
+    },
+    "v2_mini_lesson": {
+      "type": "string",
+      "description": "V2: Mini-Lesson step content"
+    },
+    "v2_guided_practice": {
+      "type": "string",
+      "description": "V2: Guided Practice step content"
+    },
+    "v2_work_time": {
+      "type": "string",
+      "description": "V2: Work-Time step content"
+    },
+    "v2_debrief": {
+      "type": "string",
+      "description": "V2: Debrief step content"
     },
     "subscription_type": {
       "type": "string",

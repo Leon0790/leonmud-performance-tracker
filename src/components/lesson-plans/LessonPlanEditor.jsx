@@ -84,6 +84,7 @@ export default function LessonPlanEditor({ plan, onSaved, onBack, user }) {
         <CardHeader className="pb-3"><CardTitle className="text-sm">Learning Outcomes & Inquiry</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Field label="Specific Learning Outcomes" value={data.specific_outcomes} onChange={v => set('specific_outcomes', v)} rows={5} />
+          <Field label="Core Competency" value={data.core_competency} onChange={v => set('core_competency', v)} rows={2} />
           <Field label="Key Inquiry Question" value={data.key_inquiry_question} onChange={v => set('key_inquiry_question', v)} rows={2} />
           <Field label="Learning Resources" value={data.learning_resources} onChange={v => set('learning_resources', v)} rows={2} />
           <Field label="Organisation of Learning" value={data.organization_of_learning} onChange={v => set('organization_of_learning', v)} rows={2} />

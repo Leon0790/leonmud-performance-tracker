@@ -2,22 +2,28 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Plus, Trash2, Edit3, Download, Sparkles } from 'lucide-react';
+import { BookOpen, Trash2, Edit3, Download, Sparkles, ChevronDown } from 'lucide-react';
 import LessonPlanEditor from '@/components/lesson-plans/LessonPlanEditor';
+import LessonPlanEditorV2 from '@/components/lesson-plans/LessonPlanEditorV2';
 import LessonPlanGenerator from '@/components/lesson-plans/LessonPlanGenerator';
+import LessonPlanGeneratorV2 from '@/components/lesson-plans/LessonPlanGeneratorV2';
 import LessonPlanPDFExport from '@/components/lesson-plans/LessonPlanPDFExport';
 import LessonPlanSubscriptionGate from '@/components/lesson-plans/LessonPlanSubscriptionGate';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1','Term 2','Term 3'];
 
 export default function LessonPlans() {
-  const [view, setView] = useState('list'); // 'list' | 'generate' | 'edit'
+  const [view, setView] = useState('list'); // 'list' | 'generate' | 'generate-v2' | 'edit'
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [filterGrade, setFilterGrade] = useState('all');
   const [filterTerm, setFilterTerm] = useState('all');
@@ -43,14 +49,12 @@ export default function LessonPlans() {
     },
   });
 
-  // All plans by this user (for free trial count — unfiltered)
   const { data: allMyPlans = [] } = useQuery({
     queryKey: ['all-my-lesson-plans', user?.email],
     queryFn: () => base44.entities.LessonPlan.filter({ teacher_email: user?.email }, '-created_date', 200),
     enabled: !!user?.email,
   });
 
-  // Approved payments for lesson plans
   const { data: approvedPayments = [] } = useQuery({
     queryKey: ['lesson-plan-approved-payments', user?.email],
     queryFn: () => base44.entities.Payment.filter({ teacher_email: user?.email, status: 'approved' }),
@@ -81,21 +85,30 @@ export default function LessonPlans() {
 
   if (view === 'generate') {
     return (
-      <LessonPlanSubscriptionGate
-        user={user}
-        planCount={allMyPlans.length}
-        approvedPayments={approvedPayments}
-      >
-        <LessonPlanGenerator
-          user={user}
-          onGenerated={handleGenerated}
-          onBack={() => setView('list')}
-        />
+      <LessonPlanSubscriptionGate user={user} planCount={allMyPlans.length} approvedPayments={approvedPayments}>
+        <LessonPlanGenerator user={user} onGenerated={handleGenerated} onBack={() => setView('list')} />
+      </LessonPlanSubscriptionGate>
+    );
+  }
+
+  if (view === 'generate-v2') {
+    return (
+      <LessonPlanSubscriptionGate user={user} planCount={allMyPlans.length} approvedPayments={approvedPayments}>
+        <LessonPlanGeneratorV2 user={user} onGenerated={handleGenerated} onBack={() => setView('list')} />
       </LessonPlanSubscriptionGate>
     );
   }
 
   if (view === 'edit' && selectedPlan) {
+    if (selectedPlan.plan_version === 'v2') {
+      return (
+        <LessonPlanEditorV2
+          plan={selectedPlan}
+          onSaved={handleSaved}
+          onBack={() => { setView('list'); setSelectedPlan(null); }}
+        />
+      );
+    }
     return (
       <LessonPlanEditor
         plan={selectedPlan}
@@ -117,10 +130,26 @@ export default function LessonPlans() {
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">CBE-aligned lesson plans for all grades</p>
         </div>
-        <Button onClick={() => setView('generate')} className="gap-2">
-          <Sparkles className="w-4 h-4" />
-          Generate New Plan
-        </Button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Generate New Plan
+              <ChevronDown className="w-3 h-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            <DropdownMenuItem onClick={() => setView('generate')} className="flex flex-col items-start gap-0.5 py-3">
+              <span className="font-semibold text-sm">Version 1 — Standard CBE</span>
+              <span className="text-xs text-muted-foreground">Introduction · Development · Conclusion</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setView('generate-v2')} className="flex flex-col items-start gap-0.5 py-3">
+              <span className="font-semibold text-sm">Version 2 — Big Idea Format</span>
+              <span className="text-xs text-muted-foreground">Grapple · Mini-Lesson · Guided Practice · Debrief</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Trial / subscription status */}
@@ -144,18 +173,14 @@ export default function LessonPlans() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <Select value={filterGrade} onValueChange={setFilterGrade}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="All Grades" />
-          </SelectTrigger>
+          <SelectTrigger className="w-36"><SelectValue placeholder="All Grades" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Grades</SelectItem>
             {GRADES.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterTerm} onValueChange={setFilterTerm}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="All Terms" />
-          </SelectTrigger>
+          <SelectTrigger className="w-32"><SelectValue placeholder="All Terms" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Terms</SelectItem>
             {TERMS.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
@@ -174,10 +199,6 @@ export default function LessonPlans() {
           <CardContent className="flex flex-col items-center py-14 gap-4">
             <BookOpen className="w-10 h-10 text-muted-foreground/40" />
             <p className="text-muted-foreground text-center">No lesson plans yet. Click "Generate New Plan" to create your first one.</p>
-            <Button onClick={() => setView('generate')} variant="outline" className="gap-2">
-              <Sparkles className="w-4 h-4" />
-              Generate a Plan
-            </Button>
           </CardContent>
         </Card>
       ) : (
@@ -190,9 +211,16 @@ export default function LessonPlans() {
                     <Badge variant="secondary" className="text-xs">{plan.grade}</Badge>
                     <Badge variant="outline" className="text-xs">{plan.term}</Badge>
                     <Badge variant="outline" className="text-xs">Wk {plan.week} · L{plan.lesson}</Badge>
+                    {plan.plan_version === 'v2' && (
+                      <Badge className="text-xs bg-primary/15 text-primary border-primary/30">V2</Badge>
+                    )}
                   </div>
                   <p className="font-semibold text-sm leading-tight truncate">{plan.title || `${plan.subject} — ${plan.strand || 'Lesson'}`}</p>
-                  {plan.strand && <p className="text-xs text-muted-foreground mt-0.5 truncate">{plan.strand} · {plan.sub_strand}</p>}
+                  {(plan.strand || plan.big_idea) && (
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {plan.plan_version === 'v2' ? `Big Idea: ${plan.big_idea || plan.strand}` : `${plan.strand} · ${plan.sub_strand}`}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-1 shrink-0">
                   <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setShowExport(plan)}>
@@ -211,7 +239,6 @@ export default function LessonPlans() {
         </div>
       )}
 
-      {/* PDF Export Modal */}
       {showExport && (
         <LessonPlanPDFExport plan={showExport} onClose={() => setShowExport(null)} />
       )}
