@@ -58,7 +58,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     ['Grade:', student.grade],
     ['Class:', student.class_name || profile?.class_name || '—'],
     ['Term:', student.term],
-    ['Exam:', student.exam_type],
+    ['Assessment:', student.exam_type],
     ['Average:', avg],
   ];
 
