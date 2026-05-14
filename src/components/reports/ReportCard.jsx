@@ -60,7 +60,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
           <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${student.grade}</span></div>
           <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
           <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
-          <div class="info-row"><span class="info-label">Exam:</span><span class="info-value">${student.exam_type}</span></div>
+          <div class="info-row"><span class="info-label">Assessment:</span><span class="info-value">${student.exam_type}</span></div>
           <div class="info-row"><span class="info-label">Rank:</span><span class="info-value">${rank} / ${totalStudents}</span></div>
           <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
