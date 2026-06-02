@@ -6,10 +6,10 @@
     "read": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.teacher_email": "{{user.email}}"
         },
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -21,10 +21,10 @@
     "update": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.teacher_email": "{{user.email}}"
         },
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
@@ -36,10 +36,10 @@
     "delete": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.teacher_email": "{{user.email}}"
         },
         {
-          "created_by": "{{user.email}}"
+          "created_by_id": "{{user.id}}"
         },
         {
           "user_condition": {
