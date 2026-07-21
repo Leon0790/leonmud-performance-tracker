@@ -25,6 +25,7 @@ const SUBJECTS = [
 export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate) {
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
+  const ordinal = (n) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
 
   const rows = SUBJECTS.map((s) => {
     const mark = student[s.key];
@@ -61,7 +62,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
           <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
           <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
           <div class="info-row"><span class="info-label">Assessment:</span><span class="info-value">${student.exam_type}</span></div>
-          <div class="info-row"><span class="info-label">Rank:</span><span class="info-value">${rank} / ${totalStudents}</span></div>
+          <div class="info-row"><span class="info-label">Position:</span><span class="info-value">${ordinal(rank)} / ${totalStudents}</span></div>
           <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
 
@@ -183,6 +184,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const [classTeacherDate, setClassTeacherDate] = useState('');
   const [headteacherDate, setHeadteacherDate] = useState('');
   const { isPremium, isLoading: isPremiumLoading } = usePremium();
+  const ordinal = (n) => { if (!n) return '—'; const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
 
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
@@ -203,7 +205,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-bold text-base">{student.name}</p>
-          <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '—'} · Total: <span className="font-semibold">{total}</span> · Avg: <span className="font-semibold">{avg}</span></p>
+          <p className="text-xs text-muted-foreground">Adm: {student.admission_number || '—'} · Total: <span className="font-semibold">{total}</span> · Avg: <span className="font-semibold">{avg}</span> · Position: <span className="font-semibold">{ordinal(rank)} / {totalStudents}</span></p>
         </div>
         <div className="flex gap-2 shrink-0">
           <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Print Report Cards" mode="overlay">

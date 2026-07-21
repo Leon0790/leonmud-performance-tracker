@@ -52,6 +52,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
   doc.setFontSize(9);
   const col1 = margin;
   const col2 = margin + contentW / 2;
+  const ordinal = (n) => { if (!n) return '—'; const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
   const infoItems = [
     ['Student Name:', student.name],
     ['Adm No:', student.admission_number || '—'],
@@ -59,6 +60,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
     ['Class:', student.class_name || profile?.class_name || '—'],
     ['Term:', student.term],
     ['Assessment:', student.exam_type],
+    ['Position:', `${ordinal(rank)} / ${totalStudents}`],
     ['Average:', avg],
   ];
 
