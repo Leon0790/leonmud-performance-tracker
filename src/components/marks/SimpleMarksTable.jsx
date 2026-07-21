@@ -104,7 +104,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
         <Table>
           <TableHeader>
             <TableRow className="bg-primary/10">
-              <TableHead className="font-bold text-foreground w-10 text-center sticky left-0 bg-primary/10">#</TableHead>
+              <TableHead className="font-bold text-foreground w-16 text-center sticky left-0 bg-primary/10">Position</TableHead>
               <TableHead className="font-bold text-foreground min-w-[140px] sticky left-10 bg-primary/10">Name</TableHead>
               {subjects.map(s => (
                 <TableHead key={s.key} className="font-bold text-foreground text-center min-w-[90px]">{s.label}</TableHead>
@@ -125,14 +125,16 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50">
-                  {/* Rank */}
+                  {/* Position */}
                   <TableCell className="sticky left-0 bg-background text-center">
-                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
                       student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
                       student.rank === 2 ? 'bg-gray-100 text-gray-600' :
                       student.rank === 3 ? 'bg-orange-100 text-orange-700' :
                       'bg-muted text-muted-foreground'
-                    }`}>{student.rank}</span>
+                    }`}>
+                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
+                    </span>
                   </TableCell>
 
                   {/* Name */}

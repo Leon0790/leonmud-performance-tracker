@@ -187,7 +187,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
           <TableHeader>
             {/* Row 1 — subject group headers */}
             <TableRow className="bg-primary/10">
-              <TableHead rowSpan={2} className="font-bold text-foreground w-10 sticky left-0 bg-primary/10 align-middle text-center">#</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground w-16 sticky left-0 bg-primary/10 align-middle text-center">Position</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground min-w-[140px] sticky left-10 bg-primary/10 align-middle">Name</TableHead>
 
               {/* Paper subjects — grouped header */}
@@ -243,14 +243,16 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
-                  {/* Rank */}
+                  {/* Position */}
                   <TableCell className="sticky left-0 bg-background text-center">
-                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
                       student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
                       student.rank === 2 ? 'bg-gray-100 text-gray-600' :
                       student.rank === 3 ? 'bg-orange-100 text-orange-700' :
                       'bg-muted text-muted-foreground'
-                    }`}>{student.rank}</span>
+                    }`}>
+                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
+                    </span>
                   </TableCell>
 
                   {/* Name */}
