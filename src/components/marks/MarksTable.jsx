@@ -187,8 +187,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
           <TableHeader>
             {/* Row 1 — subject group headers */}
             <TableRow className="bg-primary/10">
-              <TableHead rowSpan={2} className="font-bold text-foreground w-16 sticky left-0 bg-primary/10 align-middle text-center">Position</TableHead>
-              <TableHead rowSpan={2} className="font-bold text-foreground min-w-[140px] sticky left-10 bg-primary/10 align-middle">Name</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground min-w-[140px] sticky left-0 bg-primary/10 align-middle">Name</TableHead>
 
               {/* Paper subjects — grouped header */}
               {PAPER_SUBJECTS.map((s) => (
@@ -208,6 +207,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/20 align-middle min-w-[60px]">Mean</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[56px]">Band</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle w-16">Actions</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground w-16 bg-primary/10 align-middle text-center">Position</TableHead>
             </TableRow>
 
             {/* Row 2 — sub-column headers for paper subjects + simple subjects */}
@@ -243,20 +243,8 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
-                  {/* Position */}
-                  <TableCell className="sticky left-0 bg-background text-center">
-                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
-                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                      student.rank === 2 ? 'bg-gray-100 text-gray-600' :
-                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
-                    </span>
-                  </TableCell>
-
                   {/* Name */}
-                  <TableCell className="font-medium sticky left-10 bg-background min-w-[140px] text-sm">{student.name}</TableCell>
+                  <TableCell className="font-medium sticky left-0 bg-background min-w-[140px] text-sm">{student.name}</TableCell>
 
                   {/* Paper subjects */}
                   {PAPER_SUBJECTS.map((subj) => {
@@ -361,6 +349,18 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                       </AlertDialog>
                     </div>
                   </TableCell>
+
+                  {/* Position */}
+                  <TableCell className="text-center">
+                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
+                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
+                      student.rank === 2 ? 'bg-gray-100 text-gray-600' :
+                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
+                    </span>
+                  </TableCell>
                 </TableRow>
               );
             })}
@@ -369,8 +369,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               const ids = rankedStudents.map(s => s.id);
               return (
                 <TableRow className="bg-primary/10 font-bold border-t-2 border-primary/30">
-                  <TableCell className="sticky left-0 bg-primary/10 text-center text-xs text-muted-foreground">—</TableCell>
-                  <TableCell className="sticky left-10 bg-primary/10 text-xs font-bold text-primary">Class Avg</TableCell>
+                  <TableCell className="sticky left-0 bg-primary/10 text-xs font-bold text-primary">Class Avg</TableCell>
 
                   {/* Paper subject averages */}
                   {PAPER_SUBJECTS.map((subj) => (
@@ -407,7 +406,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                     {colAvg(marks, ids, (m) => calcOverallTotal(m) > 0 ? parseFloat(calcMean(m)) : '')}
                   </TableCell>
 
-                  <TableCell /><TableCell />
+                  <TableCell /><TableCell /><TableCell />
                 </TableRow>
               );
             })()}

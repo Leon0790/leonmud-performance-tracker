@@ -104,8 +104,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
         <Table>
           <TableHeader>
             <TableRow className="bg-primary/10">
-              <TableHead className="font-bold text-foreground w-16 text-center sticky left-0 bg-primary/10">Position</TableHead>
-              <TableHead className="font-bold text-foreground min-w-[140px] sticky left-10 bg-primary/10">Name</TableHead>
+              <TableHead className="font-bold text-foreground min-w-[140px] sticky left-0 bg-primary/10">Name</TableHead>
               {subjects.map(s => (
                 <TableHead key={s.key} className="font-bold text-foreground text-center min-w-[90px]">{s.label}</TableHead>
               ))}
@@ -113,6 +112,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
               <TableHead className="font-bold text-foreground text-center bg-primary/20 min-w-[60px]">Mean</TableHead>
               <TableHead className="font-bold text-foreground text-center bg-primary/10 min-w-[56px]">Band</TableHead>
               <TableHead className="font-bold text-foreground text-center bg-primary/10 w-16">Actions</TableHead>
+              <TableHead className="font-bold text-foreground w-16 text-center bg-primary/10">Position</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -125,20 +125,8 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50">
-                  {/* Position */}
-                  <TableCell className="sticky left-0 bg-background text-center">
-                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
-                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
-                      student.rank === 2 ? 'bg-gray-100 text-gray-600' :
-                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
-                    </span>
-                  </TableCell>
-
                   {/* Name */}
-                  <TableCell className="font-medium sticky left-10 bg-background min-w-[140px] text-sm">{student.name}</TableCell>
+                  <TableCell className="font-medium sticky left-0 bg-background min-w-[140px] text-sm">{student.name}</TableCell>
 
                   {/* Subject marks */}
                   {subjects.map(s => {
@@ -208,14 +196,25 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                       </AlertDialog>
                     </div>
                   </TableCell>
+
+                  {/* Position */}
+                  <TableCell className="text-center">
+                    <span className={`inline-flex items-center justify-center px-2 h-7 rounded-full text-xs font-bold ${
+                      student.rank === 1 ? 'bg-yellow-100 text-yellow-700' :
+                      student.rank === 2 ? 'bg-gray-100 text-gray-600' :
+                      student.rank === 3 ? 'bg-orange-100 text-orange-700' :
+                      'bg-muted text-muted-foreground'
+                    }`}>
+                      {student.rank}{student.rank === 1 ? 'st' : student.rank === 2 ? 'nd' : student.rank === 3 ? 'rd' : 'th'}
+                    </span>
+                  </TableCell>
                 </TableRow>
               );
             })}
 
             {/* Class averages row */}
             <TableRow className="bg-primary/10 font-bold border-t-2 border-primary/30">
-              <TableCell className="sticky left-0 bg-primary/10 text-center text-xs text-muted-foreground">—</TableCell>
-              <TableCell className="sticky left-10 bg-primary/10 text-xs font-bold text-primary">Class Avg</TableCell>
+              <TableCell className="sticky left-0 bg-primary/10 text-xs font-bold text-primary">Class Avg</TableCell>
               {subjects.map(s => (
                 <TableCell key={s.key} className="text-center text-xs font-semibold text-muted-foreground p-1">
                   {colAvg(marks, ids, m => m[s.key])}
@@ -230,7 +229,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                   return t > 0 ? parseFloat(calcMean(m, subjectKeys)) : '';
                 })}
               </TableCell>
-              <TableCell /><TableCell />
+              <TableCell /><TableCell /><TableCell />
             </TableRow>
           </TableBody>
         </Table>
