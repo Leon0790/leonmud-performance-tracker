@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Save, SaveAll } from 'lucide-react';
+import { Trash2, Save, SaveAll, MessageSquare } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { getBand, bandTailwindColor } from '@/utils/bands';
 import { getSubjectByKey } from '@/utils/gradeSubjects';
+import SmsNotifyModal from './SmsNotifyModal';
 
 function BandBadge({ score }) {
   const band = getBand(score);
@@ -36,9 +37,10 @@ function colAvg(allMarks, studentIds, getter) {
   return (vals.reduce((s, v) => s + Number(v), 0) / vals.length).toFixed(1);
 }
 
-export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks, onDelete, isSaving }) {
+export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks, onDelete, isSaving, studentRegisterMap, filters }) {
   const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
+  const [smsModal, setSmsModal] = useState(null);
 
   const subjects = subjectKeys.map(k => getSubjectByKey(k)).filter(Boolean);
 
@@ -132,7 +134,6 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                   {subjects.map(s => {
                     const val = m[s.key] ?? '';
                     const num = parseInt(val) || 0;
-                    const isLow = num > 0 && num < 40;
                     return (
                       <TableCell key={s.key} className="p-1">
                         <div className="space-y-1">
@@ -142,7 +143,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                             max="100"
                             value={val}
                             onChange={e => setMark(student.id, s.key, e.target.value)}
-                            className={`w-20 h-7 text-center text-xs mx-auto ${isLow ? 'border-red-400 bg-red-50 text-red-700' : ''}`}
+                            className="w-20 h-7 text-center text-xs mx-auto"
                           />
                           {num > 0 && (
                             <div className="text-center">
@@ -172,9 +173,20 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                   {/* Actions */}
                   <TableCell>
                     <div className="flex items-center gap-1 justify-center">
-                      {dirtyStudents.has(student.id) && (
+                      {dirtyStudents.has(student.id) ? (
                         <Button size="icon" variant="ghost" className="h-11 w-11" onClick={() => handleSave(student.id)} disabled={isSaving}>
                           <Save className="w-4 h-4 text-primary" />
+                        </Button>
+                      ) : (
+                        <Button
+                          size="icon" variant="ghost" className="h-11 w-11"
+                          title="Notify parent"
+                          onClick={() => {
+                            const registerInfo = studentRegisterMap?.[student.admission_number] || {};
+                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone }, marksData: marks[student.id] || {} });
+                          }}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-green-600" />
                         </Button>
                       )}
                       <AlertDialog>
@@ -242,8 +254,15 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
         <span className="text-blue-700 font-bold">ME (60–79)</span>
         <span className="text-amber-700 font-bold">AE (40–59)</span>
         <span className="text-red-700 font-bold">BE (&lt;40)</span>
-        <span className="ml-2">· Red input = score below 40</span>
       </div>
+
+      <SmsNotifyModal
+        open={!!smsModal}
+        onOpenChange={(v) => !v && setSmsModal(null)}
+        student={smsModal?.student}
+        marksData={smsModal?.marksData}
+        filters={filters}
+      />
     </div>
   );
 }

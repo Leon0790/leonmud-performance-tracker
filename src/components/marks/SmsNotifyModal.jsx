@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageSquare, Copy, Check, Phone, Send } from 'lucide-react';
+import { MessageSquare, Copy, Check, Phone, Send, Smartphone } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const SUBJECTS = [
@@ -66,6 +66,9 @@ export default function SmsNotifyModal({ open, onOpenChange, student, marksData,
   const waUrl = phone
     ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
     : null;
+  const smsUrl = student.parent_phone
+    ? `sms:${student.parent_phone}?body=${encodeURIComponent(message)}`
+    : null;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(message);
@@ -115,6 +118,20 @@ export default function SmsNotifyModal({ open, onOpenChange, student, marksData,
               </Button>
             )}
 
+            {smsUrl ? (
+              <a href={smsUrl}>
+                <Button variant="outline" className="w-full gap-2 border-blue-400 text-blue-700 hover:bg-blue-50">
+                  <Smartphone className="w-4 h-4" />
+                  Send via SMS
+                </Button>
+              </a>
+            ) : (
+              <Button disabled variant="outline" className="w-full gap-2 opacity-50">
+                <Smartphone className="w-4 h-4" />
+                Send via SMS (no phone registered)
+              </Button>
+            )}
+
             <Button variant="outline" onClick={handleCopy} className="w-full gap-2">
               {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
               {copied ? 'Copied!' : 'Copy Message'}
@@ -122,7 +139,7 @@ export default function SmsNotifyModal({ open, onOpenChange, student, marksData,
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            Opens WhatsApp pre-filled with this message to the parent's number.
+            Opens WhatsApp or SMS pre-filled with this message to the parent's number.
           </p>
         </div>
       </DialogContent>

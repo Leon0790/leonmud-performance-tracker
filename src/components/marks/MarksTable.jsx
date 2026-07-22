@@ -85,7 +85,6 @@ function BandBadge({ score }) {
 
 function PaperInput({ value, max, onChange }) {
   const num = value === '' ? '' : parseInt(value) || 0;
-  const isLow = num !== '' && num < 40 && num > 0;
   const isOver = num !== '' && num > max;
   return (
     <Input
@@ -94,7 +93,7 @@ function PaperInput({ value, max, onChange }) {
       max={max}
       value={value ?? ''}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-16 h-7 text-center text-xs mx-auto ${isLow ? 'border-red-400 bg-red-50 text-red-700' : ''} ${isOver ? 'border-orange-400 bg-orange-50' : ''}`}
+      className={`w-16 h-7 text-center text-xs mx-auto ${isOver ? 'border-orange-400 bg-orange-50' : ''}`}
     />
   );
 }
@@ -151,11 +150,6 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
     data.overall_band = getBand(overall / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
     onUpdateMarks(studentId, data);
     setDirtyStudents((prev) => { const n = new Set(prev); n.delete(studentId); return n; });
-
-    // Show SMS notify modal after save
-    const studentRecord = students.find(s => s.id === studentId);
-    const registerInfo = studentRegisterMap?.[studentRecord?.admission_number] || {};
-    setSmsModal({ student: { ...studentRecord, parent_phone: registerInfo.parent_phone }, marksData: data });
   };
 
   const handleSaveAll = () => dirtyStudents.forEach((id) => handleSave(id));
@@ -239,7 +233,6 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
               const m = marks[student.id] || {};
               const overallTotal = calcOverallTotal(m);
               const overallBand = getBand(overallTotal / (PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length));
-              const isLowOverall = overallTotal > 0 && overallTotal < NUM_SUBJECTS * 40;
 
               return (
                 <TableRow key={student.id} className="hover:bg-muted/50 transition-colors">
@@ -250,7 +243,6 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                   {PAPER_SUBJECTS.map((subj) => {
                     const subjTotal = calcPaperTotal(m, subj);
                     const subjBand = getBand(subjTotal);
-                    const isLow = subjTotal > 0 && subjTotal < 40;
                     return (
                       <React.Fragment key={subj.key}>
                         {subj.papers.map((p) => (
@@ -263,7 +255,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                           </TableCell>
                         ))}
                         {/* Subject total — read-only */}
-                        <TableCell className={`p-1 text-center font-bold text-sm ${isLow ? 'text-red-600' : 'text-blue-700'}`}>
+                        <TableCell className="p-1 text-center font-bold text-sm text-blue-700">
                           {subjTotal || '—'}
                         </TableCell>
                         {/* Subject band */}
@@ -294,7 +286,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                   })}
 
                   {/* Overall total */}
-                  <TableCell className={`text-center font-bold border-l border-primary/30 ${isLowOverall ? 'text-red-600' : ''}`}>
+                  <TableCell className="text-center font-bold border-l border-primary/30">
                     {overallTotal || '—'}
                   </TableCell>
 
@@ -429,7 +421,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
         <span className="text-blue-700 font-bold">ME (60–79)</span>
         <span className="text-amber-700 font-bold">AE (40–59)</span>
         <span className="text-red-700 font-bold">BE (&lt;40)</span>
-        <span className="ml-2">· Red input = score below 40</span>
+
       </div>
     </div>
   );
