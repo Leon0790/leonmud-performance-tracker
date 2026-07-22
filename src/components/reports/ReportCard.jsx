@@ -22,7 +22,7 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate) {
+export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate, examName) {
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
   const ordinal = (n) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
@@ -61,7 +61,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
           <div class="info-row"><span class="info-label">Grade:</span><span class="info-value">${student.grade}</span></div>
           <div class="info-row"><span class="info-label">Class:</span><span class="info-value">${student.class_name || profile?.class_name || '—'}</span></div>
           <div class="info-row"><span class="info-label">Term:</span><span class="info-value">${student.term}</span></div>
-          <div class="info-row"><span class="info-label">Assessment:</span><span class="info-value">${student.exam_type}</span></div>
+          <div class="info-row"><span class="info-label">Assessment:</span><span class="info-value">${examName || student.exam_type}</span></div>
           <div class="info-row"><span class="info-label">Position:</span><span class="info-value">${ordinal(rank)} / ${totalStudents}</span></div>
           <div class="info-row"><span class="info-label">Average:</span><span class="info-value">${avg}</span></div>
         </div>
@@ -176,7 +176,7 @@ export const REPORT_CARD_STYLES = `
   .footer { text-align: center; font-size: 9px; color: #888; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; }
 `;
 
-export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl }) {
+export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl, examName }) {
   const [comment, setComment] = useState('');
   const [headteacherComment, setHeadteacherComment] = useState('');
   const [headteacherName, setHeadteacherName] = useState('');
@@ -192,7 +192,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
 
   const handlePrint = () => {
-    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, fmtDate(classTeacherDate), fmtDate(headteacherDate));
+    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName);
     const fullHtml = `<!DOCTYPE html><html><head><title>Report Card - ${student.name}</title><style>${REPORT_CARD_STYLES}</style></head><body>${html}</body></html>`;
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -214,7 +214,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             </Button>
           </PremiumLock>
           <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="PDF Download" mode="overlay">
-            <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate))}>
+            <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName)}>
               <Download className="w-4 h-4 mr-1" /> PDF
             </Button>
           </PremiumLock>

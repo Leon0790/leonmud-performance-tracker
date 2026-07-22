@@ -20,7 +20,7 @@ function getTotal(student) {
   return SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
 }
 
-export default function MarkList({ students, grade, term, examType, profile, openingDate, closingDate }) {
+export default function MarkList({ students, grade, term, examType, examName, profile, openingDate, closingDate }) {
   const ranked = [...students]
     .sort((a, b) => getTotal(b) - getTotal(a))
     .map((s, i) => ({ ...s, rank: i + 1 }));
@@ -59,7 +59,7 @@ export default function MarkList({ students, grade, term, examType, profile, ope
       <body>
         <div class="header">
           <h1>CBE PERFORMANCE MARK LIST</h1>
-          <h2>${grade.toUpperCase()} &nbsp;|&nbsp; ${term.toUpperCase()} &nbsp;|&nbsp; ${examType.toUpperCase()} &nbsp;|&nbsp; YEAR ${year}</h2>
+          <h2>${grade.toUpperCase()} &nbsp;|&nbsp; ${term.toUpperCase()} &nbsp;|&nbsp; ${(examName || examType).toUpperCase()} &nbsp;|&nbsp; YEAR ${year}</h2>
           <h3>Class Teacher: ${profile?.full_name || '—'} &nbsp;|&nbsp; Class: ${profile?.class_name || '—'} &nbsp;|&nbsp; Total Students: ${ranked.length}</h3>
         </div>
         <div class="meta">

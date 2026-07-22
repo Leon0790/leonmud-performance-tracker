@@ -13,7 +13,7 @@ import { downloadAllReportsPDF } from '@/utils/generateReportPDF';
 import PremiumLock from '@/components/PremiumLock';
 import { usePremium } from '@/hooks/use-premium';
 
-const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
 const EXAM_TYPES = ['Mid Term', 'End Term'];
 
@@ -30,6 +30,7 @@ export default function Reports() {
   const [filters, setFilters] = useState({ grade: 'Grade 7', term: 'Term 1', exam_type: 'Mid Term' });
   const [openingDate, setOpeningDate] = useState('');
   const [closingDate, setClosingDate] = useState('');
+  const [examName, setExamName] = useState('');
   const [schoolLogoDataUrl, setSchoolLogoDataUrl] = useState(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [logoError, setLogoError] = useState('');
@@ -86,7 +87,7 @@ export default function Reports() {
   const handlePrintAll = () => {
     if (!rankedStudents.length) return;
     const allHTML = rankedStudents.map(s =>
-      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl, '', '')
+      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl, '', '', examName)
     ).join('');
     const fullHtml = `<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`;
     const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -141,6 +142,10 @@ export default function Reports() {
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>{EXAM_TYPES.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
               </Select>
+            </div>
+            <div className="min-w-[200px]">
+              <Label className="text-xs text-muted-foreground">Exam Name <span className="text-muted-foreground/60">(appears on mark list & report card)</span></Label>
+              <Input className="mt-1 h-9 text-sm" placeholder="e.g. opener, CAT 1, Mid Term..." value={examName} onChange={e => setExamName(e.target.value)} />
             </div>
           </div>
 
@@ -213,6 +218,7 @@ export default function Reports() {
             grade={filters.grade}
             term={filters.term}
             examType={filters.exam_type}
+            examName={examName}
             profile={profile}
             openingDate={openingDate}
             closingDate={closingDate}
@@ -243,6 +249,7 @@ export default function Reports() {
               openingDate={fmtDate(openingDate)}
               closingDate={fmtDate(closingDate)}
               schoolLogoDataUrl={schoolLogoDataUrl}
+              examName={examName}
             />
           ))}
         </div>
