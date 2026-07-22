@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { addMonths } from 'date-fns';
 
-const TRIAL_DAYS = 7;
+const TRIAL_DAYS = 3;
 
 export function trialDaysLeft(user) {
   if (!user?.created_date) return 0;
