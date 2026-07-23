@@ -36,7 +36,7 @@ function getMostRecentMarks(marksRecords) {
 export default function ParentSmsNotifier({ student, marksRecords }) {
   const { toast } = useToast();
   const [expanded, setExpanded] = useState(false);
-  const [type, setType] = useState('low_marks'); // 'low_marks' | 'exam_reminder'
+  const [type, setType] = useState('exam_reminder');
   const [examDate, setExamDate] = useState('');
   const [examName, setExamName] = useState('Mid Term');
   const [customMsg, setCustomMsg] = useState('');
@@ -116,42 +116,6 @@ export default function ParentSmsNotifier({ student, marksRecords }) {
             <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               No parent phone number on file. Add one in Edit mode.
-            </div>
-          )}
-
-          {/* Notification type */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setType('low_marks')}
-              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 text-sm font-medium transition-all ${type === 'low_marks' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}
-            >
-              <AlertTriangle className="w-5 h-5" />
-              Low Marks Alert
-            </button>
-            <button
-              onClick={() => setType('exam_reminder')}
-              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 text-sm font-medium transition-all ${type === 'exam_reminder' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'}`}
-            >
-              <CalendarClock className="w-5 h-5" />
-              Exam Reminder
-            </button>
-          </div>
-
-          {/* Low marks summary */}
-          {type === 'low_marks' && (
-            <div className="rounded-lg bg-muted/50 p-3 text-sm">
-              {lowSubjects.length > 0 ? (
-                <>
-                  <p className="font-medium text-destructive mb-1.5">Subjects below 50:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {lowSubjects.map(s => (
-                      <span key={s.label} className="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-medium">{s.label}: {s.mark}</span>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p className="text-muted-foreground">No subjects below 50 in the most recent exam. You can still send a general message.</p>
-              )}
             </div>
           )}
 
