@@ -133,24 +133,16 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                   {/* Subject marks */}
                   {subjects.map(s => {
                     const val = m[s.key] ?? '';
-                    const num = parseInt(val) || 0;
                     return (
                       <TableCell key={s.key} className="p-1">
-                        <div className="space-y-1">
-                          <Input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={val}
-                            onChange={e => setMark(student.id, s.key, e.target.value)}
-                            className="w-20 h-7 text-center text-xs mx-auto"
-                          />
-                          {num > 0 && (
-                            <div className="text-center">
-                              <BandBadge score={num} />
-                            </div>
-                          )}
-                        </div>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={val}
+                          onChange={e => setMark(student.id, s.key, e.target.value)}
+                          className="w-20 h-7 text-center text-xs mx-auto"
+                        />
                       </TableCell>
                     );
                   })}
