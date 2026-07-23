@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import { getBand, bandRGB } from '@/utils/bands';
 import { getSubjectComment } from '@/utils/subjectComments';
 
-const SUBJECTS = [
+const JSS_SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
   { key: 'english', label: 'English' },
   { key: 'kiswahili', label: 'Kiswahili' },
@@ -14,6 +14,23 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
+const GRADE_56_SUBJECTS = [
+  { key: 'mathematics', label: 'Mathematics' },
+  { key: 'english', label: 'English' },
+  { key: 'kiswahili', label: 'Kiswahili' },
+  { key: 'science_technology_agriculture', label: 'Science, Technology & Agriculture' },
+  { key: 'social_studies', label: 'Social Studies' },
+  { key: 'home_science', label: 'Home Science' },
+  { key: 'psychomotor_creative_arts', label: 'Psychomotor & Creative Arts' },
+  { key: 'business_studies', label: 'Business Studies' },
+  { key: 'religious_studies', label: 'Religious Studies' },
+];
+
+function getSubjectsForGrade(grade) {
+  if (grade === 'Grade 5' || grade === 'Grade 6') return GRADE_56_SUBJECTS;
+  return JSS_SUBJECTS;
+}
+
 const PRIMARY = [30, 58, 95];
 const WHITE = [255, 255, 255];
 const LIGHT_BLUE = [221, 232, 255];
@@ -21,6 +38,7 @@ const LIGHT_ROW = [245, 248, 255];
 const BORDER = [180, 195, 215];
 
 function drawSingleReportCard(doc, student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, classTeacherDate, headteacherDate, examName) {
+  const SUBJECTS = getSubjectsForGrade(student.grade);
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
 

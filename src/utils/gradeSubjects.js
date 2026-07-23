@@ -12,15 +12,16 @@ export const ALL_SUBJECTS = [
   { key: 'religious_studies',          label: 'Religious Studies',           defaultGrades: ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6'] },
 
   // Upper Primary (Grades 4-6)
-  { key: 'mathematics',                label: 'Mathematics',                 defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
-  { key: 'english',                    label: 'English',                     defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
-  { key: 'kiswahili',                  label: 'Kiswahili',                   defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
-  { key: 'science_technology',         label: 'Science & Technology',        defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
-  { key: 'social_studies',             label: 'Social Studies',              defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
-  { key: 'agriculture',                label: 'Agriculture',                 defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
-  { key: 'home_science',               label: 'Home Science',                defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
-  { key: 'psychomotor_creative_arts',  label: 'Psychomotor & Creative Arts', defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
-  { key: 'business_studies',           label: 'Business Studies',            defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
+  { key: 'mathematics',                        label: 'Mathematics',                          defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
+  { key: 'english',                            label: 'English',                              defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
+  { key: 'kiswahili',                          label: 'Kiswahili',                            defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
+  { key: 'science_technology',                 label: 'Science & Technology',                 defaultGrades: ['Grade 4'] },
+  { key: 'science_technology_agriculture',     label: 'Science, Technology & Agriculture',   defaultGrades: ['Grade 5','Grade 6'] },
+  { key: 'social_studies',                     label: 'Social Studies',                       defaultGrades: ['Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'] },
+  { key: 'agriculture',                        label: 'Agriculture',                          defaultGrades: ['Grade 4','Grade 7','Grade 8','Grade 9'] },
+  { key: 'home_science',                       label: 'Home Science',                         defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
+  { key: 'psychomotor_creative_arts',          label: 'Psychomotor & Creative Arts',          defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
+  { key: 'business_studies',                   label: 'Business Studies',                     defaultGrades: ['Grade 4','Grade 5','Grade 6'] },
 
   // JSS (Grades 7-9)
   { key: 'integrated_science',         label: 'Integrated Science',          defaultGrades: ['Grade 7','Grade 8','Grade 9'] },

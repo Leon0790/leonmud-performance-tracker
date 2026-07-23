@@ -10,7 +10,7 @@ import { getSubjectComment } from '@/utils/subjectComments';
 import PremiumLock from '@/components/PremiumLock';
 import { usePremium } from '@/hooks/use-premium';
 
-const SUBJECTS = [
+const JSS_SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
   { key: 'english', label: 'English' },
   { key: 'kiswahili', label: 'Kiswahili' },
@@ -22,7 +22,25 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
+const GRADE_56_SUBJECTS = [
+  { key: 'mathematics', label: 'Mathematics' },
+  { key: 'english', label: 'English' },
+  { key: 'kiswahili', label: 'Kiswahili' },
+  { key: 'science_technology_agriculture', label: 'Science, Technology & Agriculture' },
+  { key: 'social_studies', label: 'Social Studies' },
+  { key: 'home_science', label: 'Home Science' },
+  { key: 'psychomotor_creative_arts', label: 'Psychomotor & Creative Arts' },
+  { key: 'business_studies', label: 'Business Studies' },
+  { key: 'religious_studies', label: 'Religious Studies' },
+];
+
+function getSubjectsForGrade(grade) {
+  if (grade === 'Grade 5' || grade === 'Grade 6') return GRADE_56_SUBJECTS;
+  return JSS_SUBJECTS;
+}
+
 export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate, examName) {
+  const SUBJECTS = getSubjectsForGrade(student.grade);
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
   const ordinal = (n) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
@@ -186,6 +204,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const { isPremium, isLoading: isPremiumLoading } = usePremium();
   const ordinal = (n) => { if (!n) return '—'; const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
 
+  const SUBJECTS = getSubjectsForGrade(student.grade);
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
 
@@ -235,7 +254,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             {SUBJECTS.map((s) => {
               const mark = student[s.key];
               const band = student[`${s.key}_band`] || getBand(mark);
-              const autoComment = getSubjectComment(s.key, band);
+              const autoComment = band ? getSubjectComment(s.key, band) : '—';
               return (
                 <tr key={s.key} className="border-b border-border/50">
                   <td className="px-2 py-1 font-medium">{s.label}</td>
