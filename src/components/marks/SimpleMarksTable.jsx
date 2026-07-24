@@ -175,7 +175,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                           title="Notify parent"
                           onClick={() => {
                             const registerInfo = studentRegisterMap?.[student.admission_number] || {};
-                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone }, marksData: marks[student.id] || {} });
+                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone || student.parent_phone, parent_name: registerInfo.parent_name || student.parent_name }, marksData: marks[student.id] || {} });
                           }}
                         >
                           <MessageSquare className="w-3.5 h-3.5 text-green-600" />

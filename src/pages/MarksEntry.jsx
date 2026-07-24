@@ -267,6 +267,8 @@ export default function MarksEntry() {
             onUpdateMarks={(id, data) => updateMutation.mutate({ id, data })}
             onDelete={(id) => deleteMutation.mutate(id)}
             isSaving={updateMutation.isPending}
+            studentRegisterMap={studentRegisterMap}
+            filters={filters}
           />
         </div>
       )}
