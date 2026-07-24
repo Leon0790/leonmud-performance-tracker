@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BookOpen, MessageSquare } from 'lucide-react';
 import { getBand, bandColor } from '@/utils/bands';
+import { ALL_SUBJECTS } from '@/utils/gradeSubjects';
+import SmsNotifyModal from '@/components/marks/SmsNotifyModal';
 
-const SUBJECTS = [
+const DEFAULT_SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
   { key: 'english', label: 'English' },
   { key: 'kiswahili', label: 'Kiswahili' },
@@ -16,8 +19,15 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Creative Art' },
 ];
 
-function getTotal(record) {
-  return SUBJECTS.reduce((sum, s) => sum + (Number(record[s.key]) || 0), 0);
+function getSubjectsForRecord(rec) {
+  if (rec.subjects_config && rec.subjects_config.length > 0) {
+    return rec.subjects_config.map(k => ALL_SUBJECTS.find(s => s.key === k)).filter(Boolean);
+  }
+  return DEFAULT_SUBJECTS;
+}
+
+function getTotal(record, subjects) {
+  return subjects.reduce((sum, s) => sum + (Number(record[s.key]) || 0), 0);
 }
 
 const bandBadgeColor = (band) => {
@@ -30,7 +40,9 @@ const bandBadgeColor = (band) => {
   return 'bg-muted text-muted-foreground';
 };
 
-export default function StudentMarksHistory({ marksRecords = [] }) {
+export default function StudentMarksHistory({ marksRecords = [], student }) {
+  const [smsModal, setSmsModal] = useState(null);
+
   if (marksRecords.length === 0) return (
     <Card className="border-border/50">
       <CardContent className="text-center py-10 text-muted-foreground">
@@ -40,7 +52,6 @@ export default function StudentMarksHistory({ marksRecords = [] }) {
     </Card>
   );
 
-  // Sort by grade, term, exam_type
   const sorted = [...marksRecords].sort((a, b) => {
     const ga = a.grade + a.term + a.exam_type;
     const gb = b.grade + b.term + b.exam_type;
@@ -50,8 +61,15 @@ export default function StudentMarksHistory({ marksRecords = [] }) {
   return (
     <div className="space-y-4">
       {sorted.map((rec) => {
-        const total = getTotal(rec);
-        const avg = (total / SUBJECTS.length).toFixed(1);
+        const subjects = getSubjectsForRecord(rec);
+        const total = getTotal(rec, subjects);
+        const avg = subjects.length ? (total / subjects.length).toFixed(1) : '0';
+        // Build a student object for SmsNotifyModal (it uses student.name and student.parent_phone)
+        const modalStudent = student
+          ? { ...rec, name: `${student.first_name} ${student.last_name}`, parent_phone: student.parent_phone, parent_name: student.parent_name }
+          : { ...rec, name: rec.name || '' };
+        const filters = { grade: rec.grade, term: rec.term, exam_type: rec.exam_type };
+
         return (
           <Card key={rec.id} className="border-border/50">
             <CardHeader className="pb-3">
@@ -65,6 +83,15 @@ export default function StudentMarksHistory({ marksRecords = [] }) {
                   {rec.overall_band && (
                     <Badge className={bandBadgeColor(rec.overall_band)}>{rec.overall_band}</Badge>
                   )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-green-700 border-green-300 hover:bg-green-50"
+                    onClick={() => setSmsModal({ student: modalStudent, marksData: rec, filters })}
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    Send to Parent
+                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -79,7 +106,7 @@ export default function StudentMarksHistory({ marksRecords = [] }) {
                     </tr>
                   </thead>
                   <tbody>
-                    {SUBJECTS.map((s, i) => {
+                    {subjects.map((s, i) => {
                       const mark = rec[s.key];
                       const band = rec[`${s.key}_band`] || getBand(mark);
                       const hasMark = mark !== null && mark !== undefined && mark !== '';
@@ -107,6 +134,14 @@ export default function StudentMarksHistory({ marksRecords = [] }) {
           </Card>
         );
       })}
+
+      <SmsNotifyModal
+        open={!!smsModal}
+        onOpenChange={(v) => !v && setSmsModal(null)}
+        student={smsModal?.student}
+        marksData={smsModal?.marksData}
+        filters={smsModal?.filters}
+      />
     </div>
   );
 }

@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Copy, Check, Phone, Send, Smartphone } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { ALL_SUBJECTS } from '@/utils/gradeSubjects';
 
-const SUBJECTS = [
+const DEFAULT_SUBJECTS = [
   { key: 'mathematics', label: 'Maths' },
   { key: 'kiswahili', label: 'Kiswahili' },
   { key: 'english', label: 'English' },
@@ -17,15 +18,24 @@ const SUBJECTS = [
   { key: 'creative_art', label: 'Art' },
 ];
 
+function getSubjects(marksData) {
+  if (marksData?.subjects_config?.length) {
+    return marksData.subjects_config.map(k => ALL_SUBJECTS.find(s => s.key === k)).filter(Boolean);
+  }
+  return DEFAULT_SUBJECTS;
+}
+
 function buildMessage(student, marksData, filters) {
+  const subjects = getSubjects(marksData);
+  const parentName = student.parent_name || 'Parent/Guardian';
   const lines = [
-    `Dear Parent/Guardian,`,
+    `Dear ${parentName},`,
     ``,
     `${student.name}'s ${filters.exam_type} results for ${filters.term} - ${filters.grade}:`,
     ``,
   ];
 
-  SUBJECTS.forEach(({ key, label }) => {
+  subjects.forEach(({ key, label }) => {
     const mark = marksData[key];
     const band = marksData[`${key}_band`];
     if (mark !== null && mark !== undefined && mark !== '') {
@@ -33,8 +43,8 @@ function buildMessage(student, marksData, filters) {
     }
   });
 
-  const total = SUBJECTS.reduce((sum, { key }) => sum + (Number(marksData[key]) || 0), 0);
-  const avg = (total / SUBJECTS.length).toFixed(1);
+  const total = subjects.reduce((sum, { key }) => sum + (Number(marksData[key]) || 0), 0);
+  const avg = subjects.length ? (total / subjects.length).toFixed(1) : '0';
 
   lines.push(``);
   lines.push(`Total: ${total} | Average: ${avg}`);

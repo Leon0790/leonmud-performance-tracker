@@ -254,7 +254,7 @@ export default function StudentProfile() {
           <BookOpen className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold">Academic Marks History</h2>
         </div>
-        <StudentMarksHistory marksRecords={marksRecords} />
+        <StudentMarksHistory marksRecords={marksRecords} student={student} />
       </div>
     </div>
   );
