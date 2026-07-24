@@ -36,8 +36,8 @@ function getTotal(student, subjects) {
   return subjects.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
 }
 
-export default function MarkList({ students, grade, term, examType, examName, profile, openingDate, closingDate }) {
-  const SUBJECTS = getSubjectsForGrade(grade);
+export default function MarkList({ students, grade, term, examType, examName, profile, openingDate, closingDate, subjects }) {
+  const SUBJECTS = subjects?.length ? subjects : getSubjectsForGrade(grade);
   const ranked = [...students]
     .sort((a, b) => getTotal(b, SUBJECTS) - getTotal(a, SUBJECTS))
     .map((s, i) => ({ ...s, rank: i + 1 }));

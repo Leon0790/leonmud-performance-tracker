@@ -39,8 +39,8 @@ function getSubjectsForGrade(grade) {
   return JSS_SUBJECTS;
 }
 
-export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate, examName) {
-  const SUBJECTS = getSubjectsForGrade(student.grade);
+export function buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, classTeacherDate, headteacherDate, examName, subjects) {
+  const SUBJECTS = subjects?.length ? subjects : getSubjectsForGrade(student.grade);
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
   const ordinal = (n) => { const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
@@ -194,7 +194,7 @@ export const REPORT_CARD_STYLES = `
   .footer { text-align: center; font-size: 9px; color: #888; margin-top: 10px; border-top: 1px solid #eee; padding-top: 5px; }
 `;
 
-export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl, examName }) {
+export default function ReportCard({ student, rank, totalStudents, profile, openingDate, closingDate, schoolLogoDataUrl, examName, subjects }) {
   const [comment, setComment] = useState('');
   const [headteacherComment, setHeadteacherComment] = useState('');
   const [headteacherName, setHeadteacherName] = useState('');
@@ -204,14 +204,14 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
   const { isPremium, isLoading: isPremiumLoading } = usePremium();
   const ordinal = (n) => { if (!n) return '—'; const s = ['th','st','nd','rd']; const v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); };
 
-  const SUBJECTS = getSubjectsForGrade(student.grade);
+  const SUBJECTS = subjects?.length ? subjects : getSubjectsForGrade(student.grade);
   const total = SUBJECTS.reduce((sum, s) => sum + (Number(student[s.key]) || 0), 0);
   const avg = (total / SUBJECTS.length).toFixed(1);
 
   const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
 
   const handlePrint = () => {
-    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName);
+    const html = buildReportCardHTML(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, headteacherComment, schoolLogoDataUrl, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName, SUBJECTS);
     const fullHtml = `<!DOCTYPE html><html><head><title>Report Card - ${student.name}</title><style>${REPORT_CARD_STYLES}</style></head><body>${html}</body></html>`;
     const blob = new Blob([fullHtml], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -233,7 +233,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
             </Button>
           </PremiumLock>
           <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="PDF Download" mode="overlay">
-            <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName)}>
+            <Button size="sm" onClick={() => downloadSingleReportPDF(student, rank, totalStudents, profile, openingDate, closingDate, comment, classTeacherName, headteacherName, schoolLogoDataUrl, headteacherComment, fmtDate(classTeacherDate), fmtDate(headteacherDate), examName, SUBJECTS)}>
               <Download className="w-4 h-4 mr-1" /> PDF
             </Button>
           </PremiumLock>

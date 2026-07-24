@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
+import { ALL_SUBJECTS, getDefaultSubjectsForGrade } from '@/utils/gradeSubjects';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,13 +18,8 @@ const GRADES = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6'
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
 const EXAM_TYPES = ['Mid Term', 'End Term'];
 
-const SUBJECTS = [
-  'mathematics','english','kiswahili','integrated_science',
-  'agriculture','social_studies','pretechnical_studies','religious_studies','creative_art'
-];
-
-function getTotal(student) {
-  return SUBJECTS.reduce((sum, s) => sum + (Number(student[s]) || 0), 0);
+function getTotal(student, subjectKeys) {
+  return subjectKeys.reduce((sum, s) => sum + (Number(student[s]) || 0), 0);
 }
 
 export default function Reports() {
@@ -60,8 +56,21 @@ export default function Reports() {
     enabled: !!user?.email,
   });
 
+  // Resolve the subject keys the teacher has selected for this grade
+  const activeSubjectKeys = useMemo(() => {
+    const saved = profile?.grade_subjects?.[filters.grade];
+    if (saved && saved.length > 0) return saved;
+    return getDefaultSubjectsForGrade(filters.grade);
+  }, [profile, filters.grade]);
+
+  // Convert keys to full subject objects (label + key)
+  const activeSubjects = useMemo(() =>
+    activeSubjectKeys.map(k => ALL_SUBJECTS.find(s => s.key === k)).filter(Boolean),
+    [activeSubjectKeys]
+  );
+
   const rankedStudents = [...students]
-    .sort((a, b) => getTotal(b) - getTotal(a))
+    .sort((a, b) => getTotal(b, activeSubjectKeys) - getTotal(a, activeSubjectKeys))
     .map((s, i) => ({ ...s, rank: i + 1 }));
 
   const update = (key, val) => setFilters(f => ({ ...f, [key]: val }));
@@ -87,7 +96,7 @@ export default function Reports() {
   const handlePrintAll = () => {
     if (!rankedStudents.length) return;
     const allHTML = rankedStudents.map(s =>
-      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl, '', '', examName)
+      buildReportCardHTML(s, s.rank, rankedStudents.length, profile, fmtDate(openingDate), fmtDate(closingDate), '', profile?.full_name || '', '', '', schoolLogoDataUrl, '', '', examName, activeSubjects)
     ).join('');
     const fullHtml = `<!DOCTYPE html><html><head><title>All Report Cards</title><style>${REPORT_CARD_STYLES}</style></head><body>${allHTML}</body></html>`;
     const blob = new Blob([fullHtml], { type: 'text/html' });
@@ -100,7 +109,7 @@ export default function Reports() {
     if (!rankedStudents.length) return;
     setIsDownloadingAll(true);
     setTimeout(() => {
-      downloadAllReportsPDF(rankedStudents, profile, fmtDate(openingDate), fmtDate(closingDate), schoolLogoDataUrl);
+      downloadAllReportsPDF(rankedStudents, profile, fmtDate(openingDate), fmtDate(closingDate), schoolLogoDataUrl, activeSubjects);
       setIsDownloadingAll(false);
     }, 50);
   };
@@ -222,6 +231,7 @@ export default function Reports() {
             profile={profile}
             openingDate={openingDate}
             closingDate={closingDate}
+            subjects={activeSubjects}
           />
         </div>
       </div>
@@ -250,6 +260,7 @@ export default function Reports() {
               closingDate={fmtDate(closingDate)}
               schoolLogoDataUrl={schoolLogoDataUrl}
               examName={examName}
+              subjects={activeSubjects}
             />
           ))}
         </div>
