@@ -98,6 +98,19 @@ function PaperInput({ value, max, onChange }) {
   );
 }
 
+function findRegisterInfo(student, studentRegisterMap) {
+  if (student.admission_number && studentRegisterMap?.[student.admission_number]) {
+    return studentRegisterMap[student.admission_number];
+  }
+  if (!studentRegisterMap) return {};
+  const studentName = (student.name || '').trim().toLowerCase();
+  const match = Object.values(studentRegisterMap).find(r => {
+    const regName = `${r.first_name || ''} ${r.last_name || ''}`.trim().toLowerCase();
+    return regName === studentName;
+  });
+  return match || {};
+}
+
 export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving, filters, studentRegisterMap }) {
   const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
@@ -199,8 +212,8 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
 
               <TableHead rowSpan={2} className="font-bold text-foreground text-center border-l border-primary/30 bg-primary/20 align-middle min-w-[60px]">Total</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/20 align-middle min-w-[60px]">Mean</TableHead>
-              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[56px]">Band</TableHead>
-              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle w-16">Actions</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[70px]">Band</TableHead>
+              <TableHead rowSpan={2} className="font-bold text-foreground text-center bg-primary/10 align-middle min-w-[80px]">Actions</TableHead>
               <TableHead rowSpan={2} className="font-bold text-foreground w-16 bg-primary/10 align-middle text-center">Position</TableHead>
             </TableRow>
 
@@ -313,7 +326,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                           size="icon" variant="ghost" className="h-11 w-11"
                           title="Notify parent"
                           onClick={() => {
-                            const registerInfo = studentRegisterMap?.[student.admission_number] || {};
+                            const registerInfo = findRegisterInfo(student, studentRegisterMap);
                             setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone || student.parent_phone, parent_name: registerInfo.parent_name || student.parent_name }, marksData: marks[student.id] || {} });
                           }}
                         >

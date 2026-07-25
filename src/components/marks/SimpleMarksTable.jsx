@@ -37,6 +37,21 @@ function colAvg(allMarks, studentIds, getter) {
   return (vals.reduce((s, v) => s + Number(v), 0) / vals.length).toFixed(1);
 }
 
+function findRegisterInfo(student, studentRegisterMap) {
+  // Try by admission_number first
+  if (student.admission_number && studentRegisterMap?.[student.admission_number]) {
+    return studentRegisterMap[student.admission_number];
+  }
+  // Fall back: match by full name (case-insensitive)
+  if (!studentRegisterMap) return {};
+  const studentName = (student.name || '').trim().toLowerCase();
+  const match = Object.values(studentRegisterMap).find(r => {
+    const regName = `${r.first_name || ''} ${r.last_name || ''}`.trim().toLowerCase();
+    return regName === studentName;
+  });
+  return match || {};
+}
+
 export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks, onDelete, isSaving, studentRegisterMap, filters }) {
   const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
@@ -112,8 +127,8 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
               ))}
               <TableHead className="font-bold text-foreground text-center bg-primary/20 min-w-[60px] border-l border-primary/30">Total</TableHead>
               <TableHead className="font-bold text-foreground text-center bg-primary/20 min-w-[60px]">Mean</TableHead>
-              <TableHead className="font-bold text-foreground text-center bg-primary/10 min-w-[56px]">Band</TableHead>
-              <TableHead className="font-bold text-foreground text-center bg-primary/10 w-16">Actions</TableHead>
+              <TableHead className="font-bold text-foreground text-center bg-primary/10 min-w-[70px]">Band</TableHead>
+              <TableHead className="font-bold text-foreground text-center bg-primary/10 min-w-[80px]">Actions</TableHead>
               <TableHead className="font-bold text-foreground w-16 text-center bg-primary/10">Position</TableHead>
             </TableRow>
           </TableHeader>
@@ -174,8 +189,8 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                           size="icon" variant="ghost" className="h-11 w-11"
                           title="Notify parent"
                           onClick={() => {
-                            const registerInfo = studentRegisterMap?.[student.admission_number] || {};
-                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone || student.parent_phone, parent_name: registerInfo.parent_name || student.parent_name }, marksData: marks[student.id] || {} });
+                            const registerInfo = findRegisterInfo(student, studentRegisterMap);
+                            setSmsModal({ student: { ...student, parent_phone: registerInfo.parent_phone || student.parent_phone, parent_name: registerInfo.parent_name || student.parent_name }, marksData: marks[student.id] || {}, subjectKeys });
                           }}
                         >
                           <MessageSquare className="w-3.5 h-3.5 text-green-600" />
@@ -252,7 +267,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
         open={!!smsModal}
         onOpenChange={(v) => !v && setSmsModal(null)}
         student={smsModal?.student}
-        marksData={smsModal?.marksData}
+        marksData={{ ...(smsModal?.marksData || {}), subjects_config: smsModal?.subjectKeys || subjectKeys }}
         filters={filters}
       />
     </div>
