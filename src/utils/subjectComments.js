@@ -92,14 +92,124 @@ const SUBJECT_REMARKS = {
     BE1: 'Has a creative spirit — with more practice and confidence, artistic skills will shine through.',
     BE2: 'Every artist starts somewhere; keep creating, experimenting, and enjoying the process of making art.',
   },
+  literacy: {
+    EE1: 'Exceptional reading, writing and listening skills; expresses ideas fluently and confidently.',
+    EE2: 'Excellent literacy skills; reads with understanding and writes clearly.',
+    ME1: 'Good literacy progress; continue practising reading aloud and sentence writing.',
+    ME2: 'Meets the expected level; more daily reading will build fluency and confidence.',
+    AE1: 'Approaching expectations; needs extra practice in letter sounds, reading and writing.',
+    AE2: 'Limited literacy skills; guided reading and daily writing practice are recommended.',
+    BE1: 'Improving steadily — reading together daily will build confidence and skill; keep going.',
+    BE2: 'With patient support and daily practice, reading and writing will improve; do not give up.',
+  },
+  numeracy: {
+    EE1: 'Outstanding number work; solves problems quickly and explains reasoning clearly.',
+    EE2: 'Excellent grasp of numbers, shapes and simple problem solving.',
+    ME1: 'Good numeracy skills; continue practising counting, addition and subtraction.',
+    ME2: 'Meets expectations; more practice with word problems will strengthen skills.',
+    AE1: 'Approaching expectations; needs regular practice with number operations.',
+    AE2: 'Limited number skills; hands-on counting and guided practice are needed.',
+    BE1: 'Shows effort in numeracy — practice with everyday counting will build confidence.',
+    BE2: 'Keep practising numbers with concrete objects; steady progress is achievable.',
+  },
+  environmental_activities: {
+    EE1: 'Exceptional awareness of the environment; observes, asks questions and applies learning excellently.',
+    EE2: 'Excellent understanding of the environment and everyday activities around them.',
+    ME1: 'Good performance; continue exploring nature, weather and community activities.',
+    ME2: 'Meets the standard; more observation and discussion of surroundings is encouraged.',
+    AE1: 'Approaching expectations; needs more engagement with environmental topics.',
+    AE2: 'Limited understanding; guided exploration of the environment is recommended.',
+    BE1: 'Shows curiosity about nature — exploring and asking questions will build understanding.',
+    BE2: 'Encourage daily observation and simple activities at home to strengthen learning.',
+  },
+  hygiene_nutrition: {
+    EE1: 'Exceptional knowledge of hygiene and nutrition; practises healthy habits consistently.',
+    EE2: 'Excellent understanding of personal hygiene, food and healthy living.',
+    ME1: 'Good performance; continue practising healthy habits at school and home.',
+    ME2: 'Meets expectations; more practice in personal care routines will help.',
+    AE1: 'Approaching expectations; needs reinforcement of hygiene and nutrition practices.',
+    AE2: 'Limited understanding; guided practice of daily hygiene routines is needed.',
+    BE1: 'Learning healthy habits — practise hand washing, cleanliness and good eating daily.',
+    BE2: 'With consistent guidance at home and school, hygiene habits will improve.',
+  },
+  movement_creative_arts: {
+    EE1: 'Outstanding coordination and creativity in movement, music and art activities.',
+    EE2: 'Excellent participation and skill in movement and creative activities.',
+    ME1: 'Good participation; continue practising rhythm, balance and creative expression.',
+    ME2: 'Meets expectations; more practice in organised play and art will help.',
+    AE1: 'Approaching expectations; needs more involvement in movement and art activities.',
+    AE2: 'Limited confidence in movement tasks; guided play and practice are recommended.',
+    BE1: 'Enjoys creative activities — regular play and practice will build confidence.',
+    BE2: 'Encourage daily physical play and art at home to strengthen skills.',
+  },
+  science_technology: {
+    EE1: 'Exceptional scientific thinking; explores, investigates and explains phenomena accurately.',
+    EE2: 'Excellent understanding of science and technology concepts and their uses.',
+    ME1: 'Good performance; continue with practical investigations and observations.',
+    ME2: 'Meets expectations; more practice with experiments and simple technology will help.',
+    AE1: 'Approaching expectations; needs more engagement with science activities.',
+    AE2: 'Limited grasp of science concepts; guided practical work is recommended.',
+    BE1: 'Curious about how things work — exploring and experimenting will build understanding.',
+    BE2: 'With more hands-on activities and revision, science skills will improve.',
+  },
+  science_technology_agriculture: {
+    EE1: 'Exceptional integration of science, technology and agriculture; applies knowledge to real situations.',
+    EE2: 'Excellent understanding of scientific, technological and agricultural concepts.',
+    ME1: 'Good performance; continue engaging with practical science and farming activities.',
+    ME2: 'Meets the standard; more practice with investigations and farm records is needed.',
+    AE1: 'Approaching expectations; needs more activity-based learning in this area.',
+    AE2: 'Limited understanding; guided practical work and revision are recommended.',
+    BE1: 'Shows curiosity in science and farming — hands-on practice will build confidence.',
+    BE2: 'With regular revision and practical involvement, steady improvement is possible.',
+  },
+  home_science: {
+    EE1: 'Exceptional skills in home science; applies knowledge of food, care and hygiene excellently.',
+    EE2: 'Excellent understanding of home science concepts and practical skills.',
+    ME1: 'Good performance; continue practising practical home science activities.',
+    ME2: 'Meets expectations; more practice with food, hygiene and care tasks will help.',
+    AE1: 'Approaching expectations; needs more engagement with practical home science.',
+    AE2: 'Limited grasp of concepts; guided practical work and revision are needed.',
+    BE1: 'Has practical potential — practising simple home tasks will build skill and confidence.',
+    BE2: 'With encouragement and regular practice, home science skills will improve.',
+  },
+  psychomotor_creative_arts: {
+    EE1: 'Outstanding coordination, craftsmanship and creativity in practical activities.',
+    EE2: 'Excellent motor skills and creativity; produces quality practical work.',
+    ME1: 'Good performance; continue developing precision in practical and art tasks.',
+    ME2: 'Meets expectations; more hands-on practice will improve finish and accuracy.',
+    AE1: 'Approaching expectations; needs more time on practical and creative tasks.',
+    AE2: 'Limited fine motor control; guided practical practice is recommended.',
+    BE1: 'Shows creativity and effort — regular practice will build control and confidence.',
+    BE2: 'Encourage daily creative play and practical tasks to strengthen these skills.',
+  },
+  business_studies: {
+    EE1: 'Exceptional understanding of business concepts; applies ideas of trade and money excellently.',
+    EE2: 'Excellent grasp of business ideas, savings and simple entrepreneurship.',
+    ME1: 'Good performance; continue engaging with money, trade and enterprise topics.',
+    ME2: 'Meets the standard; more revision on business concepts and terms will help.',
+    AE1: 'Approaching expectations; needs more engagement with business topics.',
+    AE2: 'Limited understanding; guided revision and examples are recommended.',
+    BE1: 'Shows interest in real-life trade — observing local businesses will build understanding.',
+    BE2: 'With consistent revision and encouragement, business concepts will become clearer.',
+  },
 };
 
 /**
  * Returns a short subject-specific remark based on subject and band.
  */
+const GENERIC_REMARKS = {
+  EE1: 'Demonstrates exceptional competence in this learning area; performance is outstanding.',
+  EE2: 'Shows excellent competence; consistently applies the skills learnt.',
+  ME1: 'Good performance; continue practising to reach the highest level.',
+  ME2: 'Meets the expected standard; more practise will strengthen the skills.',
+  AE1: 'Approaching expectations; additional practice is needed in this area.',
+  AE2: 'Needs more support and regular practice to meet the expected standard.',
+  BE1: 'Shows effort — with guided practice and encouragement, improvement is achievable.',
+  BE2: 'Keep trying; with consistent support and practice, progress will come.',
+};
+
 export function getSubjectComment(subjectKey, band) {
   if (!band) return '—';
   const subjectMap = SUBJECT_REMARKS[subjectKey];
-  if (!subjectMap) return '—';
-  return subjectMap[band] || '—';
+  return (subjectMap && subjectMap[band]) || GENERIC_REMARKS[band] || '—';
 }
