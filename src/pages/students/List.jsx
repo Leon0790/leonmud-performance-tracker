@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Users, UserPlus, Search, Upload, UserCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-const GRADES = ['All Grades', 'Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['All Grades', 'PP1', 'PP2', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
 const STATUSES = ['All Statuses', 'Active', 'Inactive', 'Transferred', 'Graduated'];
 
 const statusColor = (s) => {

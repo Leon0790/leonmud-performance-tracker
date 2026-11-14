@@ -1,4 +1,6 @@
 {
+  "name": "User",
+  "type": "object",
   "properties": {
     "role": {
       "type": "string",
@@ -7,11 +9,14 @@
         "admin",
         "user"
       ]
+    },
+    "welcome_email_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the welcome email has already been sent to this user"
     }
   },
   "required": [
     "role"
-  ],
-  "name": "User",
-  "type": "object"
+  ]
 }

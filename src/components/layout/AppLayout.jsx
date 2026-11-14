@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomTabBar from './BottomTabBar';
 import { Menu, ChevronLeft } from 'lucide-react';
+import WelcomeEmailTrigger from '@/components/WelcomeEmailTrigger';
 
 const ROOT_PATHS = ['/', '/marks', '/performance', '/reports', '/students/list', '/admin/payments'];
 
@@ -48,6 +49,7 @@ export default function AppLayout() {
 
         {/* Scrollable content — extra bottom padding on mobile for the tab bar */}
         <main className="flex-1 overflow-auto">
+          <WelcomeEmailTrigger />
           <div className="lg:pb-0 pb-16">
             <Outlet />
           </div>

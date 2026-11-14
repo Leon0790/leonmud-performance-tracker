@@ -78,6 +78,8 @@
     "grade": {
       "type": "string",
       "enum": [
+        "PP1",
+        "PP2",
         "Grade 1",
         "Grade 2",
         "Grade 3",

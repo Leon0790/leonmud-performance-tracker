@@ -11,7 +11,7 @@ import { UserPlus, Upload, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 
-const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
+const GRADES = ['PP1', 'PP2', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
 const GENDERS = ['Male', 'Female', 'Other'];
 const STATUSES = ['Active', 'Inactive', 'Transferred', 'Graduated'];
 
