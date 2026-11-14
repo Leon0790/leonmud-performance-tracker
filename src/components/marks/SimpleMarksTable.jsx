@@ -184,7 +184,7 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                         <Button size="icon" variant="ghost" className="h-11 w-11" onClick={() => handleSave(student.id)} disabled={isSaving}>
                           <Save className="w-4 h-4 text-primary" />
                         </Button>
-                      ) : (
+                      ) : student._virtual ? null : (
                         <Button
                           size="icon" variant="ghost" className="h-11 w-11"
                           title="Notify parent"
@@ -196,23 +196,25 @@ export default function SimpleMarksTable({ students, subjectKeys, onUpdateMarks,
                           <MessageSquare className="w-3.5 h-3.5 text-green-600" />
                         </Button>
                       )}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-11 w-11">
-                            <Trash2 className="w-4 h-4 text-destructive" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Student</AlertDialogTitle>
-                            <AlertDialogDescription>Remove {student.name}? This cannot be undone.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                      {!student._virtual && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-11 w-11">
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Student</AlertDialogTitle>
+                              <AlertDialogDescription>Remove {student.name}? This cannot be undone.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
                     </div>
                   </TableCell>
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
+import { normalizeKeys, pickName, splitName } from '@/utils/studentNames';
 
 const CSV_HEADERS = ['first_name','last_name','admission_number','date_of_birth','gender','grade','class_name','stream','parent_name','parent_phone','parent_email','address','status','notes'];
 
@@ -110,13 +111,23 @@ export default function ImportStudents() {
     mutationFn: async () => {
       const successes = [];
       const failures = [];
-      for (const row of parsed) {
-        if (!row.first_name || !row.last_name || !row.grade) {
-          failures.push({ row, reason: 'Missing required fields' });
+      for (const rawRow of parsed) {
+        const row = normalizeKeys(rawRow);
+        const name = pickName(row);
+        const names = row.first_name
+          ? { first_name: row.first_name, last_name: row.last_name || '' }
+          : splitName(name);
+        if (!names.first_name || !row.grade) {
+          failures.push({ row: rawRow, reason: 'Missing required fields' });
           continue;
         }
-        await base44.entities.StudentRegister.create({ ...row, teacher_email: user?.email, status: row.status || 'Active' });
-        successes.push(row);
+        await base44.entities.StudentRegister.create({
+          ...row,
+          ...names,
+          teacher_email: user?.email,
+          status: row.status || 'Active',
+        });
+        successes.push({ ...row, ...names });
       }
       return { successes, failures };
     },
@@ -201,7 +212,7 @@ export default function ImportStudents() {
                   <tbody>
                     {parsed.slice(0, 5).map((r, i) => (
                       <tr key={i} className="border-b border-border/50">
-                        <td className="px-2 py-1 border border-border">{r.first_name} {r.last_name}</td>
+                        <td className="px-2 py-1 border border-border">{pickName(r)}</td>
                         <td className="px-2 py-1 border border-border">{r.admission_number}</td>
                         <td className="px-2 py-1 border border-border">{r.grade}</td>
                         <td className="px-2 py-1 border border-border">{r.class_name}</td>

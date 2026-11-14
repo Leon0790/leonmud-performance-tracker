@@ -8,6 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { normalizeKeys, pickName, pickAdmission, splitName, fullName } from '@/utils/studentNames';
+import { getBand, normalizeBand, ALL_BANDS } from '@/utils/bands';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
@@ -136,7 +138,7 @@ export default function ImportMarks() {
   const handleDownloadTemplate = () => {
     const sample = [
       MARK_HEADERS.join(','),
-      '"John Doe","A001","85","ME1","42","44","86","ME1","38","40","78","ME2","60","25","85","ME1","72","ME1","68","ME2","75","ME1","80","ME1","77","ME1","ME1"',
+      '"John Doe","A001","85","EE","42","44","86","EE","38","40","78","ME","60","25","85","EE","72","ME","68","ME","75","ME","80","EE","77","ME","ME"',
     ].join('\n');
     const blob = new Blob([sample], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -166,9 +168,16 @@ export default function ImportMarks() {
       const updated = [];
       const failures = [];
 
-      for (const row of parsed) {
-        if (!row.name) {
-          failures.push({ name: row.name || '?', reason: 'Missing student name' });
+      // Existing register entries, so imported names also land on the Students Register
+      const register = await base44.entities.StudentRegister.filter({ teacher_email: user.email });
+
+      for (const rawRow of parsed) {
+        const row = normalizeKeys(rawRow);
+        const name = pickName(row);
+        const admissionNumber = pickAdmission(row);
+
+        if (!name) {
+          failures.push({ name: '(no name)', reason: 'Missing student name' });
           continue;
         }
 
@@ -180,21 +189,43 @@ export default function ImportMarks() {
           'agriculture', 'social_studies', 'pretechnical_studies',
           'religious_studies', 'creative_art'
         ];
-        const data = { ...row };
+        const data = { name, admission_number: admissionNumber };
         numFields.forEach(f => {
-          if (data[f] !== '' && data[f] !== undefined) data[f] = Number(data[f]) || 0;
-          else delete data[f];
+          if (row[f] !== '' && row[f] !== undefined && !isNaN(Number(row[f]))) {
+            data[f] = Number(row[f]);
+            data[`${f}_band`] = getBand(data[f]);
+          }
         });
+        const overallBand = normalizeBand(row.overall_band);
+        if (ALL_BANDS.includes(overallBand)) data.overall_band = overallBand;
+
+        // Keep the Students Register in sync with the imported name
+        const registerPayload = {
+          ...splitName(name),
+          grade: filters.grade,
+          teacher_email: user.email,
+        };
+        if (admissionNumber) registerPayload.admission_number = admissionNumber;
+        const registerMatch = register.find(r =>
+          (admissionNumber && r.admission_number === admissionNumber) ||
+          (fullName(r) && fullName(r).toLowerCase() === name.toLowerCase())
+        );
+        if (registerMatch) {
+          await base44.entities.StudentRegister.update(registerMatch.id, registerPayload);
+        } else {
+          const createdRecord = await base44.entities.StudentRegister.create({ ...registerPayload, status: 'Active' });
+          register.push(createdRecord);
+        }
 
         // Check if student already exists (match by admission_number or name)
         const existing = existingStudents.find(s =>
-          (row.admission_number && s.admission_number === row.admission_number) ||
-          s.name?.toLowerCase() === row.name?.toLowerCase()
+          (admissionNumber && s.admission_number === admissionNumber) ||
+          s.name?.toLowerCase() === name.toLowerCase()
         );
 
         if (existing) {
           await base44.entities.Student.update(existing.id, data);
-          updated.push(row.name);
+          updated.push(name);
         } else {
           await base44.entities.Student.create({
             ...data,
@@ -203,7 +234,7 @@ export default function ImportMarks() {
             exam_type: filters.exam_type,
             teacher_email: user.email,
           });
-          successes.push(row.name);
+          successes.push(name);
         }
       }
       return { successes, updated, failures };
@@ -212,6 +243,11 @@ export default function ImportMarks() {
       setResults(res);
       queryClient.invalidateQueries({ queryKey: ['students'] });
       queryClient.invalidateQueries({ queryKey: ['all-students'] });
+      queryClient.invalidateQueries({ queryKey: ['student-register'] });
+      queryClient.invalidateQueries({ queryKey: ['student-register-by-email'] });
+      queryClient.invalidateQueries({ queryKey: ['student-register-by-creator'] });
+      queryClient.invalidateQueries({ queryKey: ['register-by-email'] });
+      queryClient.invalidateQueries({ queryKey: ['register-by-creator'] });
       toast({ title: `Done! ${res.successes.length} created, ${res.updated.length} updated.` });
     },
   });
@@ -311,8 +347,8 @@ export default function ImportMarks() {
                   <tbody>
                     {parsed.slice(0, 6).map((r, i) => (
                       <tr key={i} className="border-b border-border/50">
-                        <td className="px-2 py-1 border border-border">{r.name}</td>
-                        <td className="px-2 py-1 border border-border">{r.admission_number}</td>
+                        <td className="px-2 py-1 border border-border">{pickName(r)}</td>
+                        <td className="px-2 py-1 border border-border">{pickAdmission(r)}</td>
                         <td className="px-2 py-1 border border-border">{r.mathematics}</td>
                         <td className="px-2 py-1 border border-border">{r.english}</td>
                         <td className="px-2 py-1 border border-border">{r.kiswahili}</td>

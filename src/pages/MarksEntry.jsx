@@ -87,14 +87,6 @@ export default function MarksEntry() {
 
   const isLoading = loadingByEmail || loadingByCreatedBy;
 
-  // Frontend filter by term + exam_type
-  const filteredStudents = useMemo(() => {
-    return students.filter(s =>
-      s.term === filters.term &&
-      s.exam_type === filters.exam_type
-    );
-  }, [students, filters.term, filters.exam_type]);
-
   const { data: registerByEmail = [] } = useQuery({
     queryKey: ['register-by-email', user?.email],
     queryFn: () => base44.entities.StudentRegister.filter({ teacher_email: user?.email }),
@@ -116,6 +108,43 @@ export default function MarksEntry() {
     registerStudents.forEach(s => { if (s.admission_number) map[s.admission_number] = s; });
     return map;
   }, [registerStudents]);
+
+  // Marks for the selected term/exam, plus names enrolled in the Students Register
+  // for this grade that have no marks record yet — so every registered name shows up.
+  const filteredStudents = useMemo(() => {
+    const inTerm = students.filter(s =>
+      s.term === filters.term &&
+      s.exam_type === filters.exam_type
+    );
+
+    const admissionSet = new Set(
+      inTerm.map(s => (s.admission_number || '').trim().toLowerCase()).filter(Boolean)
+    );
+    const nameSet = new Set(
+      inTerm.map(s => (s.name || '').trim().toLowerCase()).filter(Boolean)
+    );
+
+    const fromRegister = registerStudents
+      .filter(r => r.grade === filters.grade)
+      .filter(r => {
+        const admission = (r.admission_number || '').trim().toLowerCase();
+        const name = `${r.first_name || ''} ${r.last_name || ''}`.trim().toLowerCase();
+        if (admission && admissionSet.has(admission)) return false;
+        if (name && nameSet.has(name)) return false;
+        return !!name;
+      })
+      .map(r => ({
+        id: `reg:${r.id}`,
+        _virtual: true,
+        name: `${r.first_name || ''} ${r.last_name || ''}`.trim(),
+        admission_number: r.admission_number || '',
+        grade: r.grade,
+        term: filters.term,
+        exam_type: filters.exam_type,
+      }));
+
+    return [...inTerm, ...fromRegister];
+  }, [students, registerStudents, filters.grade, filters.term, filters.exam_type]);
 
   // Add new student
   const addMutation = useMutation({
@@ -143,7 +172,23 @@ export default function MarksEntry() {
 
   // Update student marks (with optimistic update)
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Student.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      // A row that only exists in the Students Register — create its marks record now
+      if (typeof id === 'string' && id.startsWith('reg:')) {
+        const registerId = id.slice(4);
+        const reg = registerStudents.find(r => r.id === registerId);
+        return base44.entities.Student.create({
+          name: `${reg?.first_name || ''} ${reg?.last_name || ''}`.trim(),
+          admission_number: reg?.admission_number || '',
+          grade: filters.grade,
+          term: filters.term,
+          exam_type: filters.exam_type,
+          teacher_email: user?.email,
+          ...data,
+        });
+      }
+      return base44.entities.Student.update(id, data);
+    },
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: ['students-by-email'] });
       await queryClient.cancelQueries({ queryKey: ['students-by-creator'] });
@@ -187,7 +232,10 @@ export default function MarksEntry() {
 
   // Delete student
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Student.delete(id),
+    mutationFn: (id) => {
+      if (typeof id === 'string' && id.startsWith('reg:')) return null;
+      return base44.entities.Student.delete(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students-by-email'] });
       queryClient.invalidateQueries({ queryKey: ['students-by-creator'] });
