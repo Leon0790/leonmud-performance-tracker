@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
-import { getBand } from '@/utils/bands';
+import { getBand, normalizeBand } from '@/utils/bands';
 
 const JSS_SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -66,10 +66,10 @@ export default function MarkList({ students, grade, term, examType, examName, pr
           tr:nth-child(even) td { background: #f0f4ff; }
           .total-col { background: #dbeafe !important; font-weight: bold; }
           .rank-col { background: #fef9c3 !important; font-weight: bold; }
-          .band-EE1, .band-EE2 { color: #16a34a; font-weight: bold; }
-          .band-ME1, .band-ME2 { color: #2563eb; font-weight: bold; }
-          .band-AE1, .band-AE2 { color: #d97706; font-weight: bold; }
-          .band-BE1, .band-BE2 { color: #dc2626; font-weight: bold; }
+          .band-EE, .band-EE1, .band-EE2, .band-ee, .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
+          .band-ME, .band-ME1, .band-ME2, .band-me, .band-me1, .band-me2 { color: #2563eb; font-weight: bold; }
+          .band-AE, .band-AE1, .band-AE2, .band-ae, .band-ae1, .band-ae2 { color: #d97706; font-weight: bold; }
+          .band-BE, .band-BE1, .band-BE2, .band-be, .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
           @media print { body { padding: 0; } }
         </style>
       </head>
@@ -107,7 +107,7 @@ export default function MarkList({ students, grade, term, examType, examName, pr
                 <td>${s.admission_number || '—'}</td>
                 ${SUBJECTS.map(sub => {
                   const mark = s[sub.key];
-                  const band = s[`${sub.key}_band`] || getBand(mark);
+                  const band = getBand(mark) || normalizeBand(s[`${sub.key}_band`]);
                   return `<td>${mark !== null && mark !== undefined && mark !== '' ? mark : '—'}</td><td class="band-${band || ''}">${band || '—'}</td>`;
                 }).join('')}
                 <td class="total-col">${total}</td>

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Printer, Download } from 'lucide-react';
 import { downloadSingleReportPDF } from '@/utils/generateReportPDF';
-import { getBand, bandColor } from '@/utils/bands';
+import { getBand, bandColor, normalizeBand } from '@/utils/bands';
 import { getSubjectComment } from '@/utils/subjectComments';
 import PremiumLock from '@/components/PremiumLock';
 import { usePremium } from '@/hooks/use-premium';
@@ -47,7 +47,7 @@ export function buildReportCardHTML(student, rank, totalStudents, profile, openi
 
   const rows = SUBJECTS.map((s) => {
     const mark = student[s.key];
-    const band = student[`${s.key}_band`] || getBand(mark);
+    const band = getBand(mark) || normalizeBand(student[`${s.key}_band`]);
     const autoComment = getSubjectComment(s.key, band);
     return `<tr>
       <td>${s.label}</td>
@@ -170,10 +170,10 @@ export const REPORT_CARD_STYLES = `
   td { padding: 8px 6px; border-bottom: 1px solid #e0e0e0; word-wrap: break-word; overflow-wrap: break-word; white-space: normal; vertical-align: top; line-height: 1.75; height: auto; overflow: visible; font-size: 11px; }
   tr:nth-child(even) td { background: #f5f8ff; }
   .total-row td { font-weight: bold; background: #dde8ff !important; border-top: 2px solid #1e3a5f; }
-  .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
-  .band-me1, .band-me2 { color: #2563eb; font-weight: bold; }
-  .band-ae1, .band-ae2 { color: #d97706; font-weight: bold; }
-  .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
+  .band-ee, .band-ee1, .band-ee2 { color: #16a34a; font-weight: bold; }
+  .band-me, .band-me1, .band-me2 { color: #2563eb; font-weight: bold; }
+  .band-ae, .band-ae1, .band-ae2 { color: #d97706; font-weight: bold; }
+  .band-be, .band-be1, .band-be2 { color: #dc2626; font-weight: bold; }
 
   /* ── SECTION DIVIDERS ── */
   .section-divider { background: #e8eef6; border-left: 4px solid #1e3a5f; padding: 3px 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #1e3a5f; margin-bottom: 5px; margin-top: 10px; }
@@ -253,7 +253,7 @@ export default function ReportCard({ student, rank, totalStudents, profile, open
           <tbody>
             {SUBJECTS.map((s) => {
               const mark = student[s.key];
-              const band = student[`${s.key}_band`] || getBand(mark);
+              const band = getBand(mark) || normalizeBand(student[`${s.key}_band`]);
               const autoComment = band ? getSubjectComment(s.key, band) : '—';
               return (
                 <tr key={s.key} className="border-b border-border/50">

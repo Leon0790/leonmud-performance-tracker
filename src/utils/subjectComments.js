@@ -208,8 +208,12 @@ const GENERIC_REMARKS = {
   BE2: 'Keep trying; with consistent support and practice, progress will come.',
 };
 
+// Single-tier bands (EE, ME, AE, BE) reuse the closest detailed remark text
+const BAND_TEXT_KEY = { EE: 'EE2', ME: 'ME1', AE: 'AE1', BE: 'BE1' };
+
 export function getSubjectComment(subjectKey, band) {
   if (!band) return '—';
+  const key = BAND_TEXT_KEY[band] || band;
   const subjectMap = SUBJECT_REMARKS[subjectKey];
-  return (subjectMap && subjectMap[band]) || GENERIC_REMARKS[band] || '—';
+  return (subjectMap && subjectMap[key]) || GENERIC_REMARKS[key] || '—';
 }

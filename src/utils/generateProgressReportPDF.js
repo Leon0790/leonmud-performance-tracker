@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { getBand, bandRGB } from '@/utils/bands';
+import { getBand, bandRGB, normalizeBand } from '@/utils/bands';
 import { ALL_SUBJECTS } from '@/utils/gradeSubjects';
 import { getSubjectComment } from '@/utils/subjectComments';
 
@@ -224,7 +224,7 @@ export function generateProgressReportPDF({
       subjects.forEach((s, i) => {
         if (y > pageH - 15) { doc.addPage(); y = margin; }
         const mark = rec[s.key];
-        const band = rec[`${s.key}_band`] || getBand(mark);
+        const band = getBand(mark) || normalizeBand(rec[`${s.key}_band`]);
         const remark = getSubjectComment(s.key, band) || '';
 
         doc.setFontSize(8);

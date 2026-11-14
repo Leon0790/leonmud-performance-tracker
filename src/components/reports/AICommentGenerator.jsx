@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { getBand, normalizeBand } from '@/utils/bands';
 
 const SUBJECTS = [
   { key: 'mathematics', label: 'Mathematics' },
@@ -16,14 +17,10 @@ const SUBJECTS = [
 ];
 
 const BAND_LABELS = {
-  EE1: 'Exceeding Expectations (EE1)',
-  EE2: 'Exceeding Expectations (EE2)',
-  ME1: 'Meeting Expectations (ME1)',
-  ME2: 'Meeting Expectations (ME2)',
-  AE1: 'Approaching Expectations (AE1)',
-  AE2: 'Approaching Expectations (AE2)',
-  BE1: 'Below Expectations (BE1)',
-  BE2: 'Below Expectations (BE2)',
+  EE: 'Exceeding Expectations (EE, 80–100%)',
+  ME: 'Meeting Expectations (ME, 65–79%)',
+  AE: 'Approaching Expectations (AE, 50–64%)',
+  BE: 'Below Expectations (BE, 0–49%)',
 };
 
 function getTotal(student) {
@@ -34,7 +31,7 @@ function buildSubjectSummary(student) {
   return SUBJECTS
     .map(s => {
       const mark = student[s.key];
-      const band = student[`${s.key}_band`];
+      const band = getBand(mark) || normalizeBand(student[`${s.key}_band`]);
       if (mark === null || mark === undefined || mark === '') return null;
       return `${s.label}: ${mark}/100 (${BAND_LABELS[band] || band || 'N/A'})`;
     })

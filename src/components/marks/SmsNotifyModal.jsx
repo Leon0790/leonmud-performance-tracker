@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Copy, Check, Phone, Send, Smartphone } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { ALL_SUBJECTS } from '@/utils/gradeSubjects';
+import { getBand, normalizeBand } from '@/utils/bands';
 
 const DEFAULT_SUBJECTS = [
   { key: 'mathematics', label: 'Maths' },
@@ -37,7 +38,7 @@ function buildMessage(student, marksData, filters) {
 
   subjects.forEach(({ key, label }) => {
     const mark = marksData[key];
-    const band = marksData[`${key}_band`];
+    const band = getBand(mark) || normalizeBand(marksData[`${key}_band`]);
     if (mark !== null && mark !== undefined && mark !== '') {
       lines.push(`${label}: ${mark}/100 (${band || '—'})`);
     }
@@ -48,7 +49,7 @@ function buildMessage(student, marksData, filters) {
 
   lines.push(``);
   lines.push(`Total: ${total} | Average: ${avg}`);
-  lines.push(`Overall Band: ${marksData.overall_band || '—'}`);
+  lines.push(`Overall Band: ${getBand(Number(avg)) || normalizeBand(marksData.overall_band) || '—'}`);
   lines.push(``);
   lines.push(`LeonMud Performance Tracker`);
 

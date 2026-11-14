@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, MessageSquare } from 'lucide-react';
-import { getBand, bandColor } from '@/utils/bands';
+import { getBand, bandColor, normalizeBand } from '@/utils/bands';
 import { ALL_SUBJECTS } from '@/utils/gradeSubjects';
 import SmsNotifyModal from '@/components/marks/SmsNotifyModal';
 
@@ -81,7 +81,7 @@ export default function StudentMarksHistory({ marksRecords = [], student }) {
                   <span className="text-sm text-muted-foreground">Total: <strong>{total}</strong></span>
                   <span className="text-sm text-muted-foreground">Avg: <strong>{avg}</strong></span>
                   {rec.overall_band && (
-                    <Badge className={bandBadgeColor(rec.overall_band)}>{rec.overall_band}</Badge>
+                    <Badge className={bandBadgeColor(normalizeBand(rec.overall_band))}>{normalizeBand(rec.overall_band)}</Badge>
                   )}
                   <Button
                     size="sm"
@@ -108,7 +108,7 @@ export default function StudentMarksHistory({ marksRecords = [], student }) {
                   <tbody>
                     {subjects.map((s, i) => {
                       const mark = rec[s.key];
-                      const band = rec[`${s.key}_band`] || getBand(mark);
+                      const band = getBand(mark) || normalizeBand(rec[`${s.key}_band`]);
                       const hasMark = mark !== null && mark !== undefined && mark !== '';
                       return (
                         <tr key={s.key} className={`border-b border-border/40 ${i % 2 === 0 ? '' : 'bg-muted/20'}`}>

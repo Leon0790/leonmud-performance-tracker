@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { getBand, bandRGB } from '@/utils/bands';
+import { getBand, bandRGB, normalizeBand } from '@/utils/bands';
 import { getSubjectComment } from '@/utils/subjectComments';
 
 const JSS_SUBJECTS = [
@@ -142,7 +142,7 @@ function drawSingleReportCard(doc, student, rank, totalStudents, profile, openin
 
   SUBJECTS.forEach((s, i) => {
     const mark = student[s.key];
-    const band = student[`${s.key}_band`] || getBand(mark);
+    const band = getBand(mark) || normalizeBand(student[`${s.key}_band`]);
     const remark = getSubjectComment(s.key, band);
 
     // Measure remark lines

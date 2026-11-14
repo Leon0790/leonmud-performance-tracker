@@ -100,14 +100,16 @@
     "mathematics_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "english": {
@@ -117,14 +119,16 @@
     "english_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "english_p1": {
@@ -142,14 +146,16 @@
     "kiswahili_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "kiswahili_p1": {
@@ -167,14 +173,16 @@
     "integrated_science_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "integrated_science_p1": {
@@ -191,14 +199,16 @@
     "agriculture_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "social_studies": {
@@ -207,14 +217,16 @@
     "social_studies_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "pretechnical_studies": {
@@ -223,14 +235,16 @@
     "pretechnical_studies_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "religious_studies": {
@@ -239,14 +253,16 @@
     "religious_studies_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "creative_art": {
@@ -255,14 +271,16 @@
     "creative_art_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "literacy": {
@@ -272,14 +290,16 @@
     "literacy_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "numeracy": {
@@ -289,14 +309,16 @@
     "numeracy_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "environmental_activities": {
@@ -306,14 +328,16 @@
     "environmental_activities_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "hygiene_nutrition": {
@@ -323,14 +347,16 @@
     "hygiene_nutrition_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "movement_creative_arts": {
@@ -340,14 +366,16 @@
     "movement_creative_arts_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "psychomotor_creative_arts": {
@@ -357,14 +385,16 @@
     "psychomotor_creative_arts_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "science_technology": {
@@ -374,14 +404,16 @@
     "science_technology_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "science_technology_agriculture": {
@@ -391,14 +423,16 @@
     "science_technology_agriculture_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "home_science": {
@@ -408,14 +442,16 @@
     "home_science_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "business_studies": {
@@ -425,14 +461,16 @@
     "business_studies_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ]
     },
     "subjects_config": {
@@ -445,14 +483,16 @@
     "overall_band": {
       "type": "string",
       "enum": [
-        "EE1",
-        "EE2",
-        "ME1",
-        "ME2",
-        "AE1",
-        "AE2",
-        "BE1",
-        "BE2"
+        "EE",
+        "ME",
+        "AE",
+        "BE"
+      ],
+      "enumColors": [
+        "green",
+        "blue",
+        "yellow",
+        "red"
       ],
       "description": "Overall performance band"
     },

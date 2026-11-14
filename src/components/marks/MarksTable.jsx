@@ -430,10 +430,10 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
         <span className="font-medium">Bands:</span>
-        <span className="text-green-700 font-bold">EE (80–100)</span>
-        <span className="text-blue-700 font-bold">ME (60–79)</span>
-        <span className="text-amber-700 font-bold">AE (40–59)</span>
-        <span className="text-red-700 font-bold">BE (&lt;40)</span>
+        <span className="text-green-700 font-bold">EE (80–100%)</span>
+        <span className="text-blue-700 font-bold">ME (65–79%)</span>
+        <span className="text-amber-700 font-bold">AE (50–64%)</span>
+        <span className="text-red-700 font-bold">BE (0–49%)</span>
 
       </div>
     </div>
