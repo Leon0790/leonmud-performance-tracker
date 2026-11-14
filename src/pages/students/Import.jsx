@@ -7,6 +7,7 @@ import { Upload, Download, FileText, CheckCircle, AlertCircle, ArrowLeft, Loader
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
 import { normalizeKeys, pickName, splitName } from '@/utils/studentNames';
+import { useAccount } from '@/hooks/use-account';
 
 const CSV_HEADERS = ['first_name','last_name','admission_number','date_of_birth','gender','grade','class_name','stream','parent_name','parent_phone','parent_email','address','status','notes'];
 
@@ -23,6 +24,7 @@ function parseCSV(text) {
 }
 
 export default function ImportStudents() {
+  const { schoolId } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
@@ -125,6 +127,7 @@ export default function ImportStudents() {
           ...row,
           ...names,
           teacher_email: user?.email,
+          school_id: schoolId || undefined,
           status: row.status || 'Active',
         });
         successes.push({ ...row, ...names });

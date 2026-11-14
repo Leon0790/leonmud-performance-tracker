@@ -12,8 +12,10 @@ import SimpleMarksTable from '../components/marks/SimpleMarksTable';
 import SubjectPicker from '../components/marks/SubjectPicker';
 import AddStudentDialog from '../components/marks/AddStudentDialog';
 import { isJuniorSecondary, getDefaultSubjectsForGrade } from '@/utils/gradeSubjects';
+import { useAccount } from '@/hooks/use-account';
 
 export default function MarksEntry() {
+  const { schoolId } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -152,6 +154,7 @@ export default function MarksEntry() {
       // Ensure teacher_email, grade, term, exam_type are attached
       const payload = {
         ...data,
+        school_id: schoolId || undefined,
         teacher_email: user?.email,
         grade: filters.grade,
         term: filters.term,
@@ -184,6 +187,7 @@ export default function MarksEntry() {
           term: filters.term,
           exam_type: filters.exam_type,
           teacher_email: user?.email,
+          school_id: schoolId || undefined,
           ...data,
         });
       }

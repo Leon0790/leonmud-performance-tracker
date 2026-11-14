@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { CalendarCheck, AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
+import { useAccount } from '@/hooks/use-account';
 
 const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
@@ -27,6 +28,7 @@ const statusBadge = (s) => {
 };
 
 export default function Attendance() {
+  const { schoolId } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -74,7 +76,7 @@ export default function Attendance() {
         if (existing) {
           return base44.entities.Attendance.update(existing.id, { status: entry.status });
         }
-        return base44.entities.Attendance.create(entry);
+        return base44.entities.Attendance.create({ ...entry, school_id: schoolId || undefined });
       });
       return Promise.all(promises);
     },

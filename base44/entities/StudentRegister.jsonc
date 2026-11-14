@@ -2,14 +2,33 @@
   "name": "StudentRegister",
   "type": "object",
   "rls": {
-    "create": true,
     "read": {
       "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
         {
           "data.teacher_email": "{{user.email}}"
         },
         {
           "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
         },
         {
           "user_condition": {
@@ -20,6 +39,9 @@
     },
     "update": {
       "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
         {
           "data.teacher_email": "{{user.email}}"
         },
@@ -36,6 +58,9 @@
     "delete": {
       "$or": [
         {
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
           "data.teacher_email": "{{user.email}}"
         },
         {
@@ -50,6 +75,10 @@
     }
   },
   "properties": {
+    "school_id": {
+      "type": "string",
+      "description": "School this learner belongs to"
+    },
     "first_name": {
       "type": "string",
       "description": "Student first name"

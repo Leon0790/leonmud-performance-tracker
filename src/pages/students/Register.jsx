@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UserPlus, Upload, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
+import { useAccount } from '@/hooks/use-account';
 
 const GRADES = ['PP1', 'PP2', 'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9'];
 const GENDERS = ['Male', 'Female', 'Other'];
@@ -23,6 +24,7 @@ const EMPTY_FORM = {
 };
 
 export default function RegisterStudent() {
+  const { schoolId } = useAccount();
   const { toast } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -58,6 +60,7 @@ export default function RegisterStudent() {
         ...form,
         photo_url,
         teacher_email: user?.email,
+        school_id: schoolId || undefined,
       });
     },
     onSuccess: (data) => {

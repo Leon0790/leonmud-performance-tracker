@@ -14,6 +14,67 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the welcome email has already been sent to this user"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "headteacher",
+        "teacher"
+      ],
+      "description": "Staff role inside the LeonMud platform",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "school_id": {
+      "type": "string",
+      "description": "School this user belongs to",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "school_name": {
+      "type": "string",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "trial_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set once when the platform trial begins; never reset",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
+    },
+    "free_lesson_plan_used": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the single free lesson-plan generation has been used",
+      "rls": {
+        "update": {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      }
     }
   },
   "required": [

@@ -1,6 +1,46 @@
 {
   "name": "Payment",
   "type": "object",
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.payer_email": "{{user.email}}"
+        },
+        {
+          "data.teacher_email": "{{user.email}}"
+        },
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
   "properties": {
     "teacher_email": {
       "type": "string",
@@ -17,12 +57,17 @@
         "approved",
         "rejected"
       ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "red"
+      ],
       "default": "pending",
       "description": "Payment approval status"
     },
     "amount": {
       "type": "number",
-      "default": 200,
+      "default": 100,
       "description": "Amount paid in KES"
     },
     "approved_by": {
@@ -31,11 +76,115 @@
     },
     "notes": {
       "type": "string",
-      "description": "Payment notes e.g. lesson_plan_monthly, lesson_plan_term"
+      "description": "Human readable description of the purchase"
+    },
+    "school_id": {
+      "type": "string"
+    },
+    "school_name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "platform_subscription",
+        "lesson_plan",
+        "legacy"
+      ],
+      "enumColors": [
+        "blue",
+        "purple",
+        "gray"
+      ],
+      "default": "legacy"
+    },
+    "plan": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual",
+        "single",
+        "bulk"
+      ]
+    },
+    "payer_email": {
+      "type": "string",
+      "description": "Who initiated the payment"
+    },
+    "beneficiary_email": {
+      "type": "string",
+      "description": "Teacher who receives the entitlement or licence"
+    },
+    "target_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Beneficiaries for bulk purchases"
+    },
+    "learning_area": {
+      "type": "string"
+    },
+    "learning_areas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "academic_year": {
+      "type": "string"
+    },
+    "term": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1
+    },
+    "reference": {
+      "type": "string",
+      "description": "Internal unique payment reference"
+    },
+    "gateway": {
+      "type": "string",
+      "enum": [
+        "mpesa_stk",
+        "manual",
+        "card"
+      ],
+      "default": "manual"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "checkout_request_id": {
+      "type": "string"
+    },
+    "merchant_request_id": {
+      "type": "string"
+    },
+    "mpesa_receipt": {
+      "type": "string",
+      "description": "M-Pesa confirmation code returned by Daraja"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "receipt_no": {
+      "type": "string"
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "required": [
     "teacher_email",
-    "mpesa_code"
+    "amount"
   ]
 }

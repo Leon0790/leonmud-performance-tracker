@@ -11,6 +11,8 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AppLayout from './components/layout/AppLayout';
 import PaymentGate from './pages/PaymentGate';
 import AdminBadgeVisibility from './components/AdminBadgeVisibility';
+import RoleHome from './components/RoleHome';
+import RoleGuard from './components/RoleGuard';
 
 // Lazy-loaded page components
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -26,6 +28,14 @@ const Attendance = lazy(() => import('./pages/Attendance'));
 const MyPayment = lazy(() => import('./pages/MyPayment'));
 const ImportMarks = lazy(() => import('./pages/ImportMarks'));
 const LessonPlans = lazy(() => import('./pages/LessonPlans'));
+const Subscribe = lazy(() => import('./pages/Subscribe'));
+const LessonPlanAccess = lazy(() => import('./pages/LessonPlanAccess'));
+const SuperAdminSchools = lazy(() => import('./pages/SuperAdminSchools'));
+const SchoolDashboard = lazy(() => import('./pages/SchoolDashboard'));
+const SchoolTeachers = lazy(() => import('./pages/school/Teachers'));
+const SchoolClasses = lazy(() => import('./pages/school/Classes'));
+const SchoolAnnouncements = lazy(() => import('./pages/school/Announcements'));
+const SchoolSubmissions = lazy(() => import('./pages/school/Submissions'));
 
 const pageVariants = {
   initial: { opacity: 0, x: 12 },
@@ -55,12 +65,12 @@ function AnimatedRoutes() {
         }>
           <Routes location={location}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/Dashboard" element={<Dashboard />} />
+              <Route path="/" element={<RoleHome />} />
+              <Route path="/Dashboard" element={<RoleHome />} />
               <Route path="/marks" element={<MarksEntry />} />
               <Route path="/performance" element={<Performance />} />
               <Route path="/reports" element={<Reports />} />
-              <Route path="/admin/payments" element={<AdminPayments />} />
+              <Route path="/admin/payments" element={<RoleGuard allow={['super_admin']}><AdminPayments /></RoleGuard>} />
               <Route path="/students/list" element={<StudentsList />} />
               <Route path="/students/register" element={<RegisterStudent />} />
               <Route path="/students/:id" element={<StudentProfile />} />
@@ -69,6 +79,14 @@ function AnimatedRoutes() {
               <Route path="/my-payment" element={<MyPayment />} />
               <Route path="/marks/import" element={<ImportMarks />} />
               <Route path="/lesson-plans" element={<LessonPlans />} />
+              <Route path="/lesson-plans/access" element={<LessonPlanAccess />} />
+              <Route path="/subscribe" element={<Subscribe />} />
+              <Route path="/super-admin/schools" element={<RoleGuard allow={['super_admin']}><SuperAdminSchools /></RoleGuard>} />
+              <Route path="/school" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolDashboard /></RoleGuard>} />
+              <Route path="/school/teachers" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolTeachers /></RoleGuard>} />
+              <Route path="/school/classes" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolClasses /></RoleGuard>} />
+              <Route path="/school/announcements" element={<SchoolAnnouncements />} />
+              <Route path="/school/submissions" element={<SchoolSubmissions />} />
             </Route>
             <Route path="*" element={<PageNotFound />} />
           </Routes>

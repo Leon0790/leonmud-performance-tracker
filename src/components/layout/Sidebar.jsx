@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard, BookUser, Trash2, CalendarCheck, BookOpen } from 'lucide-react';
+import {
+  LayoutDashboard, Users, BarChart3, LogOut, GraduationCap, FileText, CreditCard,
+  BookUser, Trash2, CalendarCheck, BookOpen, School, Layers, Megaphone, ClipboardCheck, Wallet,
+} from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useAccount } from '@/hooks/use-account';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -16,29 +19,49 @@ const teacherNavItems = [
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Attendance', path: '/attendance', icon: CalendarCheck },
   { label: 'Lesson Plans', path: '/lesson-plans', icon: BookOpen },
+  { label: 'Lesson Plan Access', path: '/lesson-plans/access', icon: Wallet },
+  { label: 'Submit Assessments', path: '/school/submissions', icon: ClipboardCheck },
+  { label: 'Announcements', path: '/school/announcements', icon: Megaphone },
+  { label: 'Subscription', path: '/subscribe', icon: CreditCard },
 ];
 
-const adminNavItems = [
+const headteacherNavItems = [
+  { label: 'School Dashboard', path: '/school', icon: School },
+  { label: 'Teachers', path: '/school/teachers', icon: Users },
+  { label: 'Classes', path: '/school/classes', icon: Layers },
+  { label: 'Reviews', path: '/school/submissions', icon: ClipboardCheck },
+  { label: 'Announcements', path: '/school/announcements', icon: Megaphone },
+  { label: 'Learners', path: '/students/list', icon: BookUser },
+  { label: 'Marks Entry', path: '/marks', icon: FileText },
+  { label: 'Reports', path: '/reports', icon: FileText },
+  { label: 'Performance', path: '/performance', icon: BarChart3 },
+  { label: 'Lesson Plan Access', path: '/lesson-plans/access', icon: BookOpen },
+  { label: 'Subscription', path: '/subscribe', icon: CreditCard },
+];
+
+const superAdminNavItems = [
+  { label: 'Schools', path: '/super-admin/schools', icon: School },
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks Entry', path: '/marks', icon: Users },
   { label: 'Performance', path: '/performance', icon: BarChart3 },
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Students', path: '/students/list', icon: BookUser },
-  { label: 'Attendance', path: '/attendance', icon: CalendarCheck },
   { label: 'Lesson Plans', path: '/lesson-plans', icon: BookOpen },
   { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 
+const ROLE_LABEL = {
+  super_admin: 'Super Admin',
+  headteacher: 'Headteacher',
+  teacher: 'Teacher',
+};
+
 export default function Sidebar({ onNavigate }) {
   const location = useLocation();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const { user, userType, schoolName } = useAccount();
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
+  const navItems = userType === 'super_admin' ? superAdminNavItems : userType === 'headteacher' ? headteacherNavItems : teacherNavItems;
 
   const handleLogout = () => {
     base44.auth.logout('/');
@@ -55,14 +78,14 @@ export default function Sidebar({ onNavigate }) {
           <div className="w-10 h-10 rounded-lg bg-sidebar-primary flex items-center justify-center">
             <GraduationCap className="w-6 h-6 text-sidebar-primary-foreground" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-lg font-bold tracking-tight">LeonMud</h1>
-            <p className="text-xs text-sidebar-foreground/60">Performance Tracker</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">{schoolName || ROLE_LABEL[userType] || 'Performance Tracker'}</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -70,23 +93,25 @@ export default function Sidebar({ onNavigate }) {
               key={item.path}
               to={item.path}
               onClick={() => onNavigate?.()}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-lg'
                   : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              {item.label}
+              <item.icon className="w-5 h-5 shrink-0" />
+              <span className="truncate">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Account settings */}
       <div className="p-4 border-t border-sidebar-border space-y-1">
         {user && (
-          <p className="text-xs text-sidebar-foreground/40 px-4 pb-1 truncate">{user.email}</p>
+          <div className="px-4 pb-1">
+            <p className="text-xs text-sidebar-foreground/40 truncate">{user.email}</p>
+            <p className="text-[11px] text-sidebar-foreground/30">{ROLE_LABEL[userType] || 'Teacher'}</p>
+          </div>
         )}
         <button
           onClick={handleLogout}

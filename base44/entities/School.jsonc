@@ -1,0 +1,101 @@
+{
+  "name": "School",
+  "type": "object",
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "id": "{{user.data.school_id}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "School name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique school code"
+    },
+    "county": {
+      "type": "string"
+    },
+    "sub_county": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string",
+      "description": "School email address"
+    },
+    "headteacher_name": {
+      "type": "string"
+    },
+    "headteacher_email": {
+      "type": "string"
+    },
+    "contact_number": {
+      "type": "string"
+    },
+    "subscription_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "suspended",
+        "expired"
+      ],
+      "enumColors": [
+        "yellow",
+        "green",
+        "red",
+        "gray"
+      ],
+      "default": "pending"
+    },
+    "date_registered": {
+      "type": "string",
+      "format": "date"
+    },
+    "school_id": {
+      "type": "string",
+      "description": "Canonical school identifier used by every school record"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

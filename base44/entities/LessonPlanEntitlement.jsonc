@@ -1,0 +1,109 @@
+{
+  "name": "LessonPlanEntitlement",
+  "type": "object",
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "data.teacher_email": "{{user.email}}"
+        },
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  },
+  "properties": {
+    "school_id": {
+      "type": "string"
+    },
+    "teacher_email": {
+      "type": "string"
+    },
+    "teacher_name": {
+      "type": "string"
+    },
+    "learning_area": {
+      "type": "string"
+    },
+    "term": {
+      "type": "string",
+      "enum": [
+        "Term 1",
+        "Term 2",
+        "Term 3"
+      ]
+    },
+    "academic_year": {
+      "type": "string",
+      "description": "e.g. 2026"
+    },
+    "amount": {
+      "type": "number",
+      "default": 100
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "teacher_purchase",
+        "school_purchase",
+        "trial"
+      ],
+      "enumColors": [
+        "blue",
+        "purple",
+        "gray"
+      ],
+      "default": "teacher_purchase"
+    },
+    "payment_id": {
+      "type": "string"
+    },
+    "purchased_by_email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked"
+      ],
+      "enumColors": [
+        "green",
+        "gray"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "teacher_email",
+    "learning_area",
+    "term",
+    "academic_year"
+  ]
+}

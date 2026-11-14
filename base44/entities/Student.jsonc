@@ -2,14 +2,33 @@
   "name": "Student",
   "type": "object",
   "rls": {
-    "create": true,
     "read": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "data.teacher_email": "{{user.email}}"
         },
         {
           "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
         },
         {
           "user_condition": {
@@ -21,7 +40,10 @@
     "update": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "data.teacher_email": "{{user.email}}"
         },
         {
           "created_by": "{{user.email}}"
@@ -36,7 +58,10 @@
     "delete": {
       "$or": [
         {
-          "teacher_email": "{{user.email}}"
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "data.teacher_email": "{{user.email}}"
         },
         {
           "created_by": "{{user.email}}"
@@ -50,6 +75,10 @@
     }
   },
   "properties": {
+    "school_id": {
+      "type": "string",
+      "description": "School this learner record belongs to"
+    },
     "name": {
       "type": "string",
       "description": "Student full name"
@@ -61,6 +90,8 @@
     "grade": {
       "type": "string",
       "enum": [
+        "PP1",
+        "PP2",
         "Grade 1",
         "Grade 2",
         "Grade 3",

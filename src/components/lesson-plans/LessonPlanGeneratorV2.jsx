@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { ensureLessonAccess } from '@/lib/lessonAccess';
 
 const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1','Term 2','Term 3'];
@@ -68,6 +69,15 @@ export default function LessonPlanGeneratorV2({ user, onGenerated, onBack }) {
     }
     setGenerating(true);
     try {
+      const access = await ensureLessonAccess(user, form.subject, form.term);
+      if (!access.ok) {
+        toast({
+          title: 'Lesson plan access needed',
+          description: `Buy ${form.subject} — ${form.term} access for KSh 100 to generate this plan.`,
+          variant: 'destructive',
+        });
+        return;
+      }
       const mins = getStepMins();
       const prompt = `You are a Kenya CBE (Competency Based Education) lesson plan generator using the Big Idea / Grapple format for ${form.grade} ${form.subject}, ${form.term}, Week ${form.week}, Lesson ${form.lesson}.
 
@@ -138,6 +148,7 @@ Make it CBE-aligned, practical, and age-appropriate for ${form.grade}. Return ON
         school_name: form.school_name,
         teacher_name: form.teacher_name,
         teacher_email: user?.email || '',
+        school_id: access.school_id || undefined,
         subscription_type: 'monthly',
         title: result.title || `${form.subject} — ${result.big_idea || form.big_idea}`,
         strand: result.strand || form.strand || form.big_idea,

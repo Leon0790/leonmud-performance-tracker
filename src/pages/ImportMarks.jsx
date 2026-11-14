@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { normalizeKeys, pickName, pickAdmission, splitName, fullName } from '@/utils/studentNames';
 import { getBand, normalizeBand, ALL_BANDS } from '@/utils/bands';
+import { useAccount } from '@/hooks/use-account';
 
 const GRADES = ['Grade 7', 'Grade 8', 'Grade 9'];
 const TERMS = ['Term 1', 'Term 2', 'Term 3'];
@@ -42,6 +43,7 @@ function parseCSV(text) {
 }
 
 export default function ImportMarks() {
+  const { schoolId } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const fileInputRef = useRef(null);
@@ -204,6 +206,7 @@ export default function ImportMarks() {
           ...splitName(name),
           grade: filters.grade,
           teacher_email: user.email,
+          school_id: schoolId || undefined,
         };
         if (admissionNumber) registerPayload.admission_number = admissionNumber;
         const registerMatch = register.find(r =>
@@ -233,6 +236,7 @@ export default function ImportMarks() {
             term: filters.term,
             exam_type: filters.exam_type,
             teacher_email: user.email,
+            school_id: schoolId || undefined,
           });
           successes.push(name);
         }

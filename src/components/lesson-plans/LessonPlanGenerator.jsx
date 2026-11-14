@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { ensureLessonAccess } from '@/lib/lessonAccess';
 
 const GRADES = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9'];
 const TERMS = ['Term 1','Term 2','Term 3'];
@@ -48,6 +49,15 @@ export default function LessonPlanGenerator({ user, onGenerated, onBack }) {
     }
     setGenerating(true);
     try {
+      const access = await ensureLessonAccess(user, form.subject, form.term);
+      if (!access.ok) {
+        toast({
+          title: 'Lesson plan access needed',
+          description: `Buy ${form.subject} — ${form.term} access for KSh 100 to generate this plan.`,
+          variant: 'destructive',
+        });
+        return;
+      }
       const duration = Number(form.duration) || 40;
       const introDuration = Math.round(duration * 0.15);
       const devDuration = Math.round(duration * 0.6);
@@ -104,6 +114,7 @@ Make it age-appropriate for ${form.grade}, CBE-aligned, activity-based with grou
         lesson: Number(form.lesson),
         duration: Number(form.duration) || 40,
         teacher_email: user?.email || '',
+        school_id: access.school_id || undefined,
         title: result.title || `${form.subject} — ${result.strand || form.strand}`,
         strand: result.strand || form.strand,
         sub_strand: result.sub_strand || form.sub_strand,

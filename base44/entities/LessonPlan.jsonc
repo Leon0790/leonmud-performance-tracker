@@ -2,7 +2,6 @@
   "name": "LessonPlan",
   "type": "object",
   "rls": {
-    "create": true,
     "read": {
       "$or": [
         {
@@ -10,6 +9,26 @@
         },
         {
           "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.school_id": "{{user.data.school_id}}"
+        },
+        {
+          "user_condition": {
+            "data.user_type": "super_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "create": {
+      "$or": [
+        {
+          "data.school_id": "{{user.data.school_id}}"
         },
         {
           "user_condition": {
@@ -50,6 +69,9 @@
     }
   },
   "properties": {
+    "school_id": {
+      "type": "string"
+    },
     "plan_version": {
       "type": "string",
       "enum": [
@@ -117,8 +139,7 @@
       "description": "Strand e.g. Measurement; Length"
     },
     "sub_strand": {
-      "type": "string",
-      "description": "Sub strand"
+      "type": "string"
     },
     "specific_outcomes": {
       "type": "string",

@@ -1,379 +1,79 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { CheckCircle, Clock, XCircle, CreditCard, Phone, Shield, Sparkles, AlertCircle, Calendar } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { usePremium, trialDaysLeft, getPaymentExpiry, subscriptionDaysLeft } from '@/hooks/use-premium';
+import { Badge } from '@/components/ui/badge';
+import { CreditCard, CheckCircle2, Clock, Receipt } from 'lucide-react';
+import { useAccount } from '@/hooks/use-account';
+import { usePremium } from '@/hooks/use-premium';
 import { format } from 'date-fns';
 
-const isValidMpesaFormat = (code) => /^[A-Z][A-Z0-9]{9}$/.test(code);
-
-const PLANS = [
-  { label: 'Monthly', amount: 200, badge: 'Popular', months: 1 },
-  { label: 'Per Term', amount: 500, badge: 'Best Value', months: 3 },
-];
-
 export default function MyPayment() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [mpesaCode, setMpesaCode] = useState('');
-  const [codeError, setCodeError] = useState('');
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[0]);
+  const { user } = useAccount();
+  const { isPremium, isInTrial, trialDaysLeft, licence, subDaysLeft, subExpiry } = usePremium();
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const { data: payments = [], isLoading } = useQuery({
-    queryKey: ['payment', user?.email],
-    queryFn: () => base44.entities.Payment.filter({ teacher_email: user?.email }),
+  const { data: payments = [] } = useQuery({
+    queryKey: ['my-all-payments', user?.email],
+    queryFn: () => base44.entities.Payment.filter({ payer_email: user?.email }, '-created_date', 50),
     enabled: !!user?.email,
   });
 
-  const { data: allPayments = [] } = useQuery({
-    queryKey: ['all-payments-check'],
-    queryFn: () => base44.entities.Payment.list(),
-    enabled: !!user?.email,
-  });
-
-  const payment = payments[0] || null;
-  const daysLeft = trialDaysLeft(user);
-  const isInTrial = daysLeft > 0 && payment?.status !== 'approved';
-
-  // Use the approved payment for expiry calculation
-  const approvedPayment = payments.find(p => p.status === 'approved') || null;
-  const expiryDate = approvedPayment ? getPaymentExpiry(approvedPayment) : null;
-  const subDaysLeft = approvedPayment ? subscriptionDaysLeft(approvedPayment) : 0;
-
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      const code = mpesaCode.trim().toUpperCase();
-      setCodeError('');
-
-      if (!isValidMpesaFormat(code)) {
-        setCodeError('Invalid code format — must be exactly 10 characters (e.g. QGH3X7ABCD).');
-        throw new Error('invalid_format');
-      }
-
-      const alreadyUsed = allPayments.some(p => p.mpesa_code === code);
-      if (alreadyUsed) {
-        setCodeError('This M-Pesa code has already been used. Please use a different transaction.');
-        throw new Error('duplicate_code');
-      }
-
-      return base44.entities.Payment.create({
-        teacher_email: user.email,
-        mpesa_code: code,
-        status: 'pending',
-        amount: selectedPlan.amount,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      toast({ title: '✅ Payment submitted! Awaiting admin approval.' });
-      setMpesaCode('');
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-16">
-        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6 md:p-8 max-w-lg mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <CreditCard className="w-7 h-7 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">My Subscription</h1>
-          <p className="text-muted-foreground text-sm">Manage your LeonMud premium access</p>
-        </div>
-      </div>
-
-      {/* Current Plan Status Badge */}
-      {approvedPayment ? (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 border border-green-300 w-fit">
-          <Shield className="w-4 h-4 text-green-600" />
-          <span className="text-sm font-bold text-green-700">
-            Premium Plan — {subDaysLeft > 0 ? `${subDaysLeft} day${subDaysLeft === 1 ? '' : 's'} remaining` : 'Expired'}
-          </span>
-        </div>
-      ) : isInTrial && payment?.status !== 'pending' ? (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-100 border border-amber-300 w-fit">
-          <Clock className="w-4 h-4 text-amber-600" />
-          <span className="text-sm font-bold text-amber-700">Free Trial — {daysLeft} day{daysLeft === 1 ? '' : 's'} left</span>
-        </div>
-      ) : payment?.status !== 'pending' && payment?.status !== 'rejected' ? (
-        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border w-fit">
-          <CheckCircle className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-bold text-muted-foreground">Free Plan</span>
-        </div>
-      ) : null}
-
-      {/* Trial status */}
-      {isInTrial && payment?.status !== 'pending' && (
-        <div className={`rounded-xl border p-4 flex items-start gap-3 ${daysLeft <= 2 ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'}`}>
-          <Clock className={`w-5 h-5 mt-0.5 shrink-0 ${daysLeft <= 2 ? 'text-red-600' : 'text-amber-600'}`} />
-          <div>
-            <p className={`font-semibold text-sm ${daysLeft <= 2 ? 'text-red-800' : 'text-amber-800'}`}>
-              Free Trial Active — {daysLeft} day{daysLeft === 1 ? '' : 's'} remaining
-            </p>
-            <p className={`text-xs mt-0.5 ${daysLeft <= 2 ? 'text-red-700' : 'text-amber-700'}`}>
-              {daysLeft <= 2
-                ? 'Your trial expires soon. Submit your payment below to avoid losing access to premium features.'
-                : 'You have full access during your trial. Pay before it ends to keep your premium features.'}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Approved & still active */}
-      {approvedPayment && subDaysLeft > 0 ? (
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="text-center pb-3">
-            <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-2">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <CardTitle className="text-green-700">Payment Approved ✓</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">Your account is active with full premium access.</p>
-            <div className="bg-white rounded-xl p-4 text-sm border border-green-200 space-y-2 text-left">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">M-Pesa Code</span>
-                <span className="font-mono font-bold text-green-700">{payment.mpesa_code}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Amount Paid</span>
-                <span className="font-semibold">KES {payment.amount || 200}</span>
-              </div>
-              {expiryDate && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Expires</span>
-                  <span className={`font-semibold ${subDaysLeft <= 7 ? 'text-red-600' : 'text-green-700'}`}>
-                    {format(expiryDate, 'dd MMM yyyy')} ({subDaysLeft} day{subDaysLeft === 1 ? '' : 's'} left)
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center justify-center gap-1.5 text-xs text-green-700">
-              <Shield className="w-3.5 h-3.5" /> All premium features are unlocked
-            </div>
-            {subDaysLeft <= 7 && subDaysLeft > 0 && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-medium">
-                ⚠️ Your subscription expires in {subDaysLeft} day{subDaysLeft === 1 ? '' : 's'}. Renew to avoid losing premium access.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-      ) : payment?.status === 'pending' ? (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardHeader className="text-center pb-3">
-            <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-2">
-              <Clock className="w-8 h-8 text-amber-600" />
-            </div>
-            <CardTitle className="text-amber-700">Payment Under Review</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Your code <span className="font-mono font-bold text-foreground">{payment.mpesa_code}</span> has been submitted and is awaiting admin approval.
-            </p>
-            <div className="bg-white rounded-lg p-3 text-sm border border-amber-200">
-              <p className="font-medium">Need faster approval?</p>
-              <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
-                <Phone className="w-3.5 h-3.5" /> Call/WhatsApp: <strong>0700938979</strong>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-      ) : payment?.status === 'rejected' ? (
-        <Card className="border-destructive/30">
-          <CardHeader className="text-center pb-3">
-            <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
-              <XCircle className="w-8 h-8 text-destructive" />
-            </div>
-            <CardTitle className="text-destructive">Payment Rejected</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground text-sm text-center">
-              Your payment code was rejected. Please send a new M-Pesa payment and submit the new code below.
-            </p>
-            <PlanSelector plans={PLANS} selected={selectedPlan} onSelect={setSelectedPlan} />
-            <PaymentInstructions amount={selectedPlan.amount} />
-            <PaymentForm
-              mpesaCode={mpesaCode}
-              setMpesaCode={setMpesaCode}
-              onSubmit={() => submitMutation.mutate()}
-              isSubmitting={submitMutation.isPending}
-              codeError={codeError}
-              setCodeError={setCodeError}
-            />
-          </CardContent>
-        </Card>
-
-      ) : (
-        <>
-          {approvedPayment && subDaysLeft === 0 && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-              <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-semibold text-sm text-red-800">Subscription Expired</p>
-                <p className="text-xs text-red-700 mt-0.5">Your premium access has ended. Renew below to restore all features.</p>
-              </div>
-            </div>
-          )}
-          {/* Free vs Premium comparison */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Free Plan */}
-            <div className="rounded-xl border-2 border-border p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-muted-foreground" />
-                </div>
-                <span className="font-bold text-sm">Free Plan</span>
-              </div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Included always:</p>
-              {['Add & manage students', 'Enter & save marks', 'View class performance', 'Student register', 'Attendance tracking'].map(f => (
-                <div key={f} className="flex items-start gap-2 text-xs text-foreground">
-                  <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0 mt-0.5" />
-                  <span>{f}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Premium Plan */}
-            <div className="rounded-xl border-2 border-amber-400 bg-amber-50/50 p-4 space-y-3 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">PREMIUM</div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-amber-600" />
-                </div>
-                <span className="font-bold text-sm text-amber-800">Premium</span>
-              </div>
-              <p className="text-xs text-amber-700 font-semibold uppercase tracking-wide">Unlock with upgrade:</p>
-              {['Print & PDF report cards', 'AI comment generation', 'School logo & branding', 'Head teacher signatures', 'Bulk PDF export'].map(f => (
-                <div key={f} className="flex items-start gap-2 text-xs text-amber-800">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
-                  <span>{f}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-amber-500" /> Upgrade to Premium
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <PlanSelector plans={PLANS} selected={selectedPlan} onSelect={setSelectedPlan} />
-              <PaymentInstructions amount={selectedPlan.amount} />
-              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                <Shield className="w-4 h-4 text-green-600 shrink-0" />
-                Secure payment via M-Pesa. No hidden charges. Access granted within minutes of approval.
-              </div>
-              <PaymentForm
-                mpesaCode={mpesaCode}
-                setMpesaCode={setMpesaCode}
-                onSubmit={() => submitMutation.mutate()}
-                isSubmitting={submitMutation.isPending}
-                codeError={codeError}
-                setCodeError={setCodeError}
-              />
-            </CardContent>
-          </Card>
-        </>
-      )}
-    </div>
-  );
-}
-
-function PlanSelector({ plans, selected, onSelect }) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {plans.map(plan => (
-        <button
-          key={plan.label}
-          onClick={() => onSelect(plan)}
-          className={`relative rounded-xl border-2 p-4 text-left transition-all ${
-            selected.label === plan.label ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
-          }`}
-        >
-          <span className="absolute -top-2.5 right-3 text-xs font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
-            {plan.badge}
-          </span>
-          <p className="font-bold text-base">KES {plan.amount}</p>
-          <p className="text-sm text-muted-foreground">{plan.label}</p>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function PaymentInstructions({ amount }) {
-  return (
-    <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2 text-sm">
-      <p className="font-semibold text-primary flex items-center gap-1.5">
-        <Phone className="w-4 h-4" /> M-Pesa Payment Instructions
-      </p>
-      <ol className="text-muted-foreground space-y-1 list-decimal list-inside">
-        <li>Open <strong>M-Pesa</strong> on your phone</li>
-        <li>Select <strong>Send Money</strong></li>
-        <li>Enter number: <strong className="text-foreground">0700938979</strong></li>
-        <li>Enter amount: <strong className="text-foreground">KES {amount}</strong></li>
-        <li>Enter your PIN and confirm</li>
-        <li>Copy the <strong>transaction code</strong> from the SMS you receive</li>
-        <li>Paste it in the box below and submit</li>
-      </ol>
-      <div className="mt-2 pt-2 border-t border-primary/20">
-        <p className="font-medium text-foreground">Payee: <span className="text-primary">Leonard Mudinyu</span></p>
-      </div>
-    </div>
-  );
-}
-
-function PaymentForm({ mpesaCode, setMpesaCode, onSubmit, isSubmitting, codeError, setCodeError }) {
-  return (
-    <div className="space-y-3">
+    <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-4">
       <div>
-        <Label>M-Pesa Transaction Code</Label>
-        <Input
-          placeholder="e.g. QGH3X7ABCD"
-          value={mpesaCode}
-          onChange={(e) => { setMpesaCode(e.target.value.toUpperCase()); setCodeError(''); }}
-          className={`font-mono tracking-widest text-center text-lg h-12 mt-1 ${codeError ? 'border-destructive' : ''}`}
-          maxLength={10}
-        />
-        {codeError && (
-          <div className="flex items-center gap-1.5 text-xs text-destructive mt-1">
-            <AlertCircle className="w-3.5 h-3.5" /> {codeError}
-          </div>
-        )}
-        <p className="text-xs text-muted-foreground mt-1">10-character code from your M-Pesa SMS, e.g. QGH3X7ABCD</p>
+        <h1 className="text-2xl font-bold">My payment & subscription</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Your access status, receipts and history</p>
       </div>
-      <Button
-        onClick={onSubmit}
-        disabled={mpesaCode.trim().length < 10 || isSubmitting}
-        className="w-full h-11 text-base"
-      >
-        {isSubmitting ? (
-          <span className="flex items-center gap-2">
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Verifying code...
-          </span>
-        ) : 'Submit Payment Code'}
-      </Button>
+
+      <Card>
+        <CardContent className="p-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold flex items-center gap-1.5">
+              {isPremium ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <Clock className="w-4 h-4 text-amber-600" />}
+              {licence
+                ? `${licence.plan} subscription active`
+                : isInTrial
+                  ? `Free trial — ${trialDaysLeft} day(s) left`
+                  : 'No active subscription'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {subExpiry ? `Renews / expires ${format(new Date(subExpiry), 'd MMM yyyy')}` : 'Subscribe to unlock every feature'}
+              {licence && subDaysLeft > 0 ? ` · ${subDaysLeft} days left` : ''}
+            </p>
+          </div>
+          <Button asChild className="gap-2 shrink-0">
+            <Link to="/subscribe"><CreditCard className="w-4 h-4" /> {isPremium ? 'Renew' : 'Subscribe'}</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-4 space-y-2">
+          <p className="text-sm font-semibold flex items-center gap-1.5"><Receipt className="w-4 h-4" /> Receipts</p>
+          {payments.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No payments yet.</p>
+          ) : (
+            payments.map((p) => (
+              <div key={p.id} className="flex items-center justify-between gap-2 text-xs border-b last:border-0 py-1.5">
+                <div className="min-w-0">
+                  <p className="truncate">{p.notes || 'Access payment'}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {p.created_date ? format(new Date(p.created_date), 'd MMM yyyy, HH:mm') : ''}
+                    {p.mpesa_code ? ` · ${p.mpesa_code}` : ''}
+                    {p.receipt_no ? ` · ${p.receipt_no}` : ''}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-semibold">KSh {Number(p.amount).toLocaleString()}</p>
+                  <Badge variant="outline" className="text-[10px]">{p.status}</Badge>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

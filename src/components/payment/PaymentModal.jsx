@@ -1,236 +1,95 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Shield, CheckCircle, Clock, Phone, AlertCircle, Sparkles } from 'lucide-react';
+import { CheckCircle2, Sparkles, Shield } from 'lucide-react';
+import MpesaCheckout from '@/components/payments/MpesaCheckout';
+import { useAccount } from '@/hooks/use-account';
+import { useQueryClient } from '@tanstack/react-query';
 
 const PLANS = [
-  { label: 'Monthly', amount: 200, badge: 'Popular' },
-  { label: 'Per Term', amount: 500, badge: 'Best Value' },
+  { key: 'monthly', label: 'Monthly', price: 500 },
+  { key: 'annual', label: 'Annual', price: 5500 },
 ];
 
-const isValidMpesaFormat = (code) => /^[A-Z][A-Z0-9]{9}$/.test(code);
-
 export default function PaymentModal({ open, onOpenChange, feature }) {
+  const { user } = useAccount();
   const queryClient = useQueryClient();
-  const [step, setStep] = useState('pricing'); // 'pricing' | 'pay' | 'pending' | 'success'
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[0]);
-  const [mpesaCode, setMpesaCode] = useState('');
-  const [codeError, setCodeError] = useState('');
+  const [plan, setPlan] = useState('monthly');
+  const [checkout, setCheckout] = useState(false);
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const { data: allPayments = [] } = useQuery({
-    queryKey: ['all-payments-check'],
-    queryFn: () => base44.entities.Payment.list(),
-    enabled: !!user?.email,
-  });
-
-  const { data: myPayments = [] } = useQuery({
-    queryKey: ['payment', user?.email],
-    queryFn: () => base44.entities.Payment.filter({ teacher_email: user?.email }),
-    enabled: !!user?.email,
-  });
-
-  const existingPending = myPayments.find(p => p.status === 'pending');
-
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      const code = mpesaCode.trim().toUpperCase();
-      setCodeError('');
-
-      if (!isValidMpesaFormat(code)) {
-        setCodeError('Invalid code format. Must be 10 characters, e.g. QGH3X7ABCD');
-        throw new Error('invalid_format');
-      }
-
-      const alreadyUsed = allPayments.some(p => p.mpesa_code === code);
-      if (alreadyUsed) {
-        setCodeError('This M-Pesa code has already been used. Please use a new transaction.');
-        throw new Error('duplicate_code');
-      }
-
-      return base44.entities.Payment.create({
-        teacher_email: user.email,
-        mpesa_code: code,
-        status: 'pending',
-        amount: selectedPlan.amount,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment', user?.email] });
-      setStep('pending');
-      setMpesaCode('');
-    },
-  });
-
-  const handleClose = () => {
-    onOpenChange(false);
-    setTimeout(() => {
-      setStep('pricing');
-      setMpesaCode('');
-      setCodeError('');
-    }, 300);
-  };
+  const selected = PLANS.find((p) => p.key === plan);
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md w-full mx-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <Sparkles className="w-5 h-5 text-amber-500" />
-            Unlock Premium Access
-          </DialogTitle>
-          {feature && (
-            <DialogDescription>
-              <span className="font-medium text-foreground">"{feature}"</span> requires a premium account. Upgrade to continue.
-            </DialogDescription>
-          )}
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md w-full mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="w-5 h-5 text-amber-500" /> Unlock the full platform
+            </DialogTitle>
+            {feature && (
+              <DialogDescription>
+                <span className="font-medium text-foreground">"{feature}"</span> needs an active subscription.
+              </DialogDescription>
+            )}
+          </DialogHeader>
 
-        {step === 'pricing' && (
           <div className="space-y-4">
-            {/* Plan selector */}
             <div className="grid grid-cols-2 gap-3">
-              {PLANS.map(plan => (
+              {PLANS.map((p) => (
                 <button
-                  key={plan.label}
-                  onClick={() => setSelectedPlan(plan)}
-                  className={`relative rounded-xl border-2 p-4 text-left transition-all ${
-                    selectedPlan.label === plan.label
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
+                  key={p.key}
+                  onClick={() => setPlan(p.key)}
+                  className={`rounded-xl border-2 p-4 text-left transition-all ${
+                    plan === p.key ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <span className="absolute -top-2.5 right-3 text-xs font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
-                    {plan.badge}
-                  </span>
-                  <p className="font-bold text-base">KES {plan.amount}</p>
-                  <p className="text-sm text-muted-foreground">{plan.label}</p>
+                  <p className="font-bold text-base">KSh {p.price.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">{p.label} · per teacher</p>
                 </button>
               ))}
             </div>
 
-            {/* What you get */}
             <div className="bg-muted/40 rounded-xl p-4 space-y-2 text-sm">
-              <p className="font-semibold text-foreground">What you get:</p>
-              {['Download & print report cards', 'Advanced performance analytics', 'School logo & branding', 'Head teacher comments & signatures', 'Bulk PDF export for entire class'].map(f => (
+              {['Report cards, marklists and PDF exports', 'Performance analytics and school dashboards', 'Attendance and learner registers', 'Parent SMS & WhatsApp results'].map((f) => (
                 <div key={f} className="flex items-center gap-2 text-muted-foreground">
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                  <span>{f}</span>
+                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" /> <span>{f}</span>
                 </div>
               ))}
             </div>
 
-            {/* Trust line */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground bg-green-50 border border-green-200 rounded-lg px-3 py-2">
               <Shield className="w-4 h-4 text-green-600 shrink-0" />
-              Secure payment via M-Pesa. No hidden charges. Access granted within minutes.
+              Secure M-Pesa payment. Access activates after verification.
             </div>
 
-            <Button
-              className="w-full text-base h-11"
-              onClick={() => setStep('pay')}
-            >
-              Pay KES {selectedPlan.amount} via M-Pesa →
+            <Button className="w-full text-base h-11" onClick={() => setCheckout(true)} disabled={!user?.email}>
+              Pay KSh {selected.price.toLocaleString()} via M-Pesa
             </Button>
+            <p className="text-[11px] text-center text-muted-foreground">
+              Buying for a whole school? Use Subscription in the menu to cover several teachers at once.
+            </p>
           </div>
-        )}
+        </DialogContent>
+      </Dialog>
 
-        {step === 'pay' && (
-          <div className="space-y-4">
-            {existingPending && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800 flex items-start gap-2">
-                <Clock className="w-4 h-4 shrink-0 mt-0.5" />
-                You already have a pending payment (<span className="font-mono font-bold">{existingPending.mpesa_code}</span>) awaiting admin approval.
-              </div>
-            )}
-
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2 text-sm">
-              <p className="font-semibold text-primary flex items-center gap-1.5">
-                <Phone className="w-4 h-4" /> M-Pesa Payment Instructions
-              </p>
-              <ol className="text-muted-foreground space-y-1 list-decimal list-inside">
-                <li>Open <strong>M-Pesa</strong> on your phone</li>
-                <li>Select <strong>Send Money</strong></li>
-                <li>Enter number: <strong className="text-foreground">0700938979</strong></li>
-                <li>Enter amount: <strong className="text-foreground">KES {selectedPlan.amount}</strong></li>
-                <li>Enter your PIN and confirm</li>
-                <li>Copy the <strong>transaction code</strong> from the SMS</li>
-                <li>Paste it below</li>
-              </ol>
-              <div className="mt-2 pt-2 border-t border-primary/20">
-                <p className="text-foreground font-medium">Payee: <span className="text-primary">Leonard Mudinyu</span></p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>M-Pesa Transaction Code</Label>
-              <Input
-                placeholder="e.g. QGH3X7ABCD"
-                value={mpesaCode}
-                onChange={(e) => { setMpesaCode(e.target.value.toUpperCase()); setCodeError(''); }}
-                className={`font-mono tracking-widest text-center text-lg h-12 ${codeError ? 'border-destructive' : ''}`}
-                maxLength={10}
-                autoFocus
-              />
-              {codeError && (
-                <div className="flex items-center gap-1.5 text-xs text-destructive">
-                  <AlertCircle className="w-3.5 h-3.5" /> {codeError}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">10-character code starting with a letter, e.g. QGH3X7ABCD</p>
-            </div>
-
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1" onClick={() => setStep('pricing')}>
-                ← Back
-              </Button>
-              <Button
-                className="flex-1 h-11"
-                onClick={() => submitMutation.mutate()}
-                disabled={mpesaCode.trim().length < 10 || submitMutation.isPending}
-              >
-                {submitMutation.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Verifying...
-                  </span>
-                ) : 'Submit Code'}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {step === 'pending' && (
-          <div className="text-center space-y-4 py-4">
-            <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto">
-              <Clock className="w-8 h-8 text-amber-600" />
-            </div>
-            <div>
-              <p className="font-bold text-lg">Payment Submitted!</p>
-              <p className="text-muted-foreground text-sm mt-1">
-                Your M-Pesa code is under review. You'll get full access once approved — usually within a few minutes.
-              </p>
-            </div>
-            <div className="bg-muted/50 rounded-lg p-3 text-sm">
-              <p className="font-medium">Need faster approval?</p>
-              <p className="text-muted-foreground flex items-center justify-center gap-1 mt-1">
-                <Phone className="w-3.5 h-3.5" /> Call/WhatsApp: <strong>0700938979</strong>
-              </p>
-            </div>
-            <Button className="w-full" onClick={handleClose}>
-              Got it — close
-            </Button>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+      <MpesaCheckout
+        open={checkout}
+        onOpenChange={(v) => {
+          setCheckout(v);
+          if (!v) {
+            queryClient.invalidateQueries({ queryKey: ['my-licences'] });
+            queryClient.invalidateQueries({ queryKey: ['payment'] });
+          }
+        }}
+        payload={{ category: 'platform_subscription', plan, target_emails: [user?.email].filter(Boolean) }}
+        amount={selected.price}
+        summary={`${selected.label} subscription`}
+        onPaid={() => {
+          queryClient.invalidateQueries({ queryKey: ['my-licences'] });
+          queryClient.invalidateQueries({ queryKey: ['payment'] });
+        }}
+      />
+    </>
   );
 }

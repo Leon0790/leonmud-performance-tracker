@@ -1,35 +1,39 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import { LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck, CreditCard, BookOpen } from 'lucide-react';
+import {
+  LayoutDashboard, ClipboardList, BookUser, FileText, CalendarCheck, CreditCard, BookOpen, School, Users, ClipboardCheck,
+} from 'lucide-react';
+import { useAccount } from '@/hooks/use-account';
 
 const TEACHER_TABS = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks', path: '/marks', icon: ClipboardList },
   { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
-  { label: 'Attend.', path: '/attendance', icon: CalendarCheck },
   { label: 'Plans', path: '/lesson-plans', icon: BookOpen },
 ];
 
+const HEADTEACHER_TABS = [
+  { label: 'School', path: '/school', icon: School },
+  { label: 'Teachers', path: '/school/teachers', icon: Users },
+  { label: 'Reviews', path: '/school/submissions', icon: ClipboardCheck },
+  { label: 'Learners', path: '/students/list', icon: BookUser },
+  { label: 'Plans', path: '/lesson-plans/access', icon: BookOpen },
+];
+
 const ADMIN_TABS = [
+  { label: 'Schools', path: '/super-admin/schools', icon: School },
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Marks', path: '/marks', icon: ClipboardList },
-  { label: 'Students', path: '/students/list', icon: BookUser },
   { label: 'Reports', path: '/reports', icon: FileText },
   { label: 'Payments', path: '/admin/payments', icon: CreditCard },
 ];
 
 export default function BottomTabBar() {
   const location = useLocation();
+  const { userType } = useAccount();
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
-  const TABS = user?.role === 'admin' ? ADMIN_TABS : TEACHER_TABS;
+  const TABS = userType === 'super_admin' ? ADMIN_TABS : userType === 'headteacher' ? HEADTEACHER_TABS : TEACHER_TABS;
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-sidebar border-t border-sidebar-border flex items-stretch"

@@ -12,6 +12,8 @@ import LessonPlanGenerator from '@/components/lesson-plans/LessonPlanGenerator';
 import LessonPlanGeneratorV2 from '@/components/lesson-plans/LessonPlanGeneratorV2';
 import LessonPlanPDFExport from '@/components/lesson-plans/LessonPlanPDFExport';
 import LessonPlanSubscriptionGate from '@/components/lesson-plans/LessonPlanSubscriptionGate';
+import { useLessonPlanAccess } from '@/hooks/use-lesson-plan-access';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +37,8 @@ export default function LessonPlans() {
     queryKey: ['me'],
     queryFn: () => base44.auth.me(),
   });
+
+  const { list: entitlements, freeTrialAvailable } = useLessonPlanAccess(user);
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ['lesson-plans', filterGrade, filterTerm],
@@ -152,22 +156,20 @@ export default function LessonPlans() {
         </DropdownMenu>
       </div>
 
-      {/* Trial / subscription status */}
-      <div className="flex gap-3 flex-wrap items-center">
-        {approvedPayments.length > 0 && approvedPayments.some(p => !p.notes || p.notes.includes('lesson_plan')) ? (
-          <Badge className="text-xs px-3 py-1.5 bg-green-600 text-white">Subscribed — Unlimited Plans</Badge>
-        ) : allMyPlans.length < 2 ? (
+      {/* Lesson plan access status */}
+      <div className="flex gap-2 flex-wrap items-center">
+        {freeTrialAvailable ? (
           <Badge variant="outline" className="text-xs px-3 py-1.5 border-amber-400 bg-amber-50 text-amber-700">
-            Free Trial: {allMyPlans.length}/2 plans used
+            1 free generation available
           </Badge>
-        ) : (
-          <Badge variant="outline" className="text-xs px-3 py-1.5 border-destructive/50 bg-destructive/5 text-destructive">
-            Free trial used — subscribe to generate more
-          </Badge>
-        )}
+        ) : null}
         <Badge variant="outline" className="text-xs px-3 py-1.5 border-primary/30 bg-primary/5 text-primary">
-          KES 300/month · KES 1,000/term
+          {entitlements.length} learning area(s) unlocked
         </Badge>
+        <Badge variant="outline" className="text-xs px-3 py-1.5">KSh 100 per learning area, per term</Badge>
+        <Button variant="outline" size="sm" asChild className="h-7 text-xs">
+          <Link to="/lesson-plans/access">Buy / view access</Link>
+        </Button>
       </div>
 
       {/* Filters */}
