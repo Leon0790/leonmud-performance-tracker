@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Trash2, Save, SaveAll, MessageSquare } from 'lucide-react';
+import { Trash2, Save, SaveAll, MessageSquare, Pencil } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
@@ -10,50 +10,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { getBand, bandTailwindColor } from '@/utils/bands';
 import SmsNotifyModal from './SmsNotifyModal';
-
-// Subjects with simple single-mark entry (no papers)
-const SIMPLE_SUBJECTS = [
-  { key: 'mathematics', label: 'Maths', max: 100 },
-  { key: 'agriculture', label: 'Agri.', max: 100 },
-  { key: 'social_studies', label: 'S.Studies', max: 100 },
-  { key: 'pretechnical_studies', label: 'Pre-Tech', max: 100 },
-  { key: 'religious_studies', label: 'Religious', max: 100 },
-  { key: 'creative_art', label: 'Art', max: 100 },
-];
-
-// Subjects with paper breakdown
-const PAPER_SUBJECTS = [
-  {
-    key: 'kiswahili',
-    label: 'Kiswahili',
-    papers: [
-      { pkey: 'kiswahili_p1', label: 'P1', max: 50 },
-      { pkey: 'kiswahili_p2', label: 'P2', max: 50 },
-    ],
-  },
-  {
-    key: 'english',
-    label: 'English',
-    papers: [
-      { pkey: 'english_p1', label: 'P1', max: 50 },
-      { pkey: 'english_p2', label: 'P2', max: 50 },
-    ],
-  },
-  {
-    key: 'integrated_science',
-    label: 'Int. Science',
-    papers: [
-      { pkey: 'integrated_science_p1', label: 'P1', max: 70 },
-      { pkey: 'integrated_science_p2', label: 'P2', max: 30 },
-    ],
-  },
-];
-
-function calcPaperTotal(marks, subject) {
-  return subject.papers.reduce((sum, p) => sum + (parseInt(marks[p.pkey]) || 0), 0);
-}
-
-const NUM_SUBJECTS = PAPER_SUBJECTS.length + SIMPLE_SUBJECTS.length;
+import PaperMarksEditor from './PaperMarksEditor';
+import { SIMPLE_SUBJECTS, PAPER_SUBJECTS, MARK_SUBJECT_COUNT as NUM_SUBJECTS, calcPaperTotal } from '@/utils/markSubjects';
 
 function calcOverallTotal(marks) {
   const paperTotal = PAPER_SUBJECTS.reduce((sum, s) => sum + calcPaperTotal(marks, s), 0);
@@ -115,6 +73,7 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
   const [marks, setMarks] = useState({});
   const [dirtyStudents, setDirtyStudents] = useState(new Set());
   const [smsModal, setSmsModal] = useState(null); // { student, marksData }
+  const [paperEditStudent, setPaperEditStudent] = useState(null);
 
   useEffect(() => {
     const init = {};
@@ -321,6 +280,15 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
                           <Save className="w-4 h-4 text-primary" />
                         </Button>
                       )}
+                      {!student._virtual && (
+                        <Button
+                          size="icon" variant="ghost" className="h-11 w-11"
+                          title="Edit paper marks"
+                          onClick={() => setPaperEditStudent(student)}
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-primary" />
+                        </Button>
+                      )}
                       {!dirtyStudents.has(student.id) && !student._virtual && (
                         <Button
                           size="icon" variant="ghost" className="h-11 w-11"
@@ -427,6 +395,13 @@ export default function MarksTable({ students, onUpdateMarks, onDelete, isSaving
         student={smsModal?.student}
         marksData={smsModal?.marksData}
         filters={filters}
+      />
+
+      <PaperMarksEditor
+        open={!!paperEditStudent}
+        onOpenChange={(v) => !v && setPaperEditStudent(null)}
+        student={paperEditStudent}
+        onSaved={(data, id) => setMarks(prev => ({ ...prev, [id]: { ...(prev[id] || {}), ...data } }))}
       />
 
       {/* Legend */}

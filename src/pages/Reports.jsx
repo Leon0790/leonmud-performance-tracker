@@ -1,12 +1,13 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { ALL_SUBJECTS, getDefaultSubjectsForGrade } from '@/utils/gradeSubjects';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Calendar, Printer, Download, Upload, X } from 'lucide-react';
+import { FileText, Calendar, Printer, Download, Upload, X, Pencil } from 'lucide-react';
+import PaperMarksEditor from '@/components/marks/PaperMarksEditor';
 import ReportCard, { buildReportCardHTML, REPORT_CARD_STYLES } from '../components/reports/ReportCard';
 import MarkList from '../components/reports/MarkList';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,8 @@ export default function Reports() {
   const [examName, setExamName] = useState('');
   const [schoolLogoDataUrl, setSchoolLogoDataUrl] = useState(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [paperEditOpen, setPaperEditOpen] = useState(false);
+  const queryClient = useQueryClient();
   const [logoError, setLogoError] = useState('');
   const { isPremium, isLoading: isPremiumLoading } = usePremium();
   const logoInputRef = useRef(null);
@@ -212,6 +215,11 @@ export default function Reports() {
           {students.length} student{students.length !== 1 ? 's' : ''} &middot; {filters.grade}
         </h2>
         <div className="flex gap-2 flex-wrap">
+          {['Grade 7', 'Grade 8', 'Grade 9'].includes(filters.grade) && (
+            <Button variant="outline" size="sm" onClick={() => setPaperEditOpen(true)} disabled={!rankedStudents.length}>
+              <Pencil className="w-4 h-4 mr-1" /> Edit Paper Marks
+            </Button>
+          )}
           <PremiumLock isPremium={isPremium} isLoading={isPremiumLoading} feature="Print & PDF Download" mode="overlay">
             <Button variant="outline" size="sm" onClick={handlePrintAll} disabled={!rankedStudents.length}>
               <Printer className="w-4 h-4 mr-1" /> Print All
@@ -265,6 +273,13 @@ export default function Reports() {
           ))}
         </div>
       )}
+
+      <PaperMarksEditor
+        open={paperEditOpen}
+        onOpenChange={setPaperEditOpen}
+        students={rankedStudents}
+        onSaved={() => queryClient.invalidateQueries({ queryKey: ['students-reports'] })}
+      />
     </div>
   );
 }
