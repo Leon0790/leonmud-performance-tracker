@@ -31,6 +31,7 @@ const LessonPlans = lazy(() => import('./pages/LessonPlans'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
 const LessonPlanAccess = lazy(() => import('./pages/LessonPlanAccess'));
 const SuperAdminSchools = lazy(() => import('./pages/SuperAdminSchools'));
+const SchoolDetail = lazy(() => import('./pages/SchoolDetail'));
 const SchoolDashboard = lazy(() => import('./pages/SchoolDashboard'));
 const SchoolTeachers = lazy(() => import('./pages/school/Teachers'));
 const SchoolClasses = lazy(() => import('./pages/school/Classes'));
@@ -82,6 +83,7 @@ function AnimatedRoutes() {
               <Route path="/lesson-plans/access" element={<LessonPlanAccess />} />
               <Route path="/subscribe" element={<Subscribe />} />
               <Route path="/super-admin/schools" element={<RoleGuard allow={['super_admin']}><SuperAdminSchools /></RoleGuard>} />
+              <Route path="/super-admin/schools/:id" element={<RoleGuard allow={['super_admin']}><SchoolDetail /></RoleGuard>} />
               <Route path="/school" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolDashboard /></RoleGuard>} />
               <Route path="/school/teachers" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolTeachers /></RoleGuard>} />
               <Route path="/school/classes" element={<RoleGuard allow={['headteacher', 'super_admin']}><SchoolClasses /></RoleGuard>} />

@@ -72,12 +72,14 @@
         "pending",
         "active",
         "suspended",
-        "expired"
+        "expired",
+        "archived"
       ],
       "enumColors": [
         "yellow",
         "green",
         "red",
+        "gray",
         "gray"
       ],
       "default": "pending"
@@ -89,6 +91,22 @@
     "school_id": {
       "type": "string",
       "description": "Canonical school identifier used by every school record"
+    },
+    "merged_into": {
+      "type": "string",
+      "description": "For merged duplicates: the school id that absorbed this record"
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "archive_reason": {
+      "type": "string",
+      "description": "Why the school record was archived or removed"
+    },
+    "status_before_archive": {
+      "type": "string",
+      "description": "Status to restore when a school is un-archived"
     },
     "notes": {
       "type": "string"

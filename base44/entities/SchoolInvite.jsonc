@@ -96,6 +96,10 @@
     "email": {
       "type": "string"
     },
+    "teacher_name": {
+      "type": "string",
+      "description": "Name of the invited teacher or headteacher"
+    },
     "user_type": {
       "type": "string",
       "enum": [
@@ -131,17 +135,30 @@
       "enum": [
         "pending",
         "claimed",
+        "declined",
+        "expired",
         "cancelled"
       ],
       "enumColors": [
         "yellow",
         "green",
+        "red",
+        "gray",
         "gray"
       ],
       "default": "pending"
     },
     "invited_by_email": {
       "type": "string"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Invitation stops being valid after this date"
+    },
+    "email_sent": {
+      "type": "boolean",
+      "default": false
     },
     "claimed_at": {
       "type": "string",

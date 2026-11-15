@@ -11,9 +11,10 @@ import { Users, UserPlus, Pencil, Mail, CheckCircle2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useAccount } from '@/hooks/use-account';
 import ChipSelect from '@/components/school/ChipSelect';
+import InviteList from '@/components/school/InviteList';
 import { GRADES, LEARNING_AREAS } from '@/utils/learningAreas';
 
-const emptyMember = { teacher_name: '', teacher_email: '', grades: [], learning_areas: [] };
+const emptyMember = { teacher_name: '', teacher_email: '', grades: [], classes: [], learning_areas: [] };
 
 export default function SchoolTeachers() {
   const { user, schoolId, schoolName, loading } = useAccount();
@@ -43,6 +44,12 @@ export default function SchoolTeachers() {
     enabled: !!schoolId,
   });
 
+  const { data: classRecords = [] } = useQuery({
+    queryKey: ['school-classes', schoolId],
+    queryFn: () => base44.entities.SchoolClass.filter({ school_id: schoolId }, 'name', 100),
+    enabled: !!schoolId,
+  });
+
   const { data: submissions = [] } = useQuery({
     queryKey: ['school-submissions', schoolId],
     queryFn: () => base44.entities.Submission.filter({ school_id: schoolId }, '-created_date', 200),
@@ -64,6 +71,7 @@ export default function SchoolTeachers() {
       teacher_name: teacher.teacher_name || '',
       teacher_email: teacher.teacher_email,
       grades: teacher.grades || [],
+      classes: teacher.classes || [],
       learning_areas: teacher.learning_areas || [],
     });
     setEditing(teacher);
@@ -82,29 +90,23 @@ export default function SchoolTeachers() {
         teacher_email: member.teacher_email.trim().toLowerCase(),
         teacher_name: member.teacher_name.trim() || member.teacher_email.trim(),
         grades: member.grades,
+        classes: member.classes,
         learning_areas: member.learning_areas,
         status: 'active',
       };
       if (editing === 'new') {
-        await base44.entities.TeacherProfile.create(payload);
-        await base44.entities.SchoolInvite.create({
-          school_id: schoolId,
-          school_name: schoolName,
-          email: payload.teacher_email,
-          user_type: 'teacher',
-          grades: member.grades,
-          learning_areas: member.learning_areas,
-          status: 'pending',
-          invited_by_email: user?.email || '',
-        });
         const res = await base44.functions.invoke('platformAccount', {
           action: 'inviteMember',
           email: payload.teacher_email,
+          teacher_name: payload.teacher_name,
           school_id: schoolId,
           user_type: 'teacher',
-        }).catch(() => null);
-        const note = res?.data?.invited ? 'Invitation email sent.' : 'They join the school the first time they sign in.';
-        toast({ title: 'Teacher added', description: note });
+          grades: member.grades,
+          classes: member.classes,
+          learning_areas: member.learning_areas,
+        });
+        if (res.data?.error) throw new Error(res.data.error);
+        toast({ title: 'Invitation sent', description: res.data?.note || 'They join the school when they sign in.' });
       } else {
         await base44.entities.TeacherProfile.update(editing.id, payload);
         toast({ title: 'Teacher updated' });
@@ -121,6 +123,16 @@ export default function SchoolTeachers() {
 
   const setStatus = async (teacher, status) => {
     await base44.entities.TeacherProfile.update(teacher.id, { status });
+    refresh();
+  };
+
+  const inviteAction = async (action, invite) => {
+    const res = await base44.functions.invoke('platformAccount', { action, invite_id: invite.id });
+    if (res.data?.error) {
+      toast({ title: 'Action failed', description: res.data.error, variant: 'destructive' });
+      return;
+    }
+    toast({ title: action === 'resendInvite' ? 'Invitation resent' : 'Invitation cancelled' });
     refresh();
   };
 
@@ -227,16 +239,17 @@ export default function SchoolTeachers() {
         </div>
       )}
 
-      {inviteRecords.filter((i) => i.status === 'pending' && i.user_type === 'teacher').length > 0 && (
-        <Card>
-          <CardContent className="p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pending invitations</p>
-            {inviteRecords.filter((i) => i.status === 'pending' && i.user_type === 'teacher').map((invite) => (
-              <p key={invite.id} className="text-xs text-muted-foreground">{invite.email} — joins automatically when they sign in</p>
-            ))}
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardContent className="p-4 space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Teacher invitations</p>
+          <InviteList
+            invites={inviteRecords.filter((i) => i.user_type !== 'headteacher')}
+            onResend={(invite) => inviteAction('resendInvite', invite)}
+            onCancel={(invite) => inviteAction('cancelInvite', invite)}
+            emptyText="No invitations yet. Invite a teacher by email."
+          />
+        </CardContent>
+      </Card>
 
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent className="max-w-lg w-full max-h-[92vh] overflow-y-auto">
@@ -263,6 +276,20 @@ export default function SchoolTeachers() {
               <div className="mt-1">
                 <ChipSelect options={GRADES} value={member.grades} onChange={(grades) => setMember({ ...member, grades })} columns={3} />
               </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Classes</Label>
+              <div className="mt-1">
+                <ChipSelect
+                  options={classRecords.map((c) => c.name)}
+                  value={member.classes}
+                  onChange={(classes) => setMember({ ...member, classes })}
+                  columns={3}
+                />
+              </div>
+              {classRecords.length === 0 && (
+                <p className="text-[11px] text-muted-foreground mt-1">Create classes under Classes to assign them here.</p>
+              )}
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Learning areas</Label>
